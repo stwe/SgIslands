@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<tiles>
+
+  <terrain>
+
+    <dir>res/gfx/terrain/</dir>
+
+    <packages>
+      <package name="beach0">
+        <curve_in load="0"></curve_in>
+        <curve_out load="0"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="beach-shallow0">
+        <curve_in load="1"></curve_in>
+        <curve_out load="1"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="deep0">
+        <curve_in load="0"></curve_in>
+        <curve_out load="0"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="grass0">
+        <curve_in load="0"></curve_in>
+        <curve_out load="0"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="grass1">
+        <curve_in load="0"></curve_in>
+        <curve_out load="0"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="grass2">
+        <curve_in load="0"></curve_in>
+        <curve_out load="0"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="grass3">
+        <curve_in load="0"></curve_in>
+        <curve_out load="0"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="grass4">
+        <curve_in load="0"></curve_in>
+        <curve_out load="0"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="grass5">
+        <curve_in load="0"></curve_in>
+        <curve_out load="0"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="grass-beach0">
+        <curve_in load="1"></curve_in>
+        <curve_out load="1"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="shallow0">
+        <curve_in load="0"></curve_in>
+        <curve_out load="0"></curve_out>
+        <straight load="1"></straight>
+      </package>
+
+      <package name="shallow-deep0">
+        <curve_in load="1"></curve_in>
+        <curve_out load="1"></curve_out>
+        <straight load="1"></straight>
+      </package>
+    </packages>
+  </terrain>
+
+</tiles>

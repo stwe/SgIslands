@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<map width="4" height="4">
+  <islands>
+    <island x_map_pos="4" y_map_pos="4">
+      <filename>res/config/island_16x16.xml</filename>
+    </island>
+    <!--
+    <island x_map_pos="80" y_map_pos="80">
+      <filename>res/config/island_5x5.xml</filename>
+    </island>
+    -->
+  </islands>
+</map>
