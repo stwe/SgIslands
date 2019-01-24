@@ -2,7 +2,7 @@
 // 
 // Filename: Island.hpp
 // Created:  20.01.2019
-// Updated:  23.01.2019
+// Updated:  24.01.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -12,11 +12,11 @@
 #pragma once
 
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Graphics/Sprite.hpp>
 #include <vector>
 #include "../core/Types.hpp"
 #include "TileAtlas.hpp"
 #include "IsoMath.hpp"
+#include "Tile.hpp"
 
 namespace sg::islands::iso
 {
@@ -54,7 +54,16 @@ namespace sg::islands::iso
         // Getter
         //-------------------------------------------------
 
+        /**
+         * @brief Get the x-position on the `Map`.
+         * @return int
+         */
         auto GetXMapPos() const { return m_xMapPos; }
+
+        /**
+         * @brief Get the y-position on the `Map`.
+         * @return int
+         */
         auto GetYMapPos() const { return m_yMapPos; }
 
         /**
@@ -75,6 +84,31 @@ namespace sg::islands::iso
          */
         IslandFields& GetIslandFields() noexcept { return m_islandFields; }
 
+        /**
+         * @brief Get the fields of the `Island`.
+         * @return std::vector
+         */
+        const IslandFields& GetIslandFields() const noexcept { return m_islandFields; }
+
+        /**
+         * @brief Checks if the specified position is on the `Island`.
+         * @param t_xMapPos The x-position on the `Map`.
+         * @param t_yMapPos The y-position on the `Map`.
+         * @return bool
+         */
+        bool OnTheIsland(const int t_xMapPos, const int t_yMapPos) const noexcept
+        {
+            if (t_xMapPos < 0 || t_yMapPos < 0)
+            {
+                return false;
+            }
+
+            return t_xMapPos >= 0 + m_xMapPos &&
+                t_xMapPos <= m_width + m_xMapPos - 1 &&
+                t_yMapPos >= 0 + m_yMapPos &&
+                t_yMapPos <= m_height + m_yMapPos - 1;
+        }
+
         //-------------------------------------------------
         // Setter
         //-------------------------------------------------
@@ -92,31 +126,21 @@ namespace sg::islands::iso
             {
                 for (auto x{ 0 }; x < m_width; ++x)
                 {
+                    // from 2D to 1D
                     const auto index{ IsoMath::From2DTo1D(x, y, m_width) };
-                    const auto& texture{ t_tileAtlas.GetTileAtlasTexture(m_islandFields[index].tileId - 1) };
 
-                    // set position on the map
-                    const auto xp{ x + m_xMapPos };
-                    const auto yp{ y + m_yMapPos };
+                    // get tileId
+                    const auto tileId{ m_islandFields[index].tileId - 1 };
 
-                    auto screenPosition{ IsoMath::ToScreen(xp, yp) };
+                    // determine the position of the tile on the map
+                    const auto xMapPos{ x + m_xMapPos };
+                    const auto yMapPos{ y + m_yMapPos };
 
-                    sf::Sprite sprite;
-                    sprite.setTexture(texture);
-
-                    // adjust "origin" of the isometric
-                    screenPosition.x -= TileAtlas::DEFAULT_TILE_WIDTH_HALF;
-                    sprite.setPosition(screenPosition.x, screenPosition.y);
-
-                    t_window.draw(sprite);
+                    Tile::DrawTile(tileId, xMapPos, yMapPos, t_window, t_tileAtlas);
 
                     if (m_islandFields[index].clicked)
                     {
-                        const auto& clickedTexture{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::CLICKED_TILE) };
-                        sf::Sprite clickedSprite;
-                        clickedSprite.setTexture(clickedTexture);
-                        clickedSprite.setPosition(screenPosition.x, screenPosition.y);
-                        t_window.draw(clickedSprite);
+                        Tile::DrawTile(TileAtlas::CLICKED_TILE, xMapPos, yMapPos, t_window, t_tileAtlas);
                     }
                 }
             }

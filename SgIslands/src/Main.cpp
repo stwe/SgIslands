@@ -50,12 +50,18 @@ int main()
                     IS_CORE_DEBUG("map x: {}", pos.x);
                     IS_CORE_DEBUG("map y: {}", pos.y);
 
-                    // get island
-                    auto& island{ map.GetIslands()[0] };
-                    const auto islandFieldIndex{ sg::islands::iso::IsoMath::From2DTo1D(pos.x, pos.y, island->GetWidth()) };
+                    for (auto& island : map.GetIslands())
+                    {
+                        auto onIsland{ island->OnTheIsland(pos.x, pos.y) };
 
-                    // set clicked property
-                    island->GetIslandFields()[islandFieldIndex].clicked = true;
+                        IS_CORE_DEBUG("HasTile: {}", onIsland);
+
+                        if (onIsland)
+                        {
+                            const auto islandFieldIndex{ sg::islands::iso::IsoMath::From2DTo1D(pos.x-4, pos.y-4, island->GetWidth()) };
+                            island->GetIslandFields()[islandFieldIndex].clicked = true;
+                        }
+                    }
                 }
             }
 
@@ -90,7 +96,7 @@ int main()
         window.setView(islandView);
         map.DrawDeepWater(window, tileAtlas);
         map.DrawMap(window, tileAtlas);
-        map.DrawGrid(window, tileAtlas, 16, 16);
+        map.DrawMapGrid(window, tileAtlas);
 
         window.display();
     }

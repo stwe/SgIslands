@@ -50,5 +50,8 @@
     <ClInclude Include="src\iso\IsoMath.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="src\iso\Tile.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

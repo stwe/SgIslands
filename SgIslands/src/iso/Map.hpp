@@ -2,7 +2,7 @@
 // 
 // Filename: Map.hpp
 // Created:  20.01.2019
-// Updated:  23.01.2019
+// Updated:  24.01.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -54,6 +54,18 @@ namespace sg::islands::iso
         //-------------------------------------------------
 
         /**
+         * @brief Get the `Map` width in tiles.
+         * @return 
+         */
+        auto GetMapWidth() const { return m_width; }
+
+        /**
+         * @brief Get the `Map` height in tiles.
+         * @return 
+         */
+        auto GetMapHeight() const { return m_height; }
+
+        /**
          * @brief Get the `Island` objects of the `Map`.
          * @return std::vector
          */
@@ -92,7 +104,7 @@ namespace sg::islands::iso
         // Draw
         //-------------------------------------------------
 
-        void DrawGrid(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas, const int t_width, const int t_height)
+        void DrawMapGrid(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas)
         {
             const auto& grid{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::GRID_TILE) };
 
@@ -101,9 +113,12 @@ namespace sg::islands::iso
             text.setCharacterSize(10);
             text.setFillColor(sf::Color::Black);
 
-            for (auto y{ 0 }; y < t_height; ++y)
+            const auto width{ m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH };
+            const auto height{ m_height * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT };
+
+            for (auto y{ 0 }; y < height; ++y)
             {
-                for (auto x{ 0 }; x < t_width; ++x)
+                for (auto x{ 0 }; x < width; ++x)
                 {
                     sf::Sprite sprite;
                     sprite.setTexture(grid);
