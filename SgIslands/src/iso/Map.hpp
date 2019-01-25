@@ -2,7 +2,7 @@
 // 
 // Filename: Map.hpp
 // Created:  20.01.2019
-// Updated:  24.01.2019
+// Updated:  25.01.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -246,9 +246,9 @@ namespace sg::islands::iso
                 auto islandUniquePtr{ std::make_unique<Island>(filename) };
                 assert(islandUniquePtr);
 
-                // set map position
-                islandUniquePtr->SetXMapPos(xMapPosAttr);
-                islandUniquePtr->SetYMapPos(yMapPosAttr);
+                // set the map position of the island
+                islandUniquePtr->SetXOffset(xMapPosAttr);
+                islandUniquePtr->SetYOffset(yMapPosAttr);
 
                 // save `Island`
                 m_islands.push_back(std::move(islandUniquePtr));

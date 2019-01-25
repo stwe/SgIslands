@@ -2,7 +2,7 @@
 // 
 // Filename: Island.hpp
 // Created:  20.01.2019
-// Updated:  24.01.2019
+// Updated:  25.01.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -55,16 +55,16 @@ namespace sg::islands::iso
         //-------------------------------------------------
 
         /**
-         * @brief Get the x-position on the `Map`.
+         * @brief Get the x starting position of the `Island` on a `Map`.
          * @return int
          */
-        auto GetXMapPos() const { return m_xMapPos; }
+        auto GetXOffset() const { return m_xOffset; }
 
         /**
-         * @brief Get the y-position on the `Map`.
+         * @brief Get the y starting position of the `Island` on a `Map`.
          * @return int
          */
-        auto GetYMapPos() const { return m_yMapPos; }
+        auto GetYOffset() const { return m_yOffset; }
 
         /**
          * @brief Get the `Island` width in tiles.
@@ -91,30 +91,56 @@ namespace sg::islands::iso
         const IslandFields& GetIslandFields() const noexcept { return m_islandFields; }
 
         /**
-         * @brief Checks if the specified position is on the `Island`.
+         * @brief Checks if a `Map` position is on the `Island`.
          * @param t_xMapPos The x-position on the `Map`.
          * @param t_yMapPos The y-position on the `Map`.
          * @return bool
          */
-        bool OnTheIsland(const int t_xMapPos, const int t_yMapPos) const noexcept
+        bool IsMapPositionOnIsland(const int t_xMapPos, const int t_yMapPos) const noexcept
         {
             if (t_xMapPos < 0 || t_yMapPos < 0)
             {
                 return false;
             }
 
-            return t_xMapPos >= 0 + m_xMapPos &&
-                t_xMapPos <= m_width + m_xMapPos - 1 &&
-                t_yMapPos >= 0 + m_yMapPos &&
-                t_yMapPos <= m_height + m_yMapPos - 1;
+            return t_xMapPos >= 0 + m_xOffset &&
+                t_xMapPos <= m_width + m_xOffset - 1 &&
+                t_yMapPos >= 0 + m_yOffset &&
+                t_yMapPos <= m_height + m_yOffset - 1;
+        }
+
+        /**
+         * @brief Get an IslandField by given `Map` position.
+         * @param t_xMapPos The x-position on the `Map`.
+         * @param t_yMapPos The y-position on the `Map`.
+         * @return Reference to `IslandField`
+         */
+        IslandField& GetIslandFieldByMapPosition(const int t_xMapPos, const int t_yMapPos)
+        {
+            const auto islandFieldIndex{ IsoMath::From2DTo1D(t_xMapPos - m_xOffset, t_yMapPos - m_yOffset, m_width) };
+
+            return m_islandFields[islandFieldIndex];
+        }
+
+        /**
+         * @brief Get an IslandField by given `Map` position.
+         * @param t_xMapPos The x-position on the `Map`.
+         * @param t_yMapPos The y-position on the `Map`.
+         * @return Const reference to `IslandField`
+         */
+        const IslandField& GetIslandFieldByMapPosition(const int t_xMapPos, const int t_yMapPos) const
+        {
+            const auto islandFieldIndex{ IsoMath::From2DTo1D(t_xMapPos - m_xOffset, t_yMapPos - m_yOffset, m_width) };
+
+            return m_islandFields[islandFieldIndex];
         }
 
         //-------------------------------------------------
         // Setter
         //-------------------------------------------------
 
-        void SetXMapPos(const int t_xMapPos) { m_xMapPos = t_xMapPos; }
-        void SetYMapPos(const int t_yMapPos) { m_yMapPos = t_yMapPos; }
+        void SetXOffset(const int t_xMapPos) { m_xOffset = t_xMapPos; }
+        void SetYOffset(const int t_yMapPos) { m_yOffset = t_yMapPos; }
 
         //-------------------------------------------------
         // Draw
@@ -133,8 +159,8 @@ namespace sg::islands::iso
                     const auto tileId{ m_islandFields[index].tileId - 1 };
 
                     // determine the position of the tile on the map
-                    const auto xMapPos{ x + m_xMapPos };
-                    const auto yMapPos{ y + m_yMapPos };
+                    const auto xMapPos{ x + m_xOffset };
+                    const auto yMapPos{ y + m_yOffset };
 
                     Tile::DrawTile(tileId, xMapPos, yMapPos, t_window, t_tileAtlas);
 
@@ -150,14 +176,14 @@ namespace sg::islands::iso
 
     private:
         /**
-         * @brief The x-position on the `Map`.
+         * @brief The x starting position of the `Island` on a `Map`.
          */
-        int m_xMapPos{ -1 };
+        int m_xOffset{ -1 };
 
         /**
-         * @brief The y-position on the `Map`.
+         * @brief The y starting position of the `Island` on a `Map`.
          */
-        int m_yMapPos{ -1 };
+        int m_yOffset{ -1 };
 
         /**
          * @brief The `Island` width in tiles.

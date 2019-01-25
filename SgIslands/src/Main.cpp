@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include "core/Log.hpp"
 #include "iso/TileAtlas.hpp"
 #include "iso/Map.hpp"
@@ -21,11 +22,6 @@ int main()
     // view
     sf::View islandView;
 
-    // get hover tile
-    const auto& hover{ tileAtlas.GetTileAtlasTexture(sg::islands::iso::TileAtlas::CLICKED_TILE) };
-    sf::Sprite hoverSprite;
-    hoverSprite.setTexture(hover);
-
     while (window.isOpen())
     {
         sf::Event event{};
@@ -44,22 +40,21 @@ int main()
 
                     const auto mousePosition{ sf::Mouse::getPosition(window) };
                     const auto mPos{ window.mapPixelToCoords(mousePosition) };
-
-                    auto pos{ sg::islands::iso::IsoMath::ToMap(mPos) };
+                    const auto pos{ sg::islands::iso::IsoMath::ToMap(mPos) };
 
                     IS_CORE_DEBUG("map x: {}", pos.x);
                     IS_CORE_DEBUG("map y: {}", pos.y);
 
                     for (auto& island : map.GetIslands())
                     {
-                        auto onIsland{ island->OnTheIsland(pos.x, pos.y) };
+                        auto onIsland{ island->IsMapPositionOnIsland(pos.x, pos.y) };
 
                         IS_CORE_DEBUG("HasTile: {}", onIsland);
 
                         if (onIsland)
                         {
-                            const auto islandFieldIndex{ sg::islands::iso::IsoMath::From2DTo1D(pos.x-4, pos.y-4, island->GetWidth()) };
-                            island->GetIslandFields()[islandFieldIndex].clicked = true;
+                            auto& islandField{ island->GetIslandFieldByMapPosition(pos.x, pos.y) };
+                            islandField.clicked = true;
                         }
                     }
                 }
