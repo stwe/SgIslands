@@ -101,6 +101,7 @@
     <ClInclude Include="src\core\ResourceHolder.hpp" />
     <ClInclude Include="src\core\Types.hpp" />
     <ClInclude Include="src\core\XmlWrapper.hpp" />
+    <ClInclude Include="src\iso\Animation.hpp" />
     <ClInclude Include="src\iso\Island.hpp" />
     <ClInclude Include="src\iso\IsoMath.hpp" />
     <ClInclude Include="src\iso\Map.hpp" />

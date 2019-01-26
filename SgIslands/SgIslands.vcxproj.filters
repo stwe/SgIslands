@@ -59,6 +59,9 @@
     <ClInclude Include="src\core\Config.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="src\iso\Animation.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="res\config\app.xml" />
