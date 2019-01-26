@@ -241,7 +241,7 @@ namespace sg::islands::iso
                 core::XmlWrapper::QueryAttribute(island, "x_map_pos", &xMapPosAttr);
 
                 int yMapPosAttr;
-                core::XmlWrapper::QueryAttribute(island, "x_map_pos", &yMapPosAttr);
+                core::XmlWrapper::QueryAttribute(island, "y_map_pos", &yMapPosAttr);
 
                 // read path to the island xml file
                 const auto filename{ core::XmlWrapper::GetStringFromXmlElement(island, "filename") };
