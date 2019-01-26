@@ -213,7 +213,7 @@ namespace sg::islands::iso
 
         void LoadMapFile(const core::Filename& t_filename)
         {
-            IS_CORE_INFO("[Map::LoadMapFile()] Open {} for reading map islands.", t_filename);
+            SG_ISLANDS_INFO("[Map::LoadMapFile()] Open {} for reading map islands.", t_filename);
 
             tinyxml2::XMLDocument document;
 
@@ -227,8 +227,8 @@ namespace sg::islands::iso
             core::XmlWrapper::QueryAttribute(mapElement, "width", &m_width);
             core::XmlWrapper::QueryAttribute(mapElement, "height", &m_height);
 
-            IS_CORE_INFO("[Map::LoadMapFile()] Map width in tiles: {} ", m_width);
-            IS_CORE_INFO("[Map::LoadMapFile()] Map height in tiles: {} ", m_height);
+            SG_ISLANDS_INFO("[Map::LoadMapFile()] Map width in tiles: {} ", m_width);
+            SG_ISLANDS_INFO("[Map::LoadMapFile()] Map height in tiles: {} ", m_height);
 
             // get `<islands>` element
             auto islands{ core::XmlWrapper::GetFirstChildElement(mapElement, "islands") };
@@ -258,7 +258,7 @@ namespace sg::islands::iso
                 m_islands.push_back(std::move(islandUniquePtr));
             }
 
-            IS_CORE_INFO("[Map::LoadMapFile()] Successfully loaded {} islands.", m_islands.size());
+            SG_ISLANDS_INFO("[Map::LoadMapFile()] Successfully loaded {} islands.", m_islands.size());
         }
     };
 }

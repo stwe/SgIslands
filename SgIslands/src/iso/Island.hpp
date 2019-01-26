@@ -206,7 +206,7 @@ namespace sg::islands::iso
 
         void LoadIslandFieldsFromFile(const core::Filename& t_filename)
         {
-            IS_CORE_INFO("[Island::LoadIslandFieldsFromFile()] Open {} for reading island fields.", t_filename);
+            SG_ISLANDS_INFO("[Island::LoadIslandFieldsFromFile()] Open {} for reading island fields.", t_filename);
 
             tinyxml2::XMLDocument document;
 
@@ -223,13 +223,13 @@ namespace sg::islands::iso
             core::XmlWrapper::QueryAttribute(layerElement, "width", &m_width);
             core::XmlWrapper::QueryAttribute(layerElement, "height", &m_height);
 
-            IS_CORE_INFO("[Island::LoadIslandFieldsFromFile()] Island width in tiles: {} ", m_width);
-            IS_CORE_INFO("[Island::LoadIslandFieldsFromFile()] Island height in tiles: {} ", m_height);
+            SG_ISLANDS_INFO("[Island::LoadIslandFieldsFromFile()] Island width in tiles: {} ", m_width);
+            SG_ISLANDS_INFO("[Island::LoadIslandFieldsFromFile()] Island height in tiles: {} ", m_height);
 
             // get `<data>` element
             auto dataElement{ core::XmlWrapper::GetFirstChildElement(layerElement, "data") };
 
-            IS_CORE_INFO("[Island::LoadIslandFieldsFromFile()] Loading tile Ids ...");
+            SG_ISLANDS_INFO("[Island::LoadIslandFieldsFromFile()] Loading tile Ids ...");
 
             // get each tile
             for (auto tile{ dataElement->FirstChildElement("tile") }; tile != nullptr; tile = tile->NextSiblingElement())
@@ -246,7 +246,7 @@ namespace sg::islands::iso
             }
 
             assert(m_islandFields.size() == static_cast<size_t>(m_width * m_height));
-            IS_CORE_INFO("[Island::LoadIslandFieldsFromFile()] Successfully loaded {} island fields.", m_islandFields.size());
+            SG_ISLANDS_INFO("[Island::LoadIslandFieldsFromFile()] Successfully loaded {} island fields.", m_islandFields.size());
         }
     };
 }

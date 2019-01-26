@@ -15,7 +15,7 @@
 int main()
 {
     sg::islands::core::Log::Init();
-    IS_CORE_DEBUG("Logger initialized.");
+    SG_ISLANDS_DEBUG("Logger initialized.");
 
     try
     {
@@ -24,7 +24,7 @@ int main()
     }
     catch (const std::exception& e)
     {
-        IS_CORE_ERROR("Exception: {}", e.what());
+        SG_ISLANDS_ERROR("Exception: {}", e.what());
     }
 
     return 0;

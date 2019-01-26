@@ -118,7 +118,7 @@ namespace sg::islands::core
 
         void Init(const Filename& t_filename)
         {
-            IS_CORE_INFO("[Application::Init()] Initialize the application ...");
+            SG_ISLANDS_INFO("[Application::Init()] Initialize the application ...");
 
             // load options
             Config::LoadAppOptions(t_filename, m_appOptions);
@@ -141,7 +141,7 @@ namespace sg::islands::core
             m_map = std::make_unique<iso::Map>(m_appOptions.map);
             assert(m_map);
 
-            IS_CORE_INFO("[Application::Init()] Initialization finished.");
+            SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
 
         void Input()
@@ -158,20 +158,20 @@ namespace sg::islands::core
                 {
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
-                        IS_CORE_DEBUG("Left Mouse");
+                        SG_ISLANDS_DEBUG("Left Mouse");
 
                         const auto mousePosition{ sf::Mouse::getPosition(*m_window) };
                         const auto mPos{ m_window->mapPixelToCoords(mousePosition) };
                         const auto pos{ islands::iso::IsoMath::ToMap(mPos) };
 
-                        IS_CORE_DEBUG("map x: {}", pos.x);
-                        IS_CORE_DEBUG("map y: {}", pos.y);
+                        SG_ISLANDS_DEBUG("map x: {}", pos.x);
+                        SG_ISLANDS_DEBUG("map y: {}", pos.y);
 
                         for (auto& island : m_map->GetIslands())
                         {
                             auto onIsland{ island->IsMapPositionOnIsland(pos.x, pos.y) };
 
-                            IS_CORE_DEBUG("HasTile: {}", onIsland);
+                            SG_ISLANDS_DEBUG("HasTile: {}", onIsland);
 
                             if (onIsland)
                             {

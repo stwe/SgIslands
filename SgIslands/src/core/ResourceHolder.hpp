@@ -60,7 +60,7 @@ namespace sg::islands::core
 
             if (!resourceUniquePtr->loadFromFile(t_filename))
             {
-                IS_CORE_ERROR("[ResourceHolder::Load()]: Failed to load resource {}: " + t_filename);
+                SG_ISLANDS_ERROR("[ResourceHolder::Load()]: Failed to load resource {}: " + t_filename);
             }
 
             InsertResource(t_id, std::move(resourceUniquePtr));
@@ -74,7 +74,7 @@ namespace sg::islands::core
 
             if (!resourceUniquePtr->loadFromFile(t_filename))
             {
-                IS_CORE_ERROR("[ResourceHolder::Load()]: Failed to load resource {}: " + t_filename);
+                SG_ISLANDS_ERROR("[ResourceHolder::Load()]: Failed to load resource {}: " + t_filename);
             }
 
             InsertResource(t_id, std::move(resourceUniquePtr));

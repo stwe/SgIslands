@@ -94,7 +94,7 @@ namespace sg::islands::iso
          */
         void LoadConfigFile(const core::Filename& t_filename)
         {
-            IS_CORE_INFO("[TileAtlas::LoadConfigFile()] Open {} for creating a tile atlas.", t_filename);
+            SG_ISLANDS_INFO("[TileAtlas::LoadConfigFile()] Open {} for creating a tile atlas.", t_filename);
 
             tinyxml2::XMLDocument document;
 
@@ -110,7 +110,7 @@ namespace sg::islands::iso
             // get the terrain base directory from the `<dir>` element
             const auto terrainDir{ core::XmlWrapper::GetStringFromXmlElement(terrainElement, "dir") };
 
-            IS_CORE_INFO("[TileAtlas::LoadConfigFile()] Loading packages from {} ...", terrainDir);
+            SG_ISLANDS_INFO("[TileAtlas::LoadConfigFile()] Loading packages from {} ...", terrainDir);
 
             // get `<packages>` element
             const auto packagesElement{ core::XmlWrapper::GetFirstChildElement(terrainElement, "packages") };
@@ -173,7 +173,7 @@ namespace sg::islands::iso
             m_textures.Load(GRID_TILE, "res/gfx/grid.png"); // todo resource holder meldet keinen Fehler
             m_textures.Load(CLICKED_TILE, "res/gfx/clicked.png");
 
-            IS_CORE_INFO("[TileAtlas::LoadConfigFile()] Successfully loaded {} textures.", m_textures.GetNumberOfElements());
+            SG_ISLANDS_INFO("[TileAtlas::LoadConfigFile()] Successfully loaded {} textures.", m_textures.GetNumberOfElements());
         }
     };
 }

@@ -33,7 +33,7 @@ namespace sg::islands::core
     public:
         static void LoadAppOptions(const Filename& t_filename, AppOptions& t_options)
         {
-            IS_CORE_INFO("[Config::LoadAppOptions()] Open {} for reading options.", t_filename);
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Open {} for reading options.", t_filename);
 
             tinyxml2::XMLDocument document;
 
@@ -86,7 +86,7 @@ namespace sg::islands::core
             t_options.tileset = tileAtlas;
             t_options.map = map;
 
-            IS_CORE_INFO("[Config::LoadAppOptions()] Options successfully loaded.");
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Options successfully loaded.");
         }
 
     protected:

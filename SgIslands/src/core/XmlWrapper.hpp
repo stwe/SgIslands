@@ -25,7 +25,7 @@ namespace sg::islands::core
             const auto result{ t_document.LoadFile(t_filename.c_str()) };
             if (result != tinyxml2::XML_SUCCESS)
             {
-                IS_CORE_ERROR("[XmlWrapper::LoadXmlFile()] XMLError: ", result);
+                SG_ISLANDS_ERROR("[XmlWrapper::LoadXmlFile()] XMLError: ", result);
                 exit(EXIT_FAILURE);
             }
         }
@@ -35,7 +35,7 @@ namespace sg::islands::core
             const auto xmlElement{ t_element->FirstChildElement(t_name.c_str()) };
             if (!xmlElement)
             {
-                IS_CORE_ERROR("[XmlWrapper::GetStringFromXmlElement()] {} xml element is missing.", t_name);
+                SG_ISLANDS_ERROR("[XmlWrapper::GetStringFromXmlElement()] {} xml element is missing.", t_name);
                 exit(EXIT_FAILURE);
             }
 
@@ -52,7 +52,7 @@ namespace sg::islands::core
             const auto result{ t_document.FirstChildElement(t_name.c_str()) };
             if (!result)
             {
-                IS_CORE_ERROR("[XmlWrapper::GetFirstChildElement()] Xml element {} is missing.", t_name);
+                SG_ISLANDS_ERROR("[XmlWrapper::GetFirstChildElement()] Xml element {} is missing.", t_name);
                 exit(EXIT_FAILURE);
             }
 
@@ -64,7 +64,7 @@ namespace sg::islands::core
             const auto result{ t_element->FirstChildElement(t_name.c_str()) };
             if (!result)
             {
-                IS_CORE_ERROR("[XmlWrapper::GetFirstChildElement()] Xml element {} is missing.", t_name);
+                SG_ISLANDS_ERROR("[XmlWrapper::GetFirstChildElement()] Xml element {} is missing.", t_name);
                 exit(EXIT_FAILURE);
             }
 
@@ -76,7 +76,7 @@ namespace sg::islands::core
             const auto attr{ t_element->Attribute(t_name.c_str()) };
             if (!attr)
             {
-                IS_CORE_ERROR("[XmlWrapper::GetAttribute()] Error reading {} attribute.", t_name);
+                SG_ISLANDS_ERROR("[XmlWrapper::GetAttribute()] Error reading {} attribute.", t_name);
                 exit(EXIT_FAILURE);
             }
 
@@ -88,7 +88,7 @@ namespace sg::islands::core
             const auto error{ t_element->QueryAttribute(t_name.c_str(), t_value) };
             if (error != tinyxml2::XML_SUCCESS)
             {
-                IS_CORE_ERROR("[XmlWrapper::QueryAttribute()] Error reading {} attribute.", t_name);
+                SG_ISLANDS_ERROR("[XmlWrapper::QueryAttribute()] Error reading {} attribute.", t_name);
                 exit(EXIT_FAILURE);
             }
         }
@@ -98,7 +98,7 @@ namespace sg::islands::core
             const auto error{ t_element->QueryAttribute(t_name.c_str(), t_value) };
             if (error != tinyxml2::XML_SUCCESS)
             {
-                IS_CORE_ERROR("[XmlWrapper::QueryAttribute()] Error reading {} attribute.", t_name);
+                SG_ISLANDS_ERROR("[XmlWrapper::QueryAttribute()] Error reading {} attribute.", t_name);
                 exit(EXIT_FAILURE);
             }
         }
