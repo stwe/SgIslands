@@ -2,7 +2,7 @@
 // 
 // Filename: Map.hpp
 // Created:  20.01.2019
-// Updated:  25.01.2019
+// Updated:  26.01.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -37,9 +37,6 @@ namespace sg::islands::iso
             m_animations.push_back(TileAtlas::DEEP_WATER_EAST);
             m_animations.push_back(TileAtlas::DEEP_WATER_NORTH);
             m_animations.push_back(TileAtlas::DEEP_WATER_WEST);
-
-            // load font
-            m_fontHolder.Load(1, "res/font.ttf");
         }
 
         Map(const Map& t_other) = delete;
@@ -104,12 +101,12 @@ namespace sg::islands::iso
         // Draw
         //-------------------------------------------------
 
-        void DrawMapGrid(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas)
+        void DrawMapGrid(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas, const core::FontHolder& t_fontHolder)
         {
             const auto& grid{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::GRID_TILE) };
 
             sf::Text text;
-            text.setFont(m_fontHolder.GetResource(1));
+            text.setFont(t_fontHolder.GetResource(1));
             text.setCharacterSize(10);
             text.setFillColor(sf::Color::Black);
 
@@ -201,7 +198,6 @@ namespace sg::islands::iso
         std::vector<TileAtlas::TileId> m_animations;
         int m_frame{ 0 };
         float m_acc{ 0.0f };
-        core::FontHolder m_fontHolder;
 
         //-------------------------------------------------
         // Load Data

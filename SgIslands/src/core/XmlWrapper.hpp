@@ -2,7 +2,7 @@
 // 
 // Filename: XmlWrapper.hpp
 // Created:  20.01.2019
-// Updated:  23.01.2019
+// Updated:  26.01.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -13,6 +13,7 @@
 
 #include "tinyxml2/tinyxml2.h"
 #include "Types.hpp"
+#include "Log.hpp"
 
 namespace sg::islands::core
 {
