@@ -108,7 +108,6 @@ namespace sg::islands::iso
             sf::Text text;
             text.setFont(t_fontHolder.GetResource(1));
             text.setCharacterSize(10);
-            text.setFillColor(sf::Color::Black);
 
             const auto width{ m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH };
             const auto height{ m_height * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT };
@@ -124,14 +123,23 @@ namespace sg::islands::iso
 
                     // adjust "origin" of the isometric
                     screenPosition.x -= TileAtlas::DEFAULT_TILE_WIDTH_HALF;
-
                     sprite.setPosition(screenPosition.x, screenPosition.y);
-                    auto xs{ std::to_string(x) };
-                    auto ys{ std::to_string(y) };
-                    text.setString(xs + ", " + ys);
-                    text.setPosition(screenPosition.x + 18, screenPosition.y + 40);
 
                     t_window.draw(sprite);
+
+                    auto xs{ std::to_string(x) };
+                    auto ys{ std::to_string(y) };
+
+                    // x: red color
+                    text.setString(xs + ", ");
+                    text.setFillColor(sf::Color::Red);
+                    text.setPosition(screenPosition.x + 18, screenPosition.y + 40);
+                    t_window.draw(text);
+
+                    // y: blue color
+                    text.setString(ys);
+                    text.setFillColor(sf::Color::Blue);
+                    text.setPosition(screenPosition.x + 36, screenPosition.y + 40);
                     t_window.draw(text);
                 }
             }

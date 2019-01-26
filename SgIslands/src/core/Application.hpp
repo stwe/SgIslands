@@ -110,6 +110,8 @@ namespace sg::islands::core
         sf::Time m_statisticsUpdateTime;
         std::size_t m_statisticsNumFrames{ 0 };
 
+        bool m_drawGrid{ false };
+
         //-------------------------------------------------
         // Game Logic
         //-------------------------------------------------
@@ -204,6 +206,10 @@ namespace sg::islands::core
                 {
                     m_islandView.zoom(1.5f);
                 }
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::G)
+                {
+                    m_drawGrid = !m_drawGrid;
+                }
             }
         }
 
@@ -218,7 +224,11 @@ namespace sg::islands::core
 
             m_map->DrawDeepWater(*m_window, *m_tileAtlas);
             m_map->DrawMap(*m_window, *m_tileAtlas);
-            m_map->DrawMapGrid(*m_window, *m_tileAtlas, m_fonts);
+
+            if (m_drawGrid)
+            {
+                m_map->DrawMapGrid(*m_window, *m_tileAtlas, m_fonts);
+            }
 
             m_window->draw(m_statisticsText);
             m_window->display();

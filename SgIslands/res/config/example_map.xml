@@ -5,10 +5,8 @@
     <island x_map_pos="4" y_map_pos="4">
       <filename>res/config/island_16x16.xml</filename>
     </island>
-    <!--
-    <island x_map_pos="80" y_map_pos="80">
+    <island x_map_pos="26" y_map_pos="26">
       <filename>res/config/island_5x5.xml</filename>
     </island>
-    -->
   </islands>
 </map>
