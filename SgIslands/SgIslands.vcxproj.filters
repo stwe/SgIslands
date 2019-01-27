@@ -62,8 +62,12 @@
     <ClInclude Include="src\iso\Animation.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="src\iso\Unit.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="res\config\app.xml" />
+    <Xml Include="res\config\animations.xml" />
   </ItemGroup>
 </Project>

@@ -26,6 +26,7 @@ namespace sg::islands::core
         std::vector<Filename> fonts;
         Filename tileset;
         Filename map;
+        Filename units;
     };
 
     class Config
@@ -73,7 +74,7 @@ namespace sg::islands::core
             }
 
             //-------------------------------------------------
-            // TileAtlas && Map
+            // TileAtlas, Map && Units
             //-------------------------------------------------
 
             // get `<world>` element
@@ -82,9 +83,11 @@ namespace sg::islands::core
             // get the world options
             const auto tileAtlas{ XmlWrapper::GetStringFromXmlElement(worldElement, "tileAtlas") };
             const auto map{ XmlWrapper::GetStringFromXmlElement(worldElement, "map") };
+            const auto units{ XmlWrapper::GetStringFromXmlElement(worldElement, "units") };
 
             t_options.tileset = tileAtlas;
             t_options.map = map;
+            t_options.units = units;
 
             SG_ISLANDS_INFO("[Config::LoadAppOptions()] Options successfully loaded.");
         }

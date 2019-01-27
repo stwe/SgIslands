@@ -17,7 +17,7 @@
 #include "Config.hpp"
 #include "ResourceHolder.hpp"
 #include "../iso/Map.hpp"
-#include "../iso/Animation.hpp"
+#include "../iso/Unit.hpp"
 
 namespace sg::islands::core
 {
@@ -27,6 +27,9 @@ namespace sg::islands::core
         using RenderWindowUniquePtr = std::unique_ptr<sf::RenderWindow>;
         using TileAtlasUniquePtr = std::unique_ptr<iso::TileAtlas>;
         using MapUniquePtr = std::unique_ptr<iso::Map>;
+        using UnitUniquePtr = std::unique_ptr<iso::Unit>;
+
+        static constexpr auto PIRATE_SHIP{ 0 };
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -98,7 +101,7 @@ namespace sg::islands::core
         TileAtlasUniquePtr m_tileAtlas;
 
         /**
-         * @brief A `Map` contains several `Island`s.
+         * @brief A `Map` which contains several `Island`s.
          */
         MapUniquePtr m_map;
 
@@ -107,9 +110,10 @@ namespace sg::islands::core
          */
         sf::View m_islandView;
 
-        TextureHolder m_shipTextures;
-        sf::Sprite m_pirateShipSprite;
-        iso::Animation m_animation{ m_pirateShipSprite };
+        /**
+         * @brief A container for all animations of moveable units.
+         */
+        UnitUniquePtr m_units;
 
         sf::Text m_statisticsText;
         sf::Time m_statisticsUpdateTime;
@@ -146,42 +150,9 @@ namespace sg::islands::core
             m_map = std::make_unique<iso::Map>(m_appOptions.map);
             assert(m_map);
 
-            // setup an `Animation`
-            m_shipTextures.Load(0, "res/gfx/units/pirate1/move/0/0000.png");
-            m_shipTextures.Load(1, "res/gfx/units/pirate1/move/0/0001.png");
-            m_shipTextures.Load(2, "res/gfx/units/pirate1/move/0/0002.png");
-            m_shipTextures.Load(3, "res/gfx/units/pirate1/move/0/0003.png");
-            m_shipTextures.Load(4, "res/gfx/units/pirate1/move/0/0004.png");
-            m_shipTextures.Load(5, "res/gfx/units/pirate1/move/0/0005.png");
-            m_shipTextures.Load(6, "res/gfx/units/pirate1/move/0/0006.png");
-            m_shipTextures.Load(7, "res/gfx/units/pirate1/move/0/0007.png");
-            m_shipTextures.Load(8, "res/gfx/units/pirate1/move/0/0008.png");
-            m_shipTextures.Load(9, "res/gfx/units/pirate1/move/0/0009.png");
-            m_shipTextures.Load(10, "res/gfx/units/pirate1/move/0/0010.png");
-            m_shipTextures.Load(11, "res/gfx/units/pirate1/move/0/0011.png");
-            m_shipTextures.Load(12, "res/gfx/units/pirate1/move/0/0012.png");
-            m_shipTextures.Load(13, "res/gfx/units/pirate1/move/0/0013.png");
-            m_shipTextures.Load(14, "res/gfx/units/pirate1/move/0/0014.png");
-            m_shipTextures.Load(15, "res/gfx/units/pirate1/move/0/0015.png");
-
-            m_animation.AddFrame({ m_shipTextures.GetResource(0), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(1), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(2), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(3), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(4), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(5), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(6), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(7), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(8), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(9), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(10), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(11), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(12), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(13), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(14), 0.25 });
-            m_animation.AddFrame({ m_shipTextures.GetResource(15), 0.25 });
-
-            m_pirateShipSprite.setPosition(240, 240);
+            // create `Unit`s
+            m_units = std::make_unique<iso::Unit>(m_appOptions.units);
+            assert(m_units);
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
@@ -257,7 +228,8 @@ namespace sg::islands::core
 
         void Update(const sf::Time t_dt)
         {
-            m_animation.Update(t_dt);
+            auto& animation{ m_units->GetAnimation(PIRATE_SHIP, iso::Unit::Direction::N_DIRECTION) };
+            animation.Update(t_dt);
         }
 
         void Render()
@@ -275,7 +247,10 @@ namespace sg::islands::core
 
             m_window->draw(m_statisticsText);
 
-            m_window->draw(m_pirateShipSprite);
+            auto& animation{ m_units->GetAnimation(PIRATE_SHIP, iso::Unit::Direction::N_DIRECTION) };
+            auto& sprite{ animation.GetSprite() };
+            sprite.setPosition(240, 240);
+            m_window->draw(sprite);
 
             m_window->display();
         }

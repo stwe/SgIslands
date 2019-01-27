@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<animations>
+
+    <units>
+        <dir>res/gfx/units/</dir>
+        <unit id="0" name="pirate1" dir="pirate1/move/" frames="16"></unit>
+    </units>
+
+    <buildings>
+        <dir>res/gfx/buildings/</dir>
+        <building id="0" name="bakery0" dir="bakery0/work/" frames="8"></building>
+    </buildings>
+
+</animations>

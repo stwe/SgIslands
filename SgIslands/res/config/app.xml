@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <app>
-  <window>
-    <title>SgIslands</title>
-    <width>1024</width>
-    <height>768</height>
-  </window>
-  <fonts>
-    <font>res/fonts/font.ttf</font>
-  </fonts>
-  <world>
-    <tileAtlas>res/config/tileset.xml</tileAtlas>
-    <map>res/config/example_map.xml</map>
-  </world>
+    <window>
+        <title>SgIslands</title>
+        <width>1024</width>
+        <height>768</height>
+    </window>
+    <fonts>
+        <font>res/fonts/font.ttf</font>
+    </fonts>
+    <world>
+        <tileAtlas>res/config/tileset.xml</tileAtlas>
+        <map>res/config/example_map.xml</map>
+        <units>res/config/animations.xml</units>
+    </world>
 </app>

@@ -107,9 +107,11 @@
     <ClInclude Include="src\iso\Map.hpp" />
     <ClInclude Include="src\iso\Tile.hpp" />
     <ClInclude Include="src\iso\TileAtlas.hpp" />
+    <ClInclude Include="src\iso\Unit.hpp" />
     <ClInclude Include="vendor\tinyxml2\tinyxml2.h" />
   </ItemGroup>
   <ItemGroup>
+    <Xml Include="res\config\animations.xml" />
     <Xml Include="res\config\app.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
