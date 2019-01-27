@@ -12,6 +12,6 @@
     <world>
         <tileAtlas>res/config/tileset.xml</tileAtlas>
         <map>res/config/example_map.xml</map>
-        <units>res/config/animations.xml</units>
+        <unit>res/config/animations.xml</unit>
     </world>
 </app>

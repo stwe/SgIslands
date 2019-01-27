@@ -18,6 +18,7 @@
 #include "ResourceHolder.hpp"
 #include "../iso/Map.hpp"
 #include "../iso/Unit.hpp"
+#include "../Entity.hpp"
 
 namespace sg::islands::core
 {
@@ -111,15 +112,17 @@ namespace sg::islands::core
         sf::View m_islandView;
 
         /**
-         * @brief A container for all animations of moveable units.
+         * @brief All animations of moveable units.
          */
-        UnitUniquePtr m_units;
+        UnitUniquePtr m_unit;
 
         sf::Text m_statisticsText;
         sf::Time m_statisticsUpdateTime;
         std::size_t m_statisticsNumFrames{ 0 };
 
         bool m_drawGrid{ false };
+
+        Entity m_entity{ PIRATE_SHIP, sf::Vector2f(100.0f, 600.0f) };
 
         //-------------------------------------------------
         // Game Logic
@@ -150,9 +153,9 @@ namespace sg::islands::core
             m_map = std::make_unique<iso::Map>(m_appOptions.map);
             assert(m_map);
 
-            // create `Unit`s
-            m_units = std::make_unique<iso::Unit>(m_appOptions.units);
-            assert(m_units);
+            // create `Unit`
+            m_unit = std::make_unique<iso::Unit>(m_appOptions.unit);
+            assert(m_unit);
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
@@ -223,13 +226,16 @@ namespace sg::islands::core
                 {
                     m_drawGrid = !m_drawGrid;
                 }
+
+                // change direction of pirate ship
+                m_entity.HandleInput(*m_unit, event);
             }
         }
 
         void Update(const sf::Time t_dt)
         {
-            auto& animation{ m_units->GetAnimation(PIRATE_SHIP, iso::Unit::Direction::N_DIRECTION) };
-            animation.Update(t_dt);
+            // update pirate ship entity
+            m_entity.UpdateAnimations(*m_unit, t_dt);
         }
 
         void Render()
@@ -247,10 +253,8 @@ namespace sg::islands::core
 
             m_window->draw(m_statisticsText);
 
-            auto& animation{ m_units->GetAnimation(PIRATE_SHIP, iso::Unit::Direction::N_DIRECTION) };
-            auto& sprite{ animation.GetSprite() };
-            sprite.setPosition(240, 240);
-            m_window->draw(sprite);
+            // draw pirate ship entity
+            m_entity.Draw(*m_unit, *m_window);
 
             m_window->display();
         }
