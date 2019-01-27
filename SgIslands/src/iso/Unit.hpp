@@ -51,7 +51,7 @@ namespace sg::islands::iso
         using UnitId = int;
         using UnitMapKey = std::pair<UnitId, Direction>;
         using AnimationUniquePtr = std::unique_ptr<Animation>;
-        using Units = std::map<UnitMapKey, AnimationUniquePtr>;
+        using Animations = std::map<UnitMapKey, AnimationUniquePtr>;
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -76,16 +76,16 @@ namespace sg::islands::iso
         //-------------------------------------------------
 
         /**
-         * @brief Returns a reference to the whole `Unit` container.
+         * @brief Returns a reference to the whole animations container.
          * @return std::map
          */
-        Units& GetUnits() noexcept { return m_units; }
+        Animations& GetAnimations() noexcept { return m_animations; }
 
         /**
-         * @brief Returns a const reference to the whole `Unit` container.
+         * @brief Returns a const reference to the whole animations container.
          * @return std::map
          */
-        const Units& GetUnits() const noexcept { return m_units; }
+        const Animations& GetAnimations() const noexcept { return m_animations; }
 
         /**
          * @brief Returns a reference to the animation.
@@ -95,7 +95,7 @@ namespace sg::islands::iso
          */
         Animation& GetAnimation(const UnitId t_unitId, const Direction t_direction)
         {
-            return *m_units.at(std::make_pair(t_unitId, t_direction));
+            return *m_animations.at(std::make_pair(t_unitId, t_direction));
         }
 
         /**
@@ -106,7 +106,7 @@ namespace sg::islands::iso
          */
         const Animation& GetAnimation(const UnitId t_unitId, const Direction t_direction) const
         {
-            return *m_units.at(std::make_pair(t_unitId, t_direction));
+            return *m_animations.at(std::make_pair(t_unitId, t_direction));
         }
 
     protected:
@@ -115,7 +115,7 @@ namespace sg::islands::iso
         /**
          * @brief Saves the animations of a moveable unit.
          */
-        Units m_units;
+        Animations m_animations;
 
         //-------------------------------------------------
         // Load Data
@@ -177,11 +177,11 @@ namespace sg::islands::iso
                     }
 
                     // save `Animation` for the direction
-                    m_units.emplace(std::make_pair(idAttr, direction), std::move(animation));
+                    m_animations.emplace(std::make_pair(idAttr, direction), std::move(animation));
                 }
             }
 
-            SG_ISLANDS_INFO("[Unit::LoadConfigFile()] Successfully loaded {} animations for {} units.", m_units.size(), m_units.size() / NUMBER_OF_DIRECTIONS);
+            SG_ISLANDS_INFO("[Unit::LoadConfigFile()] Successfully loaded {} animations for {} units.", m_animations.size(), m_animations.size() / NUMBER_OF_DIRECTIONS);
         }
     };
 }

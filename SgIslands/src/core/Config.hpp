@@ -21,8 +21,8 @@ namespace sg::islands::core
     struct AppOptions
     {
         std::string windowTitle;
-        int windowWidth;
-        int windowHeight;
+        int windowWidth{ -1 };
+        int windowHeight{ -1 };
         std::vector<Filename> fonts;
         Filename tileset;
         Filename map;
@@ -74,7 +74,7 @@ namespace sg::islands::core
             }
 
             //-------------------------------------------------
-            // TileAtlas, Map && Units
+            // TileAtlas, Map && Animations
             //-------------------------------------------------
 
             // get `<world>` element
