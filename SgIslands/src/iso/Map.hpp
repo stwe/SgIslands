@@ -2,7 +2,7 @@
 // 
 // Filename: Map.hpp
 // Created:  20.01.2019
-// Updated:  26.01.2019
+// Updated:  02.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -31,12 +31,6 @@ namespace sg::islands::iso
         explicit Map(const core::Filename& t_filename)
         {
             LoadMapFile(t_filename);
-
-            // tmp code
-            m_animations.push_back(TileAtlas::DEEP_WATER_SOUTH);
-            m_animations.push_back(TileAtlas::DEEP_WATER_EAST);
-            m_animations.push_back(TileAtlas::DEEP_WATER_NORTH);
-            m_animations.push_back(TileAtlas::DEEP_WATER_WEST);
         }
 
         Map(const Map& t_other) = delete;
@@ -73,29 +67,6 @@ namespace sg::islands::iso
          * @return std::vector
          */
         const Islands& GetIslands() const noexcept { return m_islands; }
-
-        //-------------------------------------------------
-        // Animation
-        //-------------------------------------------------
-
-        void UpdateAnimation()
-        {
-            const auto dt{ 0.016f };
-            const auto duration{ 1.5f };
-            const auto frames{ 4 };
-
-            if (int((m_acc + dt) / duration) > int(m_acc / duration))
-            {
-                m_frame = int((m_acc + dt) / duration);
-                m_frame %= frames;
-            }
-
-            m_acc += dt;
-            if (m_acc > duration * frames)
-            {
-                m_acc = 0.0f;
-            }
-        }
 
         //-------------------------------------------------
         // Draw
@@ -160,7 +131,6 @@ namespace sg::islands::iso
                 for (auto x{ 0 }; x < m_width; ++x)
                 {
                     sf::Sprite sprite;
-                    //sprite.setTexture(*t_tileAtlas.GetTileAtlasTexture(m_animations[m_frame]));
                     sprite.setTexture(deepWaterSouth);
 
                     auto screenPosition{ IsoMath::ToScreen(x, y, TileAtlas::DEEP_WATER_TILE_WIDTH_HALF, TileAtlas::DEEP_WATER_TILE_HEIGHT_HALF) };
@@ -201,11 +171,6 @@ namespace sg::islands::iso
          * @brief The `Island` objects of the `Map`.
          */
         Islands m_islands;
-
-        // tmp code
-        std::vector<TileAtlas::TileId> m_animations;
-        int m_frame{ 0 };
-        float m_acc{ 0.0f };
 
         //-------------------------------------------------
         // Load Data
