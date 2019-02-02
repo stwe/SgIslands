@@ -97,14 +97,7 @@ namespace sg::islands
                 auto& animation{ t_unit.GetAnimation(m_unitId, direction) };
                 animation.Update(t_dt);
             }
-        }
 
-        void Draw(iso::Unit& t_unit, sf::RenderWindow& t_window)
-        {
-            auto& animation{ t_unit.GetAnimation(m_unitId, m_direction) };
-            auto& sprite{ animation.GetSprite() };
-
-            // todo Update()
             if (m_isMove)
             {
                 m_spriteScreenDirection = iso::VecMath::Direction(m_currentScreenPosition, m_targetScreenPosition);
@@ -120,6 +113,12 @@ namespace sg::islands
                     m_isMove = false;
                 }
             }
+        }
+
+        void Draw(iso::Unit& t_unit, sf::RenderWindow& t_window)
+        {
+            auto& animation{ t_unit.GetAnimation(m_unitId, m_direction) };
+            auto& sprite{ animation.GetSprite() };
 
             sprite.setPosition(m_currentScreenPosition);
             sprite.setOrigin(SHIP_TILE_WIDTH_HALF, SHIP_TILE_HEIGHT_HALF);
