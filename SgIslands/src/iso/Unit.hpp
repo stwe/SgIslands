@@ -2,7 +2,7 @@
 // 
 // Filename: Unit.hpp
 // Created:  26.01.2019
-// Updated:  27.01.2019
+// Updated:  02.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -34,6 +34,7 @@ namespace sg::islands::iso
         };
 
         static constexpr auto NUMBER_OF_DIRECTIONS{ 8 };
+        static constexpr auto HALF_DIRECTION{ 45.0f / 2.0f };
 
         static constexpr std::array<Direction, NUMBER_OF_DIRECTIONS> DIRECTIONS {
             Direction::N_DIRECTION,
@@ -107,6 +108,85 @@ namespace sg::islands::iso
         const Animation& GetAnimation(const UnitId t_unitId, const Direction t_direction) const
         {
             return *m_animations.at(std::make_pair(t_unitId, t_direction));
+        }
+
+        /**
+         * @brief Computes the sprite `Direction` from a given direction vector.
+         * @param t_vector A direction vector.
+         * @return Direction
+         */
+        static Direction GetDirectionByVec(const sf::Vector2f& t_vector)
+        {
+            /*
+                (NW)       (N)       (NE)
+                 225       270       315
+                  *         |         *
+                    *       |       *
+                      *     |     *
+                        *   |   *
+                          * | *
+      (W) 180 -------------- -------------- 360 / 0  / (E)
+                          * | *   +
+                        *   |   *      +
+                      *     |     *         +
+                    *       |       *            +
+                  *         |         *               +
+                135        90        45              22.5f (HALF_DIRECTION)
+                (SW)       (S)       (SE)
+            */
+
+            const auto angleRad{ atan2(t_vector.y, t_vector.x) };
+            const auto angleDeg{ (angleRad / M_PI * 180) + (angleRad > 0 ? 0 : 360) };
+
+            // 0 ... 22.5 -> E
+            if (angleDeg <= HALF_DIRECTION && angleDeg >= 0)
+            {
+                return Direction::E_DIRECTION;
+            }
+            // 337.5 ... 360 -> E
+            if (angleDeg <= 360 && angleDeg >= 315 + HALF_DIRECTION)
+            {
+                return Direction::E_DIRECTION;
+            }
+
+            if (angleDeg <= 315 + HALF_DIRECTION && angleDeg >= 270 + HALF_DIRECTION)
+            {
+                return Direction::NE_DIRECTION;
+            }
+
+            if (angleDeg <= 270 + HALF_DIRECTION && angleDeg >= 225 + HALF_DIRECTION)
+            {
+                return Direction::N_DIRECTION;
+            }
+
+            if (angleDeg <= 225 + HALF_DIRECTION && angleDeg >= 180 + HALF_DIRECTION)
+            {
+                return Direction::NW_DIRECTION;
+            }
+
+            if (angleDeg <= 180 + HALF_DIRECTION && angleDeg >= 135 + HALF_DIRECTION)
+            {
+                return Direction::W_DIRECTION;
+            }
+
+            if (angleDeg <= 135 + HALF_DIRECTION && angleDeg >= 90 + HALF_DIRECTION)
+            {
+                return Direction::SW_DIRECTION;
+            }
+
+            if (angleDeg <= 90 + HALF_DIRECTION && angleDeg >= 45 + HALF_DIRECTION)
+            {
+                return Direction::S_DIRECTION;
+            }
+
+            if (angleDeg <= 45 + HALF_DIRECTION && angleDeg >= HALF_DIRECTION)
+            {
+                return Direction::SE_DIRECTION;
+            }
+
+            SG_ISLANDS_WARN("[Unit::GetDirectionByVec()] Return the default direction (E_DIRECTION) for angle {}.", angleDeg);
+
+            return Direction::E_DIRECTION;
         }
 
     protected:

@@ -2,12 +2,14 @@
 // 
 // Filename: Main.cpp
 // Created:  20.01.2019
-// Updated:  26.01.2019
+// Updated:  02.02.2019
 // Author:   stwe
 // 
 // License:  MIT
 // 
 // 2019 (c) stwe <https://github.com/stwe/SgIslands>
+
+#define _USE_MATH_DEFINES
 
 #include "core/Application.hpp"
 #include "core/Log.hpp"

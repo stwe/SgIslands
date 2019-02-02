@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  26.01.2019
+// Updated:  02.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -122,7 +122,7 @@ namespace sg::islands::core
 
         bool m_drawGrid{ false };
 
-        Entity m_entity{ PIRATE_SHIP, sf::Vector2f(100.0f, 600.0f) };
+        Entity m_entity{ PIRATE_SHIP, sf::Vector2i(0, 0) };
 
         //-------------------------------------------------
         // Game Logic
@@ -170,34 +170,6 @@ namespace sg::islands::core
                     m_window->close();
                 }
 
-                if (event.type == sf::Event::MouseButtonPressed)
-                {
-                    if (event.mouseButton.button == sf::Mouse::Left)
-                    {
-                        SG_ISLANDS_DEBUG("Left Mouse");
-
-                        const auto mousePosition{ sf::Mouse::getPosition(*m_window) };
-                        const auto mPos{ m_window->mapPixelToCoords(mousePosition) };
-                        const auto pos{ islands::iso::IsoMath::ToMap(mPos) };
-
-                        SG_ISLANDS_DEBUG("map x: {}", pos.x);
-                        SG_ISLANDS_DEBUG("map y: {}", pos.y);
-
-                        for (auto& island : m_map->GetIslands())
-                        {
-                            auto onIsland{ island->IsMapPositionOnIsland(pos.x, pos.y) };
-
-                            SG_ISLANDS_DEBUG("HasTile: {}", onIsland);
-
-                            if (onIsland)
-                            {
-                                auto& islandField{ island->GetIslandFieldByMapPosition(pos.x, pos.y) };
-                                islandField.clicked = true;
-                            }
-                        }
-                    }
-                }
-
                 if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::W)
                 {
                     m_islandView.move(0, -40);
@@ -228,7 +200,7 @@ namespace sg::islands::core
                 }
 
                 // change direction of pirate ship
-                m_entity.HandleInput(*m_unit, event);
+                m_entity.HandleInput(*m_window, event);
             }
         }
 

@@ -2,7 +2,7 @@
 // 
 // Filename: IsoMath.hpp
 // Created:  22.01.2019
-// Updated:  23.01.2019
+// Updated:  02.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
 #include "TileAtlas.hpp"
 
 namespace sg::islands::iso
@@ -34,7 +33,6 @@ namespace sg::islands::iso
         {
             return t_mapY * t_mapWidth + t_mapX;
         }
-
 
         /**
          * @brief Isometric projection.

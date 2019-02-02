@@ -2,7 +2,7 @@
 // 
 // Filename: Animation.hpp
 // Created:  26.01.2019
-// Updated:  27.01.2019
+// Updated:  02.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -96,7 +96,7 @@ namespace sg::islands::iso
                 if (p <= 0.0 || &(m_frames[i]) == &m_frames.back())
                 {
                     m_sprite.setTexture(m_frames[i].texture);
-                    m_sprite.setScale(0.25f, 0.25f);
+                    //m_sprite.setScale(0.125f, 0.125f); // todo
                     break; // we found our frame
                 }
             }
