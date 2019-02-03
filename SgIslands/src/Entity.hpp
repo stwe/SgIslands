@@ -2,7 +2,7 @@
 // 
 // Filename: Entity.hpp
 // Created:  27.01.2019
-// Updated:  02.02.2019
+// Updated:  03.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -11,8 +11,10 @@
 
 #pragma once
 
+#include <memory>
 #include "iso/VecMath.hpp"
 #include "iso/Unit.hpp"
+#include "iso/Astar.hpp"
 
 namespace sg::islands
 {
@@ -29,11 +31,14 @@ namespace sg::islands
 
         Entity() = delete;
 
-        Entity(const iso::Unit::UnitId t_unitId, const sf::Vector2i& t_mapPosition)
+        Entity(const iso::Unit::UnitId t_unitId, const sf::Vector2i& t_mapPosition, iso::Map& t_map)
             : m_unitId{ t_unitId }
             , m_mapPosition{ t_mapPosition }
         {
             m_currentScreenPosition = iso::IsoMath::ToScreen(m_mapPosition);
+
+            // todo
+            m_astar = std::make_unique<iso::Astar>(t_map.GetObstacles(), t_map.GetWidth(), t_map.GetHeight());
         }
 
         Entity(const Entity& t_other) = delete;
@@ -47,7 +52,7 @@ namespace sg::islands
         // Game Logic
         //-------------------------------------------------
 
-        void HandleInput(sf::RenderWindow& t_window, const sf::Event& t_event)
+        void HandleInput(sf::RenderWindow& t_window, const sf::Event& t_event, iso::Map& t_map)
         {
             if (t_event.type == sf::Event::KeyPressed)
             {
@@ -70,8 +75,18 @@ namespace sg::islands
 
                     SG_ISLANDS_DEBUG("target map x: {}", m_targetMapPosition.x);
                     SG_ISLANDS_DEBUG("target map y: {}", m_targetMapPosition.y);
-                    SG_ISLANDS_DEBUG("target screen x: {}", m_targetScreenPosition.x);
-                    SG_ISLANDS_DEBUG("target screen y: {}", m_targetScreenPosition.y);
+
+                    //t_map.SetTarget(m_targetMapPosition);
+
+                    iso::Node node;
+                    iso::Node endNode;
+
+                    node.position = m_mapPosition;
+                    endNode.position = m_targetMapPosition;
+
+                    // todo
+                    std::vector<iso::Node> path;
+                    path = m_astar->FindPath(node, endNode);
 
                     // calc direction vector to the target
                     m_spriteScreenDirection = iso::VecMath::Direction(m_currentScreenPosition, m_targetScreenPosition);
@@ -137,13 +152,15 @@ namespace sg::islands
         sf::Vector2i m_targetMapPosition{ -1, -1 };
         sf::Vector2f m_targetScreenPosition{ -1.0f, -1.0f };
 
-        sf::Vector2f m_spriteScreenDirection{ -1, -1 };
-        sf::Vector2f m_spriteScreenNormalDirection{ -1, -1 };
+        sf::Vector2f m_spriteScreenDirection{ -1.0f, -1.0f };
+        sf::Vector2f m_spriteScreenNormalDirection{ -1.0f, -1.0f };
 
         float m_lengthToTarget{ -1.0f };
 
         bool m_isMove{ false };
 
         iso::Unit::Direction m_direction{ iso::Unit::Direction::E_DIRECTION };
+
+        std::unique_ptr<iso::Astar> m_astar;
     };
 }

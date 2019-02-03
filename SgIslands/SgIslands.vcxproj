@@ -103,9 +103,11 @@
     <ClInclude Include="src\core\XmlWrapper.hpp" />
     <ClInclude Include="src\Entity.hpp" />
     <ClInclude Include="src\iso\Animation.hpp" />
+    <ClInclude Include="src\iso\Astar.hpp" />
     <ClInclude Include="src\iso\Island.hpp" />
     <ClInclude Include="src\iso\IsoMath.hpp" />
     <ClInclude Include="src\iso\Map.hpp" />
+    <ClInclude Include="src\iso\Node.hpp" />
     <ClInclude Include="src\iso\Tile.hpp" />
     <ClInclude Include="src\iso\TileAtlas.hpp" />
     <ClInclude Include="src\iso\Unit.hpp" />

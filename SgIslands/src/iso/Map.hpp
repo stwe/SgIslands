@@ -2,7 +2,7 @@
 // 
 // Filename: Map.hpp
 // Created:  20.01.2019
-// Updated:  02.02.2019
+// Updated:  03.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -68,6 +68,11 @@ namespace sg::islands::iso
          */
         const Islands& GetIslands() const noexcept { return m_islands; }
 
+        // todo
+        std::vector<int>& GetObstacles() { return m_obstacles; }
+        auto GetWidth() const { return m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH; }
+        auto GetHeight() const { return m_height * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT; }
+
         //-------------------------------------------------
         // Draw
         //-------------------------------------------------
@@ -83,13 +88,13 @@ namespace sg::islands::iso
             const auto width{ m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH };
             const auto height{ m_height * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT };
 
+            sf::Sprite sprite;
+            sprite.setTexture(grid);
+
             for (auto y{ 0 }; y < height; ++y)
             {
                 for (auto x{ 0 }; x < width; ++x)
                 {
-                    sf::Sprite sprite;
-                    sprite.setTexture(grid);
-
                     auto screenPosition{ IsoMath::ToScreen(x, y) };
 
                     // adjust "origin" of the isometric
@@ -126,13 +131,13 @@ namespace sg::islands::iso
             const auto& deepWaterWest{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::DEEP_WATER_WEST) };
             */
 
+            sf::Sprite sprite;
+            sprite.setTexture(deepWaterSouth);
+
             for (auto y{ 0 }; y < m_height; ++y)
             {
                 for (auto x{ 0 }; x < m_width; ++x)
                 {
-                    sf::Sprite sprite;
-                    sprite.setTexture(deepWaterSouth);
-
                     auto screenPosition{ IsoMath::ToScreen(x, y, TileAtlas::DEEP_WATER_TILE_WIDTH_HALF, TileAtlas::DEEP_WATER_TILE_HEIGHT_HALF) };
 
                     // adjust "origin" of the isometric
@@ -154,6 +159,96 @@ namespace sg::islands::iso
             }
         }
 
+        //-------------------------------------------------
+        // A* Pathfinding
+        //-------------------------------------------------
+
+        void GenerateObstaclesMap()
+        {
+            const auto width{ m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH };
+            const auto height{ m_height * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT };
+
+            // map erstellen; alles auf -1 setzen
+            for (auto y{ 0 }; y < height; ++y)
+            {
+                for (auto x{ 0 }; x < width; ++x)
+                {
+                    // -1 has not been tested yet
+                    // -255 a obstacle
+                    // 0 target
+                    m_obstacles.push_back(-1);
+                }
+            }
+
+            // inseln als Hindernisse einfügen
+            for (const auto& island : m_islands)
+            {
+                for (auto y{ 0 }; y < island->GetHeight(); ++y)
+                {
+                    for (auto x{ 0 }; x < island->GetWidth(); ++x)
+                    {
+                        // determine the position of the tile on the map
+                        const auto xMapPos{ x + island->GetXOffset() };
+                        const auto yMapPos{ y + island->GetYOffset() };
+
+                        // from 2D to 1D
+                        const auto index{ IsoMath::From2DTo1D(xMapPos, yMapPos, width) };
+
+                        // push obstacle value
+                        m_obstacles[index] = -255;
+                    }
+                }
+            }
+        }
+
+        void SetTarget(const sf::Vector2i& t_target)
+        {
+            const auto width{ m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH };
+            const auto index{ IsoMath::From2DTo1D(t_target.x, t_target.y, width) };
+
+            m_obstacles[index] = 0;
+        }
+
+        void DrawObstaclesMap(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas, const core::FontHolder& t_fontHolder)
+        {
+            const auto& grid{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::GRID_TILE) };
+
+            sf::Text text;
+            text.setFont(t_fontHolder.GetResource(1));
+            text.setCharacterSize(10);
+
+            const auto width{ m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH };
+            const auto height{ m_height * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT };
+
+            sf::Sprite sprite;
+            sprite.setTexture(grid);
+
+            for (auto y{ 0 }; y < height; ++y)
+            {
+                for (auto x{ 0 }; x < width; ++x)
+                {
+                    auto screenPosition{ IsoMath::ToScreen(x, y) };
+
+                    // adjust "origin" of the isometric
+                    screenPosition.x -= TileAtlas::DEFAULT_TILE_WIDTH_HALF;
+                    sprite.setPosition(screenPosition.x, screenPosition.y);
+
+                    t_window.draw(sprite);
+
+                    // from 2D to 1D
+                    const auto index{ IsoMath::From2DTo1D(x, y, width) };
+
+                    auto obstacleValue{ std::to_string(m_obstacles[index]) };
+
+                    text.setString(obstacleValue);
+                    text.setFillColor(sf::Color::Red);
+                    text.setPosition(screenPosition.x + 18, screenPosition.y + 40);
+
+                    t_window.draw(text);
+                }
+            }
+        }
+
     protected:
 
     private:
@@ -171,6 +266,8 @@ namespace sg::islands::iso
          * @brief The `Island` objects of the `Map`.
          */
         Islands m_islands;
+
+        std::vector<int> m_obstacles;
 
         //-------------------------------------------------
         // Load Data

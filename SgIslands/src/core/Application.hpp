@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  02.02.2019
+// Updated:  03.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -121,8 +121,9 @@ namespace sg::islands::core
         std::size_t m_statisticsNumFrames{ 0 };
 
         bool m_drawGrid{ false };
+        bool m_drawObstacles{ false };
 
-        Entity m_entity{ PIRATE_SHIP, sf::Vector2i(0, 0) };
+        std::unique_ptr<Entity> m_entity;
 
         //-------------------------------------------------
         // Game Logic
@@ -149,9 +150,16 @@ namespace sg::islands::core
             m_tileAtlas = std::make_unique<iso::TileAtlas>(m_appOptions.tileset);
             assert(m_tileAtlas);
 
-            // create `Map`
+            // create `Map` with all `Island`s
             m_map = std::make_unique<iso::Map>(m_appOptions.map);
             assert(m_map);
+
+
+
+            m_map->GenerateObstaclesMap();
+            m_entity = std::make_unique<Entity>(PIRATE_SHIP, sf::Vector2i(20, 20), *m_map);
+
+
 
             // create `Unit`
             m_unit = std::make_unique<iso::Unit>(m_appOptions.unit);
@@ -198,16 +206,20 @@ namespace sg::islands::core
                 {
                     m_drawGrid = !m_drawGrid;
                 }
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::O)
+                {
+                    m_drawObstacles = !m_drawObstacles;
+                }
 
                 // change direction of pirate ship
-                m_entity.HandleInput(*m_window, event);
+                m_entity->HandleInput(*m_window, event, *m_map);
             }
         }
 
         void Update(const sf::Time t_dt)
         {
             // update pirate ship entity
-            m_entity.UpdateAnimations(*m_unit, t_dt);
+            m_entity->UpdateAnimations(*m_unit, t_dt);
         }
 
         void Render()
@@ -223,10 +235,15 @@ namespace sg::islands::core
                 m_map->DrawMapGrid(*m_window, *m_tileAtlas, m_fonts);
             }
 
+            if (m_drawObstacles)
+            {
+                m_map->DrawObstaclesMap(*m_window, *m_tileAtlas, m_fonts);
+            }
+
             m_window->draw(m_statisticsText);
 
             // draw pirate ship entity
-            m_entity.Draw(*m_unit, *m_window);
+            m_entity->Draw(*m_unit, *m_window);
 
             m_window->display();
         }
