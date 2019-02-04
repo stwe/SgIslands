@@ -2,7 +2,7 @@
 // 
 // Filename: Map.hpp
 // Created:  20.01.2019
-// Updated:  03.02.2019
+// Updated:  04.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -18,10 +18,14 @@ namespace sg::islands::iso
 {
     using IslandUniquePtr = std::unique_ptr<Island>;
     using Islands = std::vector<IslandUniquePtr>;
+    using Obstacles = std::vector<int>;
 
     class Map
     {
     public:
+        static constexpr auto OBSTACLE{ 1 };
+        static constexpr auto EMPTY{ 0 };
+
         //-------------------------------------------------
         // Ctor. && Dtor.
         //-------------------------------------------------
@@ -45,39 +49,70 @@ namespace sg::islands::iso
         //-------------------------------------------------
 
         /**
-         * @brief Get the `Map` width in tiles.
-         * @return 
+         * @brief Get the `Map` width in deep water tiles.
+         * @return int
          */
-        auto GetMapWidth() const { return m_width; }
+        auto GetDeepWaterWidth() const { return m_deepWaterWidth; }
 
         /**
-         * @brief Get the `Map` height in tiles.
-         * @return 
+         * @brief Get the `Map` height in deep water tiles.
+         * @return int
          */
-        auto GetMapHeight() const { return m_height; }
+        auto GetDeepWaterHeight() const { return m_deepWaterHeight; }
+
+        /**
+         * @brief Get the `Map` width.
+         * @return int
+         */
+        auto GetMapWidth() const { return m_mapWidth; }
+
+        /**
+         * @brief Get the `Map` height.
+         * @return int
+         */
+        auto GetMapHeight() const { return m_mapHeight; }
 
         /**
          * @brief Get the `Island` objects of the `Map`.
-         * @return std::vector
+         * @return Reference to std::vector
          */
         Islands& GetIslands() noexcept { return m_islands; }
 
         /**
          * @brief Get the `Island` objects of the `Map`.
-         * @return std::vector
+         * @return Const reference to std::vector
          */
         const Islands& GetIslands() const noexcept { return m_islands; }
 
-        // todo
-        std::vector<int>& GetObstacles() { return m_obstacles; }
-        auto GetWidth() const { return m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH; }
-        auto GetHeight() const { return m_height * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT; }
+        /**
+         * @brief Get the obstacle map using for ship units.
+         * @return Reference to std::vector
+         */
+        Obstacles& GetObstaclesForShipUnits() noexcept { return m_obstaclesForShipUnits; }
+
+        /**
+         * @brief Get the obstacle map using for ship units.
+         * @return Const reference to std::vector
+         */
+        const Obstacles& GetObstaclesForShipUnits() const noexcept { return m_obstaclesForShipUnits; }
+
+        /**
+         * @brief Get the obstacle map using for land units.
+         * @return Reference to std::vector
+         */
+        Obstacles& GetObstaclesForLandUnits() noexcept { return m_obstaclesForLandUnits; }
+
+        /**
+         * @brief Get the obstacle map using for land units.
+         * @return Const reference to std::vector
+         */
+        const Obstacles& GetObstaclesForLandUnits() const noexcept { return m_obstaclesForLandUnits; }
 
         //-------------------------------------------------
         // Draw
         //-------------------------------------------------
 
-        void DrawMapGrid(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas, const core::FontHolder& t_fontHolder)
+        void DrawMapGrid(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas, const core::FontHolder& t_fontHolder) const
         {
             const auto& grid{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::GRID_TILE) };
 
@@ -85,15 +120,12 @@ namespace sg::islands::iso
             text.setFont(t_fontHolder.GetResource(1));
             text.setCharacterSize(10);
 
-            const auto width{ m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH };
-            const auto height{ m_height * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT };
-
             sf::Sprite sprite;
             sprite.setTexture(grid);
 
-            for (auto y{ 0 }; y < height; ++y)
+            for (auto y{ 0 }; y < m_mapHeight; ++y)
             {
-                for (auto x{ 0 }; x < width; ++x)
+                for (auto x{ 0 }; x < m_mapWidth; ++x)
                 {
                     auto screenPosition{ IsoMath::ToScreen(x, y) };
 
@@ -121,7 +153,7 @@ namespace sg::islands::iso
             }
         }
 
-        void DrawDeepWater(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas)
+        void DrawDeepWater(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas) const
         {
             const auto& deepWaterSouth{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::DEEP_WATER_SOUTH) };
 
@@ -134,9 +166,9 @@ namespace sg::islands::iso
             sf::Sprite sprite;
             sprite.setTexture(deepWaterSouth);
 
-            for (auto y{ 0 }; y < m_height; ++y)
+            for (auto y{ 0 }; y < m_deepWaterHeight; ++y)
             {
-                for (auto x{ 0 }; x < m_width; ++x)
+                for (auto x{ 0 }; x < m_deepWaterWidth; ++x)
                 {
                     auto screenPosition{ IsoMath::ToScreen(x, y, TileAtlas::DEEP_WATER_TILE_WIDTH_HALF, TileAtlas::DEEP_WATER_TILE_HEIGHT_HALF) };
 
@@ -159,57 +191,12 @@ namespace sg::islands::iso
             }
         }
 
-        //-------------------------------------------------
-        // A* Pathfinding
-        //-------------------------------------------------
-
-        void GenerateObstaclesMap()
-        {
-            const auto width{ m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH };
-            const auto height{ m_height * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT };
-
-            // map erstellen; alles auf -1 setzen
-            for (auto y{ 0 }; y < height; ++y)
-            {
-                for (auto x{ 0 }; x < width; ++x)
-                {
-                    // -1 has not been tested yet
-                    // -255 a obstacle
-                    // 0 target
-                    m_obstacles.push_back(-1);
-                }
-            }
-
-            // inseln als Hindernisse einfügen
-            for (const auto& island : m_islands)
-            {
-                for (auto y{ 0 }; y < island->GetHeight(); ++y)
-                {
-                    for (auto x{ 0 }; x < island->GetWidth(); ++x)
-                    {
-                        // determine the position of the tile on the map
-                        const auto xMapPos{ x + island->GetXOffset() };
-                        const auto yMapPos{ y + island->GetYOffset() };
-
-                        // from 2D to 1D
-                        const auto index{ IsoMath::From2DTo1D(xMapPos, yMapPos, width) };
-
-                        // push obstacle value
-                        m_obstacles[index] = -255;
-                    }
-                }
-            }
-        }
-
-        void SetTarget(const sf::Vector2i& t_target)
-        {
-            const auto width{ m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH };
-            const auto index{ IsoMath::From2DTo1D(t_target.x, t_target.y, width) };
-
-            m_obstacles[index] = 0;
-        }
-
-        void DrawObstaclesMap(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas, const core::FontHolder& t_fontHolder)
+        void DrawObstaclesMap(
+            sf::RenderWindow& t_window,
+            const TileAtlas& t_tileAtlas,
+            const core::FontHolder& t_fontHolder,
+            const bool t_land = false
+        )
         {
             const auto& grid{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::GRID_TILE) };
 
@@ -217,15 +204,12 @@ namespace sg::islands::iso
             text.setFont(t_fontHolder.GetResource(1));
             text.setCharacterSize(10);
 
-            const auto width{ m_width * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH };
-            const auto height{ m_height * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT };
-
             sf::Sprite sprite;
             sprite.setTexture(grid);
 
-            for (auto y{ 0 }; y < height; ++y)
+            for (auto y{ 0 }; y < m_mapHeight; ++y)
             {
-                for (auto x{ 0 }; x < width; ++x)
+                for (auto x{ 0 }; x < m_mapWidth; ++x)
                 {
                     auto screenPosition{ IsoMath::ToScreen(x, y) };
 
@@ -236,12 +220,20 @@ namespace sg::islands::iso
                     t_window.draw(sprite);
 
                     // from 2D to 1D
-                    const auto index{ IsoMath::From2DTo1D(x, y, width) };
+                    const auto index{ IsoMath::From2DTo1D(x, y, m_mapWidth) };
 
-                    auto obstacleValue{ std::to_string(m_obstacles[index]) };
+                    std::string obstacleValue;
+                    if (t_land)
+                    {
+                        obstacleValue = std::to_string(m_obstaclesForLandUnits[index]);
+                    }
+                    else
+                    {
+                        obstacleValue = std::to_string(m_obstaclesForShipUnits[index]);
+                    }
 
                     text.setString(obstacleValue);
-                    text.setFillColor(sf::Color::Red);
+                    text.setFillColor(sf::Color::Cyan);
                     text.setPosition(screenPosition.x + 18, screenPosition.y + 40);
 
                     t_window.draw(text);
@@ -253,21 +245,39 @@ namespace sg::islands::iso
 
     private:
         /**
-         * @brief The `Map` width in tiles.
+         * @brief The `Map` width in deep water tiles.
          */
-        int m_width{ -1 };
+        int m_deepWaterWidth{ -1 };
 
         /**
-         * @brief The `Map` height in tiles.
+         * @brief The `Map` height in deep water tiles.
          */
-        int m_height{ -1 };
+        int m_deepWaterHeight{ -1 };
+
+        /**
+         * @brief The `Map` width in default tiles.
+         */
+        int m_mapWidth{ -1 };
+
+        /**
+         * @brief The `Map` height in default tiles.
+         */
+        int m_mapHeight{ -1 };
 
         /**
          * @brief The `Island` objects of the `Map`.
          */
         Islands m_islands;
 
-        std::vector<int> m_obstacles;
+        /**
+         * @brief This obstacle map is used to find the path for a ship.
+         */
+        Obstacles m_obstaclesForShipUnits;
+
+        /**
+         * @brief This obstacle map is used to find the path for a land unit.
+         */
+        Obstacles m_obstaclesForLandUnits;
 
         //-------------------------------------------------
         // Load Data
@@ -286,11 +296,18 @@ namespace sg::islands::iso
             const auto mapElement{ core::XmlWrapper::GetFirstChildElement(document, "map") };
 
             // read width && height
-            core::XmlWrapper::QueryAttribute(mapElement, "width", &m_width);
-            core::XmlWrapper::QueryAttribute(mapElement, "height", &m_height);
+            core::XmlWrapper::QueryAttribute(mapElement, "width", &m_deepWaterWidth);
+            core::XmlWrapper::QueryAttribute(mapElement, "height", &m_deepWaterHeight);
 
-            SG_ISLANDS_INFO("[Map::LoadMapFile()] Map width in tiles: {} ", m_width);
-            SG_ISLANDS_INFO("[Map::LoadMapFile()] Map height in tiles: {} ", m_height);
+            // The tile for deep water is 10 times larger than a standard tile.
+            // The size of the map is converted here to the width and height in default tiles.
+            m_mapWidth = m_deepWaterWidth * TileAtlas::DEEP_WATER_TILE_WIDTH / TileAtlas::DEFAULT_TILE_WIDTH;
+            m_mapHeight = m_deepWaterHeight * TileAtlas::DEEP_WATER_TILE_HEIGHT / TileAtlas::DEFAULT_TILE_HEIGHT;
+
+            SG_ISLANDS_INFO("[Map::LoadMapFile()] Map width in deep water tiles: {} ", m_deepWaterWidth);
+            SG_ISLANDS_INFO("[Map::LoadMapFile()] Map height in deep water tiles: {} ", m_deepWaterHeight);
+            SG_ISLANDS_INFO("[Map::LoadMapFile()] Map width in default tiles: {} ", m_mapWidth);
+            SG_ISLANDS_INFO("[Map::LoadMapFile()] Map height in default tiles: {} ", m_mapHeight);
 
             // get `<islands>` element
             auto islands{ core::XmlWrapper::GetFirstChildElement(mapElement, "islands") };
@@ -320,7 +337,55 @@ namespace sg::islands::iso
                 m_islands.push_back(std::move(islandUniquePtr));
             }
 
+            GenerateObstaclesMaps();
+
             SG_ISLANDS_INFO("[Map::LoadMapFile()] Successfully loaded {} islands.", m_islands.size());
+        }
+
+        //-------------------------------------------------
+        // Obstacles Maps
+        //-------------------------------------------------
+
+        /**
+         * @brief Generates two obstacles maps.
+         *        One map is used to move ships and the other to move land units.
+         */
+        void GenerateObstaclesMaps()
+        {
+            SG_ISLANDS_INFO("[Map::LoadMapFile()] Generating obstacle maps ...");
+
+            // prepare maps
+            for (auto y{ 0 }; y < m_mapHeight; ++y)
+            {
+                for (auto x{ 0 }; x < m_mapWidth; ++x)
+                {
+                    m_obstaclesForShipUnits.push_back(EMPTY);
+                    m_obstaclesForLandUnits.push_back(OBSTACLE);
+                }
+            }
+
+            // add obstacles
+            for (const auto& island : m_islands)
+            {
+                for (auto y{ 0 }; y < island->GetHeight(); ++y)
+                {
+                    for (auto x{ 0 }; x < island->GetWidth(); ++x)
+                    {
+                        // determine the position of the tile on the map
+                        const auto xMapPos{ x + island->GetXOffset() };
+                        const auto yMapPos{ y + island->GetYOffset() };
+
+                        // from 2D to 1D
+                        const auto index{ IsoMath::From2DTo1D(xMapPos, yMapPos, m_mapWidth) };
+
+                        // set obstacle
+                        m_obstaclesForShipUnits[index] = OBSTACLE;
+                        m_obstaclesForLandUnits[index] = EMPTY;
+                    }
+                }
+            }
+
+            SG_ISLANDS_INFO("[Map::LoadMapFile()] The obstacle maps has been successfully generated.");
         }
     };
 }

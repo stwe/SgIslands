@@ -2,7 +2,7 @@
 // 
 // Filename: Entity.hpp
 // Created:  27.01.2019
-// Updated:  03.02.2019
+// Updated:  04.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -37,8 +37,8 @@ namespace sg::islands
         {
             m_currentScreenPosition = iso::IsoMath::ToScreen(m_mapPosition);
 
-            // todo
-            m_astar = std::make_unique<iso::Astar>(t_map.GetObstacles(), t_map.GetWidth(), t_map.GetHeight());
+            // todo tmp code
+            m_astar = std::make_unique<iso::Astar>(t_map.GetObstaclesForShipUnits(), t_map.GetMapWidth(), t_map.GetMapHeight());
         }
 
         Entity(const Entity& t_other) = delete;

@@ -121,7 +121,8 @@ namespace sg::islands::core
         std::size_t m_statisticsNumFrames{ 0 };
 
         bool m_drawGrid{ false };
-        bool m_drawObstacles{ false };
+        bool m_drawObstaclesForShipUnits{ false };
+        bool m_drawObstaclesForLandUnits{ false };
 
         std::unique_ptr<Entity> m_entity;
 
@@ -154,12 +155,8 @@ namespace sg::islands::core
             m_map = std::make_unique<iso::Map>(m_appOptions.map);
             assert(m_map);
 
-
-
-            m_map->GenerateObstaclesMap();
+            // create an `Entity`
             m_entity = std::make_unique<Entity>(PIRATE_SHIP, sf::Vector2i(20, 20), *m_map);
-
-
 
             // create `Unit`
             m_unit = std::make_unique<iso::Unit>(m_appOptions.unit);
@@ -208,7 +205,11 @@ namespace sg::islands::core
                 }
                 if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::O)
                 {
-                    m_drawObstacles = !m_drawObstacles;
+                    m_drawObstaclesForShipUnits = !m_drawObstaclesForShipUnits;
+                }
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::L)
+                {
+                    m_drawObstaclesForLandUnits = !m_drawObstaclesForLandUnits;
                 }
 
                 // change direction of pirate ship
@@ -235,9 +236,14 @@ namespace sg::islands::core
                 m_map->DrawMapGrid(*m_window, *m_tileAtlas, m_fonts);
             }
 
-            if (m_drawObstacles)
+            if (m_drawObstaclesForShipUnits)
             {
                 m_map->DrawObstaclesMap(*m_window, *m_tileAtlas, m_fonts);
+            }
+
+            if (m_drawObstaclesForLandUnits)
+            {
+                m_map->DrawObstaclesMap(*m_window, *m_tileAtlas, m_fonts, true);
             }
 
             m_window->draw(m_statisticsText);
