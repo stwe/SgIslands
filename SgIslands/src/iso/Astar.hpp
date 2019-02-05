@@ -99,7 +99,7 @@ namespace sg::islands::iso
             openList.push_back(allList[index]);
 
             // loop until find the end node
-            while (!openList.empty() && openList.size() < m_width * m_height)
+            while (!openList.empty() && openList.size() < static_cast<std::size_t>(m_width * m_height))
             {
                 Node node;
                 do
@@ -132,8 +132,8 @@ namespace sg::islands::iso
                 {
                     for (auto xOffset{ -1 }; xOffset <= 1; ++xOffset)
                     {
-                        auto newXPos{ xPos + xOffset };
-                        auto newYPos{ yPos + yOffset };
+                        const auto newXPos{ xPos + xOffset };
+                        const auto newYPos{ yPos + yOffset };
                         const auto newIndex{ IsoMath::From2DTo1D(newXPos, newYPos, m_width) };
 
                         if (IsValid(newXPos, newYPos))
@@ -169,7 +169,7 @@ namespace sg::islands::iso
                         }
                         else
                         {
-                            SG_ISLANDS_WARN("[Astar::FindPath()] Not valid position x: {}, y: {}", newXPos, newYPos);
+                            //SG_ISLANDS_WARN("[Astar::FindPath()] Not valid position x: {}, y: {}", newXPos, newYPos);
                         }
                     }
                 }
@@ -239,7 +239,7 @@ namespace sg::islands::iso
             const auto xd{ t_endNode.position.x - t_x };
             const auto yd{ t_endNode.position.y - t_y };
 
-            return static_cast<float>(sqrt(xd * xd + yd * yd));
+            return static_cast<float>(sqrt(xd * xd + yd * yd)); // todo remove sqrt
         }
 
         /**
@@ -255,7 +255,7 @@ namespace sg::islands::iso
                 return false;
             }
 
-            return m_obstacles[IsoMath::From2DTo1D(t_x, t_y, m_width)] != -255;
+            return m_obstacles[IsoMath::From2DTo1D(t_x, t_y, m_width)] != Map::OBSTACLE;
         }
 
         /**

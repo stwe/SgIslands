@@ -31,8 +31,9 @@ namespace sg::islands
 
         Entity() = delete;
 
-        Entity(const iso::Unit::UnitId t_unitId, const sf::Vector2i& t_mapPosition, iso::Map& t_map)
-            : m_unitId{ t_unitId }
+        Entity(iso::TileAtlas& t_tileAtlas, const iso::Unit::UnitId t_unitId, const sf::Vector2i& t_mapPosition, iso::Map& t_map)
+            : m_tileAtlas{ t_tileAtlas }
+            , m_unitId{ t_unitId }
             , m_mapPosition{ t_mapPosition }
         {
             m_currentScreenPosition = iso::IsoMath::ToScreen(m_mapPosition);
@@ -76,7 +77,8 @@ namespace sg::islands
                     SG_ISLANDS_DEBUG("target map x: {}", m_targetMapPosition.x);
                     SG_ISLANDS_DEBUG("target map y: {}", m_targetMapPosition.y);
 
-                    //t_map.SetTarget(m_targetMapPosition);
+
+
 
                     iso::Node node;
                     iso::Node endNode;
@@ -84,9 +86,14 @@ namespace sg::islands
                     node.position = m_mapPosition;
                     endNode.position = m_targetMapPosition;
 
-                    // todo
-                    std::vector<iso::Node> path;
-                    path = m_astar->FindPath(node, endNode);
+                    m_path.clear();
+                    m_path = m_astar->FindPath(node, endNode);
+                    SG_ISLANDS_DEBUG("path size: {}", m_path.size());
+                    SG_ISLANDS_DEBUG("path start x: {}, y: {}", m_path.front().position.x, m_path.front().position.y);
+                    SG_ISLANDS_DEBUG("path last x: {}, y: {}", m_path.back().position.x, m_path.back().position.y);
+
+
+
 
                     // calc direction vector to the target
                     m_spriteScreenDirection = iso::VecMath::Direction(m_currentScreenPosition, m_targetScreenPosition);
@@ -126,6 +133,7 @@ namespace sg::islands
                 if (m_lengthToTarget <= 1.0f)
                 {
                     m_isMove = false;
+                    m_mapPosition = m_targetMapPosition;
                 }
             }
         }
@@ -138,12 +146,21 @@ namespace sg::islands
             sprite.setPosition(m_currentScreenPosition);
             sprite.setOrigin(SHIP_TILE_WIDTH_HALF, SHIP_TILE_HEIGHT_HALF);
 
+            // tmp code
+            for (const auto& n : m_path)
+            {
+                iso::Tile::DrawTile(1000, n.position.x, n.position.y, t_window, m_tileAtlas);
+            }
+
             t_window.draw(sprite);
         }
 
     protected:
 
     private:
+        iso::TileAtlas& m_tileAtlas;
+        std::vector<iso::Node> m_path;
+
         iso::Unit::UnitId m_unitId{ -1 };
 
         sf::Vector2i m_mapPosition{ -1, -1 };

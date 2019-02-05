@@ -156,7 +156,7 @@ namespace sg::islands::core
             assert(m_map);
 
             // create an `Entity`
-            m_entity = std::make_unique<Entity>(PIRATE_SHIP, sf::Vector2i(20, 20), *m_map);
+            m_entity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, sf::Vector2i(19, 11), *m_map);
 
             // create `Unit`
             m_unit = std::make_unique<iso::Unit>(m_appOptions.unit);
