@@ -71,9 +71,9 @@ namespace sg::islands::iso
                     Node node;
                     node.position = sf::Vector2i(x, y);
                     node.parentPosition = sf::Vector2i(-1, -1);
-                    node.g = FLT_MAX;
-                    node.h = FLT_MAX;
-                    node.f = FLT_MAX;
+                    node.g = std::numeric_limits<float>::max();
+                    node.h = std::numeric_limits<float>::max();
+                    node.f = std::numeric_limits<float>::max();
 
                     allList.push_back(node);
                     closedList.push_back(false);
@@ -104,7 +104,7 @@ namespace sg::islands::iso
                 Node node;
                 do
                 {
-                    auto tmp{ FLT_MAX };
+                    auto tmp{ std::numeric_limits<float>::max() };
                     std::vector<Node>::iterator itNode;
                     for (auto it{ openList.begin() }; it != openList.end(); it = std::next(it))
                     {
@@ -153,7 +153,7 @@ namespace sg::islands::iso
                                 const auto newF{ newG + newH };
 
                                 // check if this path is better than the one already present
-                                if (allList[newIndex].f == FLT_MAX ||
+                                if (allList[newIndex].f == std::numeric_limits<float>::max() ||
                                     allList[newIndex].f > newF)
                                 {
                                     // update the details of this neighbour node

@@ -2,7 +2,7 @@
 // 
 // Filename: Entity.hpp
 // Created:  27.01.2019
-// Updated:  04.02.2019
+// Updated:  08.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -68,46 +68,7 @@ namespace sg::islands
 
                     SG_ISLANDS_DEBUG("Left Mouse pressed.");
 
-                    // set target position
-                    const auto mousePosition{ sf::Mouse::getPosition(t_window) };
-                    const auto targetPosition{ t_window.mapPixelToCoords(mousePosition) };
-                    m_targetMapPosition = iso::IsoMath::ToMap(targetPosition);
-                    m_targetScreenPosition = iso::IsoMath::ToScreen(m_targetMapPosition);
-
-                    SG_ISLANDS_DEBUG("target map x: {}", m_targetMapPosition.x);
-                    SG_ISLANDS_DEBUG("target map y: {}", m_targetMapPosition.y);
-
-
-
-
-                    iso::Node node;
-                    iso::Node endNode;
-
-                    node.position = m_mapPosition;
-                    endNode.position = m_targetMapPosition;
-
-                    m_path.clear();
-                    m_path = m_astar->FindPath(node, endNode);
-                    SG_ISLANDS_DEBUG("path size: {}", m_path.size());
-                    SG_ISLANDS_DEBUG("path start x: {}, y: {}", m_path.front().position.x, m_path.front().position.y);
-                    SG_ISLANDS_DEBUG("path last x: {}, y: {}", m_path.back().position.x, m_path.back().position.y);
-
-
-
-
-                    // calc direction vector to the target
-                    m_spriteScreenDirection = iso::VecMath::Direction(m_currentScreenPosition, m_targetScreenPosition);
-
-                    // calc the length to the target
-                    m_lengthToTarget = iso::VecMath::Length(m_spriteScreenDirection);
-                    SG_ISLANDS_DEBUG("length to the target: {}", m_lengthToTarget);
-
-                    // normalize the direction vector
-                    m_spriteScreenNormalDirection = m_spriteScreenDirection;
-                    iso::VecMath::Normalize(m_spriteScreenNormalDirection);
-
-                    // calc the angle to the target to set the sprite `Direction`
-                    m_direction = iso::Unit::GetDirectionByVec(m_spriteScreenNormalDirection);
+                    FindPathToMouse(t_window);
                 }
             }
         }
@@ -122,8 +83,8 @@ namespace sg::islands
 
             if (m_isMove)
             {
-                m_spriteScreenDirection = iso::VecMath::Direction(m_currentScreenPosition, m_targetScreenPosition);
-                m_lengthToTarget = iso::VecMath::Length(m_spriteScreenDirection);
+                SetNextWayPoint(m_wayPoint);
+
                 if (m_lengthToTarget > 1.0f)
                 {
                     m_currentScreenPosition.x += m_spriteScreenNormalDirection.x;
@@ -134,6 +95,7 @@ namespace sg::islands
                 {
                     m_isMove = false;
                     m_mapPosition = m_targetMapPosition;
+                    m_wayPoint++;
                 }
             }
         }
@@ -175,9 +137,64 @@ namespace sg::islands
         float m_lengthToTarget{ -1.0f };
 
         bool m_isMove{ false };
+        std::size_t m_wayPoint{ 0 };
 
         iso::Unit::Direction m_direction{ iso::Unit::Direction::E_DIRECTION };
 
         std::unique_ptr<iso::Astar> m_astar;
+
+        //-------------------------------------------------
+        // Helper
+        //-------------------------------------------------
+
+        void FindPathToMouse(sf::RenderWindow& t_window)
+        {
+            // get mouse position
+            const auto mousePosition{ sf::Mouse::getPosition(t_window) };
+            const auto targetPosition{ t_window.mapPixelToCoords(mousePosition) };
+
+            // get map position of the mouse
+            const auto targetMapPosition{ iso::IsoMath::ToMap(targetPosition) };
+            SG_ISLANDS_DEBUG("target map x: {}", targetMapPosition.x);
+            SG_ISLANDS_DEBUG("target map y: {}", targetMapPosition.y);
+
+            // find full path to mouse map position
+            iso::Node node;
+            iso::Node endNode;
+
+            node.position = m_mapPosition;
+            endNode.position = targetMapPosition;
+
+            m_path = m_astar->FindPath(node, endNode);
+
+            SG_ISLANDS_DEBUG("path size: {}", m_path.size());
+
+            m_wayPoint = 1;
+        }
+
+        void SetNextWayPoint(const std::size_t t_pathIndex)
+        {
+            assert(t_pathIndex < m_path.size());
+
+            // Wegpunkt als nächstes Ziel setzen
+            m_targetMapPosition = m_path[t_pathIndex].position;
+
+            // Ziel in Screen Coords umrechnen
+            m_targetScreenPosition = iso::IsoMath::ToScreen(m_targetMapPosition);
+
+            // calc direction vector to the target
+            m_spriteScreenDirection = iso::VecMath::Direction(m_currentScreenPosition, m_targetScreenPosition);
+
+            // calc the length to the target
+            m_lengthToTarget = iso::VecMath::Length(m_spriteScreenDirection);
+            SG_ISLANDS_DEBUG("length to the target: {}", m_lengthToTarget);
+
+            // normalize the direction vector
+            m_spriteScreenNormalDirection = m_spriteScreenDirection;
+            iso::VecMath::Normalize(m_spriteScreenNormalDirection);
+
+            // calc the angle to the target to set the sprite `Direction`
+            m_direction = iso::Unit::GetDirectionByVec(m_spriteScreenNormalDirection);
+        }
     };
 }
