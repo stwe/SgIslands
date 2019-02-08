@@ -110,7 +110,7 @@
     <ClInclude Include="src\iso\Node.hpp" />
     <ClInclude Include="src\iso\Tile.hpp" />
     <ClInclude Include="src\iso\TileAtlas.hpp" />
-    <ClInclude Include="src\iso\Unit.hpp" />
+    <ClInclude Include="src\iso\UnitAnimations.hpp" />
     <ClInclude Include="src\iso\VecMath.hpp" />
     <ClInclude Include="vendor\tinyxml2\tinyxml2.h" />
   </ItemGroup>

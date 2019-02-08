@@ -13,7 +13,7 @@
 
 #include <memory>
 #include "iso/VecMath.hpp"
-#include "iso/Unit.hpp"
+#include "iso/UnitAnimations.hpp"
 #include "iso/Astar.hpp"
 
 namespace sg::islands
@@ -31,7 +31,7 @@ namespace sg::islands
 
         Entity() = delete;
 
-        Entity(iso::TileAtlas& t_tileAtlas, const iso::Unit::UnitId t_unitId, const sf::Vector2i& t_mapPosition, iso::Map& t_map)
+        Entity(iso::TileAtlas& t_tileAtlas, const iso::UnitAnimations::UnitId t_unitId, const sf::Vector2i& t_mapPosition, iso::Map& t_map)
             : m_tileAtlas{ t_tileAtlas }
             , m_unitId{ t_unitId }
             , m_mapPosition{ t_mapPosition }
@@ -71,11 +71,11 @@ namespace sg::islands
             }
         }
 
-        void UpdateAnimations(iso::Unit& t_unit, const sf::Time t_dt)
+        void UpdateAnimations(iso::UnitAnimations& t_unitAnimations, const sf::Time t_dt)
         {
-            for (auto& direction : iso::Unit::DIRECTIONS)
+            for (auto& direction : iso::UnitAnimations::DIRECTIONS)
             {
-                auto& animation{ t_unit.GetAnimation(m_unitId, direction) };
+                auto& animation{ t_unitAnimations.GetAnimation(m_unitId, direction) };
                 animation.Update(t_dt);
             }
 
@@ -102,9 +102,9 @@ namespace sg::islands
             }
         }
 
-        void Draw(iso::Unit& t_unit, sf::RenderWindow& t_window)
+        void Draw(iso::UnitAnimations& t_unitAnimations, sf::RenderWindow& t_window)
         {
-            auto& animation{ t_unit.GetAnimation(m_unitId, m_direction) };
+            auto& animation{ t_unitAnimations.GetAnimation(m_unitId, m_direction) };
             auto& sprite{ animation.GetSprite() };
 
             sprite.setPosition(m_currentScreenPosition);
@@ -125,7 +125,7 @@ namespace sg::islands
         iso::TileAtlas& m_tileAtlas;
         std::vector<iso::Node> m_path;
 
-        iso::Unit::UnitId m_unitId{ -1 };
+        iso::UnitAnimations::UnitId m_unitId{ -1 };
 
         sf::Vector2i m_mapPosition{ -1, -1 };
         sf::Vector2f m_currentScreenPosition{ -1.0f, -1.0f };
@@ -141,7 +141,7 @@ namespace sg::islands
         bool m_isMove{ false };
         std::size_t m_wayPoint{ 0 };
 
-        iso::Unit::Direction m_direction{ iso::Unit::Direction::E_DIRECTION };
+        iso::UnitAnimations::Direction m_direction{ iso::UnitAnimations::Direction::E_DIRECTION };
 
         std::unique_ptr<iso::Astar> m_astar;
 
@@ -202,7 +202,7 @@ namespace sg::islands
             iso::VecMath::Normalize(m_spriteScreenNormalDirection);
 
             // calc the angle to the target to set the sprite `Direction`
-            m_direction = iso::Unit::GetDirectionByVec(m_spriteScreenNormalDirection);
+            m_direction = iso::UnitAnimations::GetDirectionByVec(m_spriteScreenNormalDirection);
         }
     };
 }

@@ -1,13 +1,4 @@
-// This file is part of the SgIslands package.
-// 
-// Filename: Application.hpp
-// Created:  25.01.2019
-// Updated:  03.02.2019
-// Author:   stwe
-// 
-// License:  MIT
-// 
-// 2019 (c) stwe <https://github.com/stwe/SgIslands>
+
 
 #pragma once
 
@@ -17,7 +8,7 @@
 #include "Config.hpp"
 #include "ResourceHolder.hpp"
 #include "../iso/Map.hpp"
-#include "../iso/Unit.hpp"
+#include "../iso/UnitAnimations.hpp"
 #include "../Entity.hpp"
 
 namespace sg::islands::core
@@ -28,7 +19,7 @@ namespace sg::islands::core
         using RenderWindowUniquePtr = std::unique_ptr<sf::RenderWindow>;
         using TileAtlasUniquePtr = std::unique_ptr<iso::TileAtlas>;
         using MapUniquePtr = std::unique_ptr<iso::Map>;
-        using UnitUniquePtr = std::unique_ptr<iso::Unit>;
+        using UnitAnimationsUniquePtr = std::unique_ptr<iso::UnitAnimations>;
 
         static constexpr auto PIRATE_SHIP{ 0 };
 
@@ -114,7 +105,7 @@ namespace sg::islands::core
         /**
          * @brief All animations of moveable units.
          */
-        UnitUniquePtr m_unit;
+        UnitAnimationsUniquePtr m_unitAnimations;
 
         sf::Text m_statisticsText;
         sf::Time m_statisticsUpdateTime;
@@ -158,9 +149,9 @@ namespace sg::islands::core
             // create an `Entity`
             m_entity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, sf::Vector2i(19, 11), *m_map);
 
-            // create `Unit`
-            m_unit = std::make_unique<iso::Unit>(m_appOptions.unit);
-            assert(m_unit);
+            // create `UnitAnimations`
+            m_unitAnimations = std::make_unique<iso::UnitAnimations>(m_appOptions.unit);
+            assert(m_unitAnimations);
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
@@ -220,7 +211,7 @@ namespace sg::islands::core
         void Update(const sf::Time t_dt)
         {
             // update pirate ship entity
-            m_entity->UpdateAnimations(*m_unit, t_dt);
+            m_entity->UpdateAnimations(*m_unitAnimations, t_dt);
         }
 
         void Render()
@@ -249,7 +240,7 @@ namespace sg::islands::core
             m_window->draw(m_statisticsText);
 
             // draw pirate ship entity
-            m_entity->Draw(*m_unit, *m_window);
+            m_entity->Draw(*m_unitAnimations, *m_window);
 
             m_window->display();
         }

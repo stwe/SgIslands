@@ -1,8 +1,8 @@
 // This file is part of the SgIslands package.
 // 
-// Filename: Unit.hpp
+// Filename: UnitAnimations.hpp
 // Created:  26.01.2019
-// Updated:  02.02.2019
+// Updated:  08.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -18,7 +18,7 @@
 
 namespace sg::islands::iso
 {
-    class Unit
+    class UnitAnimations
     {
     public:
         enum class Direction
@@ -58,19 +58,19 @@ namespace sg::islands::iso
         // Ctor. && Dtor.
         //-------------------------------------------------
 
-        Unit() = delete;
+        UnitAnimations() = delete;
 
-        explicit Unit(const core::Filename& t_filename)
+        explicit UnitAnimations(const core::Filename& t_filename)
         {
             LoadConfigFile(t_filename);
         }
 
-        Unit(const Unit& t_other) = delete;
-        Unit(Unit&& t_other) noexcept = delete;
-        Unit& operator=(const Unit& t_other) = delete;
-        Unit& operator=(Unit&& t_other) noexcept = delete;
+        UnitAnimations(const UnitAnimations& t_other) = delete;
+        UnitAnimations(UnitAnimations&& t_other) noexcept = delete;
+        UnitAnimations& operator=(const UnitAnimations& t_other) = delete;
+        UnitAnimations& operator=(UnitAnimations&& t_other) noexcept = delete;
 
-        ~Unit() noexcept = default;
+        ~UnitAnimations() noexcept = default;
 
         //-------------------------------------------------
         // Getter
@@ -184,7 +184,7 @@ namespace sg::islands::iso
                 return Direction::SE_DIRECTION;
             }
 
-            SG_ISLANDS_WARN("[Unit::GetDirectionByVec()] Return the default direction (E_DIRECTION) for angle {}.", angleDeg);
+            SG_ISLANDS_WARN("[UnitAnimations::GetDirectionByVec()] Return the default direction (E_DIRECTION) for angle {}.", angleDeg);
 
             return Direction::E_DIRECTION;
         }
@@ -207,7 +207,7 @@ namespace sg::islands::iso
          */
         void LoadConfigFile(const core::Filename& t_filename)
         {
-            SG_ISLANDS_INFO("[Unit::LoadConfigFile()] Open {} for reading units.", t_filename);
+            SG_ISLANDS_INFO("[UnitAnimations::LoadConfigFile()] Open {} for reading units.", t_filename);
 
             tinyxml2::XMLDocument document;
 
@@ -223,7 +223,7 @@ namespace sg::islands::iso
             // get the units base directory from the `<dir>` element
             const auto unitsDir{ core::XmlWrapper::GetStringFromXmlElement(unitsElement, "dir") };
 
-            SG_ISLANDS_INFO("[Unit::LoadConfigFile()] Loading units from {} ...", unitsDir);
+            SG_ISLANDS_INFO("[UnitAnimations::LoadConfigFile()] Loading units from {} ...", unitsDir);
 
             // get each `<unit>`
             for (auto unit{ unitsElement->FirstChildElement("unit") }; unit != nullptr; unit = unit->NextSiblingElement())
@@ -261,7 +261,7 @@ namespace sg::islands::iso
                 }
             }
 
-            SG_ISLANDS_INFO("[Unit::LoadConfigFile()] Successfully loaded {} animations for {} units.", m_animations.size(), m_animations.size() / NUMBER_OF_DIRECTIONS);
+            SG_ISLANDS_INFO("[UnitAnimations::LoadConfigFile()] Successfully loaded {} animations for {} units.", m_animations.size(), m_animations.size() / NUMBER_OF_DIRECTIONS);
         }
     };
 }
