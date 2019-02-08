@@ -97,7 +97,7 @@ namespace sg::islands
                     m_wayPoint++;
                 }
 
-                if (m_wayPoint == m_path.size() - 1)
+                if (m_wayPoint == m_path.size())
                 {
                     m_isMove = false;
                 }
