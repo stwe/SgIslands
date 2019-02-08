@@ -93,9 +93,13 @@ namespace sg::islands
 
                 if (m_lengthToTarget <= 1.0f)
                 {
-                    m_isMove = false;
                     m_mapPosition = m_targetMapPosition;
                     m_wayPoint++;
+                }
+
+                if (m_wayPoint == m_path.size() - 1)
+                {
+                    m_isMove = false;
                 }
             }
         }
