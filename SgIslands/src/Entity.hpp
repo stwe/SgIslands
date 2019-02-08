@@ -64,11 +64,9 @@ namespace sg::islands
             {
                 if (t_event.mouseButton.button == sf::Mouse::Left)
                 {
-                    m_isMove = true;
-
                     SG_ISLANDS_DEBUG("Left Mouse pressed.");
 
-                    FindPathToMouse(t_window);
+                    m_isMove = FindPathToMouse(t_window);
                 }
             }
         }
@@ -151,7 +149,7 @@ namespace sg::islands
         // Helper
         //-------------------------------------------------
 
-        void FindPathToMouse(sf::RenderWindow& t_window)
+        bool FindPathToMouse(sf::RenderWindow& t_window)
         {
             // get mouse position
             const auto mousePosition{ sf::Mouse::getPosition(t_window) };
@@ -171,19 +169,26 @@ namespace sg::islands
 
             m_path = m_astar->FindPath(node, endNode);
 
+            if (m_path.empty())
+            {
+                return false;
+            }
+
             SG_ISLANDS_DEBUG("path size: {}", m_path.size());
 
             m_wayPoint = 1;
+
+            return true;
         }
 
         void SetNextWayPoint(const std::size_t t_pathIndex)
         {
             assert(t_pathIndex < m_path.size());
 
-            // Wegpunkt als nächstes Ziel setzen
+            // the next position ist the target
             m_targetMapPosition = m_path[t_pathIndex].position;
 
-            // Ziel in Screen Coords umrechnen
+            // calc target screen position
             m_targetScreenPosition = iso::IsoMath::ToScreen(m_targetMapPosition);
 
             // calc direction vector to the target
@@ -191,7 +196,6 @@ namespace sg::islands
 
             // calc the length to the target
             m_lengthToTarget = iso::VecMath::Length(m_spriteScreenDirection);
-            SG_ISLANDS_DEBUG("length to the target: {}", m_lengthToTarget);
 
             // normalize the direction vector
             m_spriteScreenNormalDirection = m_spriteScreenDirection;
