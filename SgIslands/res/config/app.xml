@@ -10,8 +10,12 @@
         <font>res/fonts/font.ttf</font>
     </fonts>
     <world>
-        <tileAtlas>res/config/tileset.xml</tileAtlas>
+        <tileAtlas>
+            <background>res/config/deepWaterTileset.xml</background>
+            <terrain>res/config/terrainTileset.xml</terrain>
+            <misc>res/config/miscTileset.xml</misc>
+        </tileAtlas>
         <map>res/config/example_map.xml</map>
-        <unit>res/config/animations.xml</unit>
+        <unitAnimations>res/config/unitAnimations.xml</unitAnimations>
     </world>
 </app>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tileset version="1.2" tiledversion="1.2.1" name="deepWaterTileset" tilewidth="640" tileheight="320" tilecount="4" columns="0">
+    <grid orientation="isometric" width="1" height="1"/>
+
+    <!-- deep0 package -->
+    <tile id="16">
+        <image width="640" height="320" source="../gfx/terrain/deep0/straight/45/0.png" path="res/gfx/terrain/deep0/straight/45/0.png"/>
+    </tile>
+    <tile id="17">
+        <image width="640" height="320" source="../gfx/terrain/deep0/straight/135/0.png" path="res/gfx/terrain/deep0/straight/135/0.png"/>
+    </tile>
+    <tile id="18">
+        <image width="640" height="320" source="../gfx/terrain/deep0/straight/225/0.png" path="res/gfx/terrain/deep0/straight/225/0.png"/>
+    </tile>
+    <tile id="19">
+        <image width="640" height="320" source="../gfx/terrain/deep0/straight/315/0.png" path="res/gfx/terrain/deep0/straight/315/0.png"/>
+    </tile>
+</tileset>

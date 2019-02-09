@@ -114,7 +114,7 @@ namespace sg::islands::iso
 
         void DrawMapGrid(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas, const core::FontHolder& t_fontHolder) const
         {
-            const auto& grid{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::GRID_TILE) };
+            const auto& grid{ t_tileAtlas.GetMiscTileGraphic(TileAtlas::GRID_TILE) };
 
             sf::Text text;
             text.setFont(t_fontHolder.GetResource(1));
@@ -155,7 +155,7 @@ namespace sg::islands::iso
 
         void DrawDeepWater(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas) const
         {
-            const auto& deepWaterSouth{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::DEEP_WATER_SOUTH) };
+            const auto& deepWaterSouth{ t_tileAtlas.GetBackgroundTileGraphic(TileAtlas::DEEP_WATER_SOUTH_TILE) };
 
             /*
             const auto& deepWaterEast{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::DEEP_WATER_EAST) };
@@ -198,7 +198,7 @@ namespace sg::islands::iso
             const bool t_land = false
         )
         {
-            const auto& grid{ t_tileAtlas.GetTileAtlasTexture(TileAtlas::GRID_TILE) };
+            const auto& grid{ t_tileAtlas.GetMiscTileGraphic(TileAtlas::GRID_TILE) };
 
             sf::Text text;
             text.setFont(t_fontHolder.GetResource(1));

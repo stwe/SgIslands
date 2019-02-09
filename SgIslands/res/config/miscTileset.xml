@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tileset version="1.2" tiledversion="1.2.1" name="miscTileset" tilewidth="64" tileheight="64" tilecount="2" columns="0">
+    <grid orientation="isometric" width="1" height="1"/>
+
+    <tile id="1000">
+        <image width="64" height="64" source="../gfx/misc/grid.png" path="res/gfx/misc/grid.png"/>
+    </tile>
+    <tile id="2000">
+        <image width="64" height="64" source="../gfx/misc/clicked.png" path="res/gfx/misc/clicked.png"/>
+    </tile>
+</tileset>

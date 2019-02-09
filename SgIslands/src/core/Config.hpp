@@ -2,7 +2,7 @@
 // 
 // Filename: Config.hpp
 // Created:  26.01.2019
-// Updated:  26.01.2019
+// Updated:  09.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -20,13 +20,24 @@ namespace sg::islands::core
 {
     struct AppOptions
     {
+        // window
         std::string windowTitle;
         int windowWidth{ -1 };
         int windowHeight{ -1 };
+
+        // fonts
         std::vector<Filename> fonts;
-        Filename tileset;
+
+        // tilesets
+        Filename backgroundTileset;
+        Filename terrainTileset;
+        Filename miscTileset;
+
+        // map
         Filename map;
-        Filename unit;
+
+        // animations
+        Filename unitAnimations;
     };
 
     class Config
@@ -48,6 +59,8 @@ namespace sg::islands::core
             // Window options
             //-------------------------------------------------
 
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Set window options.");
+
             // get `<window>` element
             const auto windowElement{ XmlWrapper::GetFirstChildElement(appElement, "window") };
 
@@ -56,7 +69,16 @@ namespace sg::islands::core
             const auto windowWidth{ XmlWrapper::GetIntFromXmlElement(windowElement, "width") };
             const auto windowHeight{ XmlWrapper::GetIntFromXmlElement(windowElement, "height") };
 
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Window title: {}.", windowTitle);
+
             t_options.windowTitle = windowTitle;
+
+            assert(windowWidth);
+            assert(windowHeight);
+
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Window width: {}.", windowWidth);
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Window height: {}.", windowHeight);
+
             t_options.windowWidth = windowWidth;
             t_options.windowHeight = windowHeight;
 
@@ -64,30 +86,53 @@ namespace sg::islands::core
             // Fonts
             //-------------------------------------------------
 
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Load font options.");
+
             // get `<fonts>` element
             const auto fontsElement{ XmlWrapper::GetFirstChildElement(appElement, "fonts") };
 
             // get each `<font>`
             for (auto font{ fontsElement->FirstChildElement() }; font != nullptr; font = font->NextSiblingElement())
             {
+                SG_ISLANDS_INFO("[Config::LoadAppOptions()] Font: {}.", font->GetText());
                 t_options.fonts.emplace_back(font->GetText());
             }
+
+            assert(!t_options.fonts.empty());
 
             //-------------------------------------------------
             // TileAtlas, Map && Animations
             //-------------------------------------------------
 
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Load world options.");
+
             // get `<world>` element
             const auto worldElement{ XmlWrapper::GetFirstChildElement(appElement, "world") };
 
-            // get the world options
-            const auto tileAtlas{ XmlWrapper::GetStringFromXmlElement(worldElement, "tileAtlas") };
-            const auto map{ XmlWrapper::GetStringFromXmlElement(worldElement, "map") };
-            const auto unit{ XmlWrapper::GetStringFromXmlElement(worldElement, "unit") };
+            // get `<tileAtlas>` element
+            const auto tileAtlasElement{ XmlWrapper::GetFirstChildElement(worldElement, "tileAtlas") };
 
-            t_options.tileset = tileAtlas;
+            // tilesets
+            const auto background{ XmlWrapper::GetStringFromXmlElement(tileAtlasElement, "background") };
+            const auto terrain{ XmlWrapper::GetStringFromXmlElement(tileAtlasElement, "terrain") };
+            const auto misc{ XmlWrapper::GetStringFromXmlElement(tileAtlasElement, "misc") };
+
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Background tileset: {}.", background);
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Terrain tileset: {}.", terrain);
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Misc tileset: {}.", misc);
+
+            t_options.backgroundTileset = background;
+            t_options.terrainTileset = terrain;
+            t_options.miscTileset = misc;
+
+            const auto map{ XmlWrapper::GetStringFromXmlElement(worldElement, "map") };
+            const auto unitAnimations{ XmlWrapper::GetStringFromXmlElement(worldElement, "unitAnimations") };
+
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Map: {}.", map);
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Unit animations: {}.", unitAnimations);
+
             t_options.map = map;
-            t_options.unit = unit;
+            t_options.unitAnimations = unitAnimations;
 
             SG_ISLANDS_INFO("[Config::LoadAppOptions()] Options successfully loaded.");
         }

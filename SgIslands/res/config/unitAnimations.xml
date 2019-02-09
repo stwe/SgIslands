@@ -5,6 +5,7 @@
     <units>
         <dir>res/gfx/units/</dir>
         <unit id="0" name="pirate1" dir="pirate1/move/" frames="16"></unit>
+        <unit id="1" name="farmer0" dir="farmer0/move/" frames="4"></unit>
     </units>
 
     <buildings>

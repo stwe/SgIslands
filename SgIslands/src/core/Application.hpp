@@ -132,14 +132,14 @@ namespace sg::islands::core
             m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(m_appOptions.windowWidth, m_appOptions.windowHeight), m_appOptions.windowTitle);
             assert(m_window);
 
-            // load and use the first font only
+            // load and use the first font
             m_fonts.Load(1, m_appOptions.fonts[0]);
             m_statisticsText.setFont(m_fonts.GetResource(1));
             m_statisticsText.setPosition(5.0f, 5.0f);
             m_statisticsText.setCharacterSize(10);
 
             // create `TileAtlas`
-            m_tileAtlas = std::make_unique<iso::TileAtlas>(m_appOptions.tileset);
+            m_tileAtlas = std::make_unique<iso::TileAtlas>(m_appOptions.backgroundTileset, m_appOptions.terrainTileset, m_appOptions.miscTileset);
             assert(m_tileAtlas);
 
             // create `Map` with all `Island`s
@@ -150,7 +150,7 @@ namespace sg::islands::core
             m_entity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, sf::Vector2i(19, 11), *m_map);
 
             // create `UnitAnimations`
-            m_unitAnimations = std::make_unique<iso::UnitAnimations>(m_appOptions.unit);
+            m_unitAnimations = std::make_unique<iso::UnitAnimations>(m_appOptions.unitAnimations);
             assert(m_unitAnimations);
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");

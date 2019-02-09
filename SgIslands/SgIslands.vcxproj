@@ -115,8 +115,14 @@
     <ClInclude Include="vendor\tinyxml2\tinyxml2.h" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="res\config\animations.xml" />
+    <Xml Include="res\config\unitAnimations.xml" />
     <Xml Include="res\config\app.xml" />
+    <Xml Include="res\config\deepWaterTileset.xml" />
+    <Xml Include="res\config\example_map.xml" />
+    <Xml Include="res\islands\island_16x16.xml" />
+    <Xml Include="res\islands\island_5x5.xml" />
+    <Xml Include="res\config\miscTileset.xml" />
+    <Xml Include="res\config\terrainTileset.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

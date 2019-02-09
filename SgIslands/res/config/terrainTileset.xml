@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tileset version="1.2" tiledversion="1.2.1" name="terrainTileset" tilewidth="64" tileheight="64" tilecount="8" columns="0">
+    <grid orientation="isometric" width="1" height="1"/>
+
+    <!-- beach0 package -->
+    <tile id="0" type="beach0_str_45">
+        <image width="64" height="64" source="../gfx/terrain/beach0/straight/45/0.png" path="res/gfx/terrain/beach0/straight/45/0.png"/>
+    </tile>
+    <tile id="1" type="beach0_str_135">
+        <image width="64" height="64" source="../gfx/terrain/beach0/straight/135/0.png" path="res/gfx/terrain/beach0/straight/135/0.png"/>
+    </tile>
+    <tile id="2" type="beach0_str_225">
+        <image width="64" height="64" source="../gfx/terrain/beach0/straight/225/0.png" path="res/gfx/terrain/beach0/straight/225/0.png"/>
+    </tile>
+    <tile id="3" type="beach0_str_315">
+        <image width="64" height="64" source="../gfx/terrain/beach0/straight/315/0.png" path="res/gfx/terrain/beach0/straight/315/0.png"/>
+    </tile>
+
+    <!-- beach-shallow0 package -->
+    <tile id="4" type="beach_shallow0_in_45">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/curve_in/45/0.png" path="res/gfx/terrain/beach-shallow0/curve_in/45/0.png"/>
+    </tile>
+    <tile id="5" type="beach_shallow0_in_135">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/curve_in/135/0.png" path="res/gfx/terrain/beach-shallow0/curve_in/135/0.png"/>
+    </tile>
+    <tile id="6" type="beach_shallow0_in_225">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/curve_in/225/0.png" path="res/gfx/terrain/beach-shallow0/curve_in/225/0.png"/>
+    </tile>
+    <tile id="7" type="beach_shallow0_in_315">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/curve_in/315/0.png" path="res/gfx/terrain/beach-shallow0/curve_in/315/0.png"/>
+    </tile>
+
+    <tile id="8" type="beach_shallow0_out_45">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/curve_out/45/0.png" path="res/gfx/terrain/beach-shallow0/curve_out/45/0.png"/>
+    </tile>
+    <tile id="9" type="beach_shallow0_out_135">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/curve_out/135/0.png" path="res/gfx/terrain/beach-shallow0/curve_out/135/0.png"/>
+    </tile>
+    <tile id="10" type="beach_shallow0_out_225">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/curve_out/225/0.png" path="res/gfx/terrain/beach-shallow0/curve_out/225/0.png"/>
+    </tile>
+    <tile id="11" type="beach_shallow0_out_315">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/curve_out/315/0.png" path="res/gfx/terrain/beach-shallow0/curve_out/315/0.png"/>
+    </tile>
+
+    <tile id="12" type="beach_shallow0_str_45">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/straight/45/0.png" path="res/gfx/terrain/beach-shallow0/straight/45/0.png"/>
+    </tile>
+    <tile id="13" type="beach_shallow0_str_135">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/straight/135/0.png" path="res/gfx/terrain/beach-shallow0/straight/135/0.png"/>
+    </tile>
+    <tile id="14" type="beach_shallow0_str_225">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/straight/225/0.png" path="res/gfx/terrain/beach-shallow0/straight/225/0.png"/>
+    </tile>
+    <tile id="15" type="beach_shallow0_str_315">
+        <image width="64" height="64" source="../gfx/terrain/beach-shallow0/straight/315/0.png" path="res/gfx/terrain/beach-shallow0/straight/315/0.png"/>
+    </tile>
+
+    <!-- grass0 package -->
+    <tile id="20" type="grass0_str_45">
+        <image width="64" height="64" source="../gfx/terrain/grass0/straight/45/0.png" path="res/gfx/terrain/grass0/straight/45/0.png"/>
+    </tile>
+    <tile id="21" type="grass0_str_135">
+        <image width="64" height="64" source="../gfx/terrain/grass0/straight/135/0.png" path="res/gfx/terrain/grass0/straight/135/0.png"/>
+    </tile>
+    <tile id="22" type="grass0_str_225">
+        <image width="64" height="64" source="../gfx/terrain/grass0/straight/225/0.png" path="res/gfx/terrain/grass0/straight/225/0.png"/>
+    </tile>
+    <tile id="23" type="grass0_str_315">
+        <image width="64" height="64" source="../gfx/terrain/grass0/straight/315/0.png" path="res/gfx/terrain/grass0/straight/315/0.png"/>
+    </tile>
+
+    <!-- grass1 package -->
+    <tile id="24" type="grass1_str_45">
+        <image width="64" height="64" source="../gfx/terrain/grass1/straight/45/0.png" path="res/gfx/terrain/grass1/straight/45/0.png"/>
+    </tile>
+    <tile id="25" type="grass1_str_135">
+        <image width="64" height="64" source="../gfx/terrain/grass1/straight/135/0.png" path="res/gfx/terrain/grass1/straight/135/0.png"/>
+    </tile>
+    <tile id="26" type="grass1_str_225">
+        <image width="64" height="64" source="../gfx/terrain/grass1/straight/225/0.png" path="res/gfx/terrain/grass1/straight/225/0.png"/>
+    </tile>
+    <tile id="27" type="grass1_str_315">
+        <image width="64" height="64" source="../gfx/terrain/grass1/straight/315/0.png" path="res/gfx/terrain/grass1/straight/315/0.png"/>
+    </tile>
+
+    <!-- grass2 package -->
+    <tile id="28" type="grass2_str_45">
+        <image width="64" height="64" source="../gfx/terrain/grass2/straight/45/0.png" path="res/gfx/terrain/grass2/straight/45/0.png"/>
+    </tile>
+    <tile id="29" type="grass2_str_135">
+        <image width="64" height="64" source="../gfx/terrain/grass2/straight/135/0.png" path="res/gfx/terrain/grass2/straight/135/0.png"/>
+    </tile>
+    <tile id="30" type="grass2_str_225">
+        <image width="64" height="64" source="../gfx/terrain/grass2/straight/225/0.png" path="res/gfx/terrain/grass2/straight/225/0.png"/>
+    </tile>
+    <tile id="31" type="grass2_str_315">
+        <image width="64" height="64" source="../gfx/terrain/grass2/straight/315/0.png" path="res/gfx/terrain/grass2/straight/315/0.png"/>
+    </tile>
+
+    <!-- grass3 package -->
+    <tile id="32" type="grass3_str_45">
+        <image width="64" height="64" source="../gfx/terrain/grass3/straight/45/0.png" path="res/gfx/terrain/grass3/straight/45/0.png"/>
+    </tile>
+    <tile id="33" type="grass3_str_135">
+        <image width="64" height="64" source="../gfx/terrain/grass3/straight/135/0.png" path="res/gfx/terrain/grass3/straight/135/0.png"/>
+    </tile>
+    <tile id="34" type="grass3_str_225">
+        <image width="64" height="64" source="../gfx/terrain/grass3/straight/225/0.png" path="res/gfx/terrain/grass3/straight/225/0.png"/>
+    </tile>
+    <tile id="35" type="grass3_str_315">
+        <image width="64" height="64" source="../gfx/terrain/grass3/straight/315/0.png" path="res/gfx/terrain/grass3/straight/315/0.png"/>
+    </tile>
+
+    <!-- grass4 package -->
+    <tile id="36" type="grass4_str_45">
+        <image width="64" height="64" source="../gfx/terrain/grass4/straight/45/0.png" path="res/gfx/terrain/grass4/straight/45/0.png"/>
+    </tile>
+    <tile id="37" type="grass4_str_135">
+        <image width="64" height="64" source="../gfx/terrain/grass4/straight/135/0.png" path="res/gfx/terrain/grass4/straight/135/0.png"/>
+    </tile>
+    <tile id="38" type="grass4_str_225">
+        <image width="64" height="64" source="../gfx/terrain/grass4/straight/225/0.png" path="res/gfx/terrain/grass4/straight/225/0.png"/>
+    </tile>
+    <tile id="39" type="grass4_str_315">
+        <image width="64" height="64" source="../gfx/terrain/grass4/straight/315/0.png" path="res/gfx/terrain/grass4/straight/315/0.png"/>
+    </tile>
+
+    <!-- grass5 package -->
+    <tile id="40" type="grass5_str_45">
+        <image width="64" height="64" source="../gfx/terrain/grass5/straight/45/0.png" path="res/gfx/terrain/grass5/straight/45/0.png"/>
+    </tile>
+    <tile id="41" type="grass5_str_135">
+        <image width="64" height="64" source="../gfx/terrain/grass5/straight/135/0.png" path="res/gfx/terrain/grass5/straight/135/0.png"/>
+    </tile>
+    <tile id="42" type="grass5_str_225">
+        <image width="64" height="64" source="../gfx/terrain/grass5/straight/225/0.png" path="res/gfx/terrain/grass5/straight/225/0.png"/>
+    </tile>
+    <tile id="43" type="grass5_str_315">
+        <image width="64" height="64" source="../gfx/terrain/grass5/straight/315/0.png" path="res/gfx/terrain/grass5/straight/315/0.png"/>
+    </tile>
+
+    <!-- grass-beach0 package -->
+    <tile id="44" type="grass-beach0_in_45">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/curve_in/45/0.png" path="res/gfx/terrain/grass-beach0/curve_in/45/0.png"/>
+    </tile>
+    <tile id="45" type="grass-beach0_in_135">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/curve_in/135/0.png" path="res/gfx/terrain/grass-beach0/curve_in/135/0.png"/>
+    </tile>
+    <tile id="46" type="grass-beach0_in_225">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/curve_in/225/0.png" path="res/gfx/terrain/grass-beach0/curve_in/225/0.png"/>
+    </tile>
+    <tile id="47" type="grass-beach0_in_315">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/curve_in/315/0.png" path="res/gfx/terrain/grass-beach0/curve_in/315/0.png"/>
+    </tile>
+
+    <tile id="48" type="grass-beach0_out_45">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/curve_out/45/0.png" path="res/gfx/terrain/grass-beach0/curve_out/45/0.png"/>
+    </tile>
+    <tile id="49" type="grass-beach0_out_135">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/curve_out/135/0.png" path="res/gfx/terrain/grass-beach0/curve_out/135/0.png"/>
+    </tile>
+    <tile id="50" type="grass-beach0_out_225">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/curve_out/225/0.png" path="res/gfx/terrain/grass-beach0/curve_out/225/0.png"/>
+    </tile>
+    <tile id="51" type="grass-beach0_out_315">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/curve_out/315/0.png" path="res/gfx/terrain/grass-beach0/curve_out/315/0.png"/>
+    </tile>
+
+    <tile id="52" type="grass-beach0_str_45">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/straight/45/0.png" path="res/gfx/terrain/grass-beach0/straight/45/0.png"/>
+    </tile>
+    <tile id="53" type="grass-beach0_str_135">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/straight/135/0.png" path="res/gfx/terrain/grass-beach0/straight/135/0.png"/>
+    </tile>
+    <tile id="54" type="grass-beach0_str_225">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/straight/225/0.png" path="res/gfx/terrain/grass-beach0/straight/225/0.png"/>
+    </tile>
+    <tile id="55" type="grass-beach0_str_315">
+        <image width="64" height="64" source="../gfx/terrain/grass-beach0/straight/315/0.png" path="res/gfx/terrain/grass-beach0/straight/315/0.png"/>
+    </tile>
+
+    <!-- shallow0 package -->
+    <tile id="56" type="shallow0_str_45">
+        <image width="64" height="64" source="../gfx/terrain/shallow0/straight/45/0.png" path="res/gfx/terrain/shallow0/straight/45/0.png"/>
+    </tile>
+    <tile id="57" type="shallow0_str_135">
+        <image width="64" height="64" source="../gfx/terrain/shallow0/straight/135/0.png" path="res/gfx/terrain/shallow0/straight/135/0.png"/>
+    </tile>
+    <tile id="58" type="shallow0_str_225">
+        <image width="64" height="64" source="../gfx/terrain/shallow0/straight/225/0.png" path="res/gfx/terrain/shallow0/straight/225/0.png"/>
+    </tile>
+    <tile id="59" type="shallow0_str_315">
+        <image width="64" height="64" source="../gfx/terrain/shallow0/straight/315/0.png" path="res/gfx/terrain/shallow0/straight/315/0.png"/>
+    </tile>
+
+    <!-- shallow-deep0 package -->
+    <tile id="60" type="shallow-deep0_in_45">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/curve_in/45/0.png" path="res/gfx/terrain/shallow-deep0/curve_in/45/0.png"/>
+    </tile>
+    <tile id="61" type="shallow-deep0_in_135">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/curve_in/135/0.png" path="res/gfx/terrain/shallow-deep0/curve_in/135/0.png"/>
+    </tile>
+    <tile id="62" type="shallow-deep0_in_225">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/curve_in/225/0.png" path="res/gfx/terrain/shallow-deep0/curve_in/225/0.png"/>
+    </tile>
+    <tile id="63" type="shallow-deep0_in_315">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/curve_in/315/0.png" path="res/gfx/terrain/shallow-deep0/curve_in/315/0.png"/>
+    </tile>
+
+    <tile id="64" type="shallow-deep0_out_45">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/curve_out/45/0.png" path="res/gfx/terrain/shallow-deep0/curve_out/45/0.png"/>
+    </tile>
+    <tile id="65" type="shallow-deep0_out_135">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/curve_out/135/0.png" path="res/gfx/terrain/shallow-deep0/curve_out/135/0.png"/>
+    </tile>
+    <tile id="66" type="shallow-deep0_out_225">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/curve_out/225/0.png" path="res/gfx/terrain/shallow-deep0/curve_out/225/0.png"/>
+    </tile>
+    <tile id="67" type="shallow-deep0_out_315">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/curve_out/315/0.png" path="res/gfx/terrain/shallow-deep0/curve_out/315/0.png"/>
+    </tile>
+
+    <tile id="68" type="shallow-deep0_str_45">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/straight/45/0.png" path="res/gfx/terrain/shallow-deep0/straight/45/0.png"/>
+    </tile>
+    <tile id="69" type="shallow-deep0_str_135">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/straight/135/0.png" path="res/gfx/terrain/shallow-deep0/straight/135/0.png"/>
+    </tile>
+    <tile id="70" type="shallow-deep0_str_225">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/straight/225/0.png" path="res/gfx/terrain/shallow-deep0/straight/225/0.png"/>
+    </tile>
+    <tile id="71" type="shallow-deep0_str_315">
+        <image width="64" height="64" source="../gfx/terrain/shallow-deep0/straight/315/0.png" path="res/gfx/terrain/shallow-deep0/straight/315/0.png"/>
+    </tile>
+</tileset>

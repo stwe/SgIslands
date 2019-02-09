@@ -2,7 +2,7 @@
 // 
 // Filename: Log.hpp
 // Created:  20.01.2019
-// Updated:  23.01.2019
+// Updated:  09.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -29,6 +29,7 @@ namespace sg::islands::core
         }
 
         static LoggerSharedPtr& GetCoreLogger() { return m_coreLogger; }
+
     protected:
 
     private:

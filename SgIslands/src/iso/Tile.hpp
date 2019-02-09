@@ -2,7 +2,7 @@
 // 
 // Filename: Tile.hpp
 // Created:  24.01.2019
-// Updated:  24.01.2019
+// Updated:  09.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -21,6 +21,7 @@ namespace sg::islands::iso
     class Tile
     {
     public:
+        // todo
         static void DrawTile(
             const TileAtlas::TileId t_tileId,
             const int t_xMapPos,
@@ -30,7 +31,7 @@ namespace sg::islands::iso
         )
         {
             // get texture
-            const auto& texture{ t_tileAtlas.GetTileAtlasTexture(t_tileId) };
+            const auto& texture{ t_tileAtlas.GetTerrainTileGraphic(t_tileId) }; // todo
 
             // convert the tile position to screen position
             auto screenPosition{ IsoMath::ToScreen(t_xMapPos, t_yMapPos) };
