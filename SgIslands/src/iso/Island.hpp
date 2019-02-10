@@ -2,7 +2,7 @@
 // 
 // Filename: Island.hpp
 // Created:  20.01.2019
-// Updated:  25.01.2019
+// Updated:  10.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -16,7 +16,6 @@
 #include "../core/Types.hpp"
 #include "TileAtlas.hpp"
 #include "IsoMath.hpp"
-#include "Tile.hpp"
 
 namespace sg::islands::iso
 {
@@ -162,11 +161,11 @@ namespace sg::islands::iso
                     const auto xMapPos{ x + m_xOffset };
                     const auto yMapPos{ y + m_yOffset };
 
-                    Tile::DrawTile(tileId, xMapPos, yMapPos, t_window, t_tileAtlas);
+                    t_tileAtlas.DrawTerrainTile(tileId, xMapPos, yMapPos, t_window);
 
                     if (m_islandFields[index].clicked)
                     {
-                        Tile::DrawTile(TileAtlas::CLICKED_TILE, xMapPos, yMapPos, t_window, t_tileAtlas);
+                        //Tile::DrawTile(TileAtlas::CLICKED_TILE, xMapPos, yMapPos, t_window, t_tileAtlas); // todo
                     }
                 }
             }
@@ -223,8 +222,8 @@ namespace sg::islands::iso
             core::XmlWrapper::QueryAttribute(layerElement, "width", &m_width);
             core::XmlWrapper::QueryAttribute(layerElement, "height", &m_height);
 
-            SG_ISLANDS_INFO("[Island::LoadIslandFieldsFromFile()] Island width in tiles: {} ", m_width);
-            SG_ISLANDS_INFO("[Island::LoadIslandFieldsFromFile()] Island height in tiles: {} ", m_height);
+            SG_ISLANDS_INFO("[Island::LoadIslandFieldsFromFile()] Island width in tiles: {}", m_width);
+            SG_ISLANDS_INFO("[Island::LoadIslandFieldsFromFile()] Island height in tiles: {}", m_height);
 
             // get `<data>` element
             auto dataElement{ core::XmlWrapper::GetFirstChildElement(layerElement, "data") };

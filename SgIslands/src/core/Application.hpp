@@ -1,4 +1,13 @@
-
+// This file is part of the SgIslands package.
+// 
+// Filename: Application.hpp
+// Created:  25.01.2019
+// Updated:  09.02.2019
+// Author:   stwe
+// 
+// License:  MIT
+// 
+// 2019 (c) stwe <https://github.com/stwe/SgIslands>
 
 #pragma once
 
@@ -112,8 +121,6 @@ namespace sg::islands::core
         std::size_t m_statisticsNumFrames{ 0 };
 
         bool m_drawGrid{ false };
-        bool m_drawObstaclesForShipUnits{ false };
-        bool m_drawObstaclesForLandUnits{ false };
 
         std::unique_ptr<Entity> m_entity;
 
@@ -194,14 +201,6 @@ namespace sg::islands::core
                 {
                     m_drawGrid = !m_drawGrid;
                 }
-                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::O)
-                {
-                    m_drawObstaclesForShipUnits = !m_drawObstaclesForShipUnits;
-                }
-                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::L)
-                {
-                    m_drawObstaclesForLandUnits = !m_drawObstaclesForLandUnits;
-                }
 
                 // change direction of pirate ship
                 m_entity->HandleInput(*m_window, event, *m_map);
@@ -219,25 +218,14 @@ namespace sg::islands::core
             m_window->clear();
             m_window->setView(m_islandView);
 
-            m_map->DrawDeepWater(*m_window, *m_tileAtlas);
-            m_map->DrawMap(*m_window, *m_tileAtlas);
+            m_map->DrawTerrain(*m_window, *m_tileAtlas);
 
             if (m_drawGrid)
             {
-                m_map->DrawMapGrid(*m_window, *m_tileAtlas, m_fonts);
+                m_map->DrawGrid(*m_window, *m_tileAtlas, m_fonts);
             }
 
-            if (m_drawObstaclesForShipUnits)
-            {
-                m_map->DrawObstaclesMap(*m_window, *m_tileAtlas, m_fonts);
-            }
-
-            if (m_drawObstaclesForLandUnits)
-            {
-                m_map->DrawObstaclesMap(*m_window, *m_tileAtlas, m_fonts, true);
-            }
-
-            m_window->draw(m_statisticsText);
+            m_window->setTitle(m_appOptions.windowTitle + " " + m_statisticsText.getString());
 
             // draw pirate ship entity
             m_entity->Draw(*m_unitAnimations, *m_window);
@@ -251,7 +239,7 @@ namespace sg::islands::core
             m_statisticsNumFrames += 1;
             if (m_statisticsUpdateTime >= sf::seconds(1.0f))
             {
-                m_statisticsText.setString("FPS: " + std::to_string(m_statisticsNumFrames));
+                m_statisticsText.setString(" |  FPS: " + std::to_string(m_statisticsNumFrames));
 
                 m_statisticsUpdateTime -= sf::seconds(1.0f);
                 m_statisticsNumFrames = 0;

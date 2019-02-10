@@ -2,7 +2,7 @@
 // 
 // Filename: IsoMath.hpp
 // Created:  22.01.2019
-// Updated:  02.02.2019
+// Updated:  10.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -10,8 +10,6 @@
 // 2019 (c) stwe <https://github.com/stwe/SgIslands>
 
 #pragma once
-
-#include "TileAtlas.hpp"
 
 namespace sg::islands::iso
 {
@@ -22,6 +20,16 @@ namespace sg::islands::iso
     class IsoMath
     {
     public:
+        static constexpr auto DEEP_WATER_TILE_WIDTH{ 640 };
+        static constexpr auto DEEP_WATER_TILE_HEIGHT{ 320 };
+        static constexpr auto DEEP_WATER_TILE_WIDTH_HALF{ 320.0f };
+        static constexpr auto DEEP_WATER_TILE_HEIGHT_HALF{ 160.0f };
+
+        static constexpr auto DEFAULT_TILE_WIDTH{ 64 };
+        static constexpr auto DEFAULT_TILE_HEIGHT{ 32 };
+        static constexpr auto DEFAULT_TILE_WIDTH_HALF{ 32.0f };
+        static constexpr auto DEFAULT_TILE_HEIGHT_HALF{ 16.0f };
+
         /**
          * @brief Translate between 2D and 1D coordinates.
          * @param t_mapX The x position in a 2D map.
@@ -43,8 +51,8 @@ namespace sg::islands::iso
          */
         static auto ToScreen(
             const sf::Vector2i& t_mapCoords,
-            const float t_tileWidthHalf = TileAtlas::DEFAULT_TILE_WIDTH_HALF,
-            const float t_tileHeightHalf = TileAtlas::DEFAULT_TILE_HEIGHT_HALF
+            const float t_tileWidthHalf = DEFAULT_TILE_WIDTH_HALF,
+            const float t_tileHeightHalf = DEFAULT_TILE_HEIGHT_HALF
         )
         {
             //screen.x = (map.x - map.y) * TILE_WIDTH_HALF;
@@ -67,8 +75,8 @@ namespace sg::islands::iso
         static auto ToScreen(
             const int t_mapX,
             const int t_mapY,
-            const float t_tileWidthHalf = TileAtlas::DEFAULT_TILE_WIDTH_HALF,
-            const float t_tileHeightHalf = TileAtlas::DEFAULT_TILE_HEIGHT_HALF
+            const float t_tileWidthHalf = DEFAULT_TILE_WIDTH_HALF,
+            const float t_tileHeightHalf = DEFAULT_TILE_HEIGHT_HALF
         )
         {
             return ToScreen(sf::Vector2i(t_mapX, t_mapY), t_tileWidthHalf, t_tileHeightHalf);
@@ -84,8 +92,8 @@ namespace sg::islands::iso
             //map.x = (screen.x / TILE_WIDTH_HALF + screen.y / TILE_HEIGHT_HALF) / 2;
             //map.y = (screen.y / TILE_HEIGHT_HALF - (screen.x / TILE_WIDTH_HALF)) / 2;
 
-            auto mapX{ (t_screenCoords.x / TileAtlas::DEFAULT_TILE_WIDTH_HALF + t_screenCoords.y / TileAtlas::DEFAULT_TILE_HEIGHT_HALF) / 2 };
-            auto mapY{ (t_screenCoords.y / TileAtlas::DEFAULT_TILE_HEIGHT_HALF - (t_screenCoords.x / TileAtlas::DEFAULT_TILE_WIDTH_HALF)) / 2 };
+            auto mapX{ (t_screenCoords.x / DEFAULT_TILE_WIDTH_HALF + t_screenCoords.y / DEFAULT_TILE_HEIGHT_HALF) / 2 };
+            auto mapY{ (t_screenCoords.y / DEFAULT_TILE_HEIGHT_HALF - (t_screenCoords.x / DEFAULT_TILE_WIDTH_HALF)) / 2 };
 
             mapX--; // -1
             mapY--; // -1

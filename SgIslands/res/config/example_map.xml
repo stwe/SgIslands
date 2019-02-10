@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<map width="4" height="4">
+<map deep_water_width="4" deep_water_height="4">
     <islands>
         <island x_map_pos="2" y_map_pos="1">
             <filename>res/islands/island_16x16.xml</filename>

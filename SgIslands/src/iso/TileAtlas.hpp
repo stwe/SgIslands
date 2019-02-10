@@ -2,7 +2,7 @@
 // 
 // Filename: TileAtlas.hpp
 // Created:  20.01.2019
-// Updated:  09.02.2019
+// Updated:  10.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -11,8 +11,10 @@
 
 #pragma once
 
+#include <SFML/Graphics/Sprite.hpp>
 #include "../core/XmlWrapper.hpp"
 #include "../core/ResourceHolder.hpp"
+#include "IsoMath.hpp"
 
 namespace sg::islands::iso
 {
@@ -22,7 +24,7 @@ namespace sg::islands::iso
         using TileId = int;
 
         //-------------------------------------------------
-        // Const / Known Ids
+        // Known Ids
         //-------------------------------------------------
 
         /*
@@ -39,16 +41,6 @@ namespace sg::islands::iso
         static constexpr auto DEEP_WATER_EAST_TILE{ 17 };  // 135
         static constexpr auto DEEP_WATER_NORTH_TILE{ 18 }; // 225
         static constexpr auto DEEP_WATER_WEST_TILE{ 19 };  // 315
-
-        static constexpr auto DEEP_WATER_TILE_WIDTH{ 640 };
-        static constexpr auto DEEP_WATER_TILE_HEIGHT{ 320 };
-        static constexpr auto DEEP_WATER_TILE_WIDTH_HALF{ 320.0f };
-        static constexpr auto DEEP_WATER_TILE_HEIGHT_HALF{ 160.0f };
-
-        static constexpr auto DEFAULT_TILE_WIDTH{ 64 };
-        static constexpr auto DEFAULT_TILE_HEIGHT{ 32 };
-        static constexpr auto DEFAULT_TILE_WIDTH_HALF{ 32.0f };
-        static constexpr auto DEFAULT_TILE_HEIGHT_HALF{ 16.0f };
 
         static constexpr auto GRID_TILE{ 1000 };
         static constexpr auto CLICKED_TILE{ 2000 };
@@ -81,19 +73,101 @@ namespace sg::islands::iso
         // Getter
         //-------------------------------------------------
 
+        /**
+         * @brief Returns the deep water background texture to the passed tile id.
+         * @param t_tileId A tile id.
+         * @return Const reference to sf::Texture
+         */
         const sf::Texture& GetBackgroundTileGraphic(const TileId t_tileId) const
         {
             return m_backgroundTileset.GetResource(t_tileId);
         }
 
+        /**
+         * @brief Returns the terrain texture to the passed tile id.
+         * @param t_tileId A tile id.
+         * @return Const reference to sf::Texture
+         */
         const sf::Texture& GetTerrainTileGraphic(const TileId t_tileId) const
         {
             return m_terrainTileset.GetResource(t_tileId);
         }
 
+        /**
+         * @brief Returns the texture to the passed tile id.
+         * @param t_tileId A tile id.
+         * @return Const reference to sf::Texture
+         */
         const sf::Texture& GetMiscTileGraphic(const TileId t_tileId) const
         {
             return m_miscTileset.GetResource(t_tileId);
+        }
+
+        //-------------------------------------------------
+        // Draw
+        //-------------------------------------------------
+
+        /**
+         * @brief Draws a deep water background tile.
+         * @param t_xMapPos The x-map position.
+         * @param t_yMapPos The y-map position.
+         * @param t_window Reference to the `RenderWindow`.
+         */
+        void DrawBackgroundTile(
+            const int t_xMapPos,
+            const int t_yMapPos,
+            sf::RenderWindow& t_window
+        ) const
+        {
+            const auto& deepWaterSouth{ GetBackgroundTileGraphic(DEEP_WATER_SOUTH_TILE) };
+
+            sf::Sprite sprite;
+            sprite.setTexture(deepWaterSouth);
+
+            auto screenPosition{ IsoMath::ToScreen(t_xMapPos, t_yMapPos, IsoMath::DEEP_WATER_TILE_WIDTH_HALF, IsoMath::DEEP_WATER_TILE_HEIGHT_HALF) };
+
+            // adjust "origin" of the isometric
+            screenPosition.x -= IsoMath::DEEP_WATER_TILE_WIDTH_HALF;
+            screenPosition.y += IsoMath::DEFAULT_TILE_HEIGHT;
+            sprite.setPosition(screenPosition.x, screenPosition.y);
+
+            t_window.draw(sprite);
+        }
+
+        /**
+         * @brief Draws a terrain tile.
+         * @param t_tileId The tile id.
+         * @param t_xMapPos The x-map position.
+         * @param t_yMapPos The y-map position.
+         * @param t_window Reference to the `RenderWindow`.
+         */
+        void DrawTerrainTile(
+            const TileId t_tileId,
+            const int t_xMapPos,
+            const int t_yMapPos,
+            sf::RenderWindow& t_window
+        ) const
+        {
+            const auto& texture{ GetTerrainTileGraphic(t_tileId) };
+            DrawTile(t_xMapPos, t_yMapPos, texture, t_window);
+        }
+
+        /**
+         * @brief Draws a tile.
+         * @param t_tileId The tile id.
+         * @param t_xMapPos The x-map position.
+         * @param t_yMapPos The y-map position.
+         * @param t_window Reference to the `RenderWindow`.
+         */
+        void DrawMiscTile(
+            const TileId t_tileId,
+            const int t_xMapPos,
+            const int t_yMapPos,
+            sf::RenderWindow& t_window
+        ) const
+        {
+            const auto& texture{ GetMiscTileGraphic(t_tileId) };
+            DrawTile(t_xMapPos, t_yMapPos, texture, t_window);
         }
 
     protected:
@@ -144,6 +218,36 @@ namespace sg::islands::iso
             }
 
             SG_ISLANDS_INFO("[TileAtlas::LoadTilesetFromFile()] Successfully loaded {} textures.", t_tileset.GetNumberOfElements());
+        }
+
+        //-------------------------------------------------
+        // Draw Tile
+        //-------------------------------------------------
+
+        /**
+         * @brief Draws a tile.
+         * @param t_xMapPos The x-map position.
+         * @param t_yMapPos The y-map position.
+         * @param t_texture Const reference to a `sf::Texture`.
+         * @param t_window Reference to the `RenderWindow`.
+         */
+        void DrawTile(
+            const int t_xMapPos,
+            const int t_yMapPos,
+            const sf::Texture& t_texture,
+            sf::RenderWindow& t_window
+        ) const
+        {
+            auto screenPosition{ IsoMath::ToScreen(t_xMapPos, t_yMapPos) };
+
+            sf::Sprite sprite;
+            sprite.setTexture(t_texture);
+
+            // adjust "origin" of the isometric
+            screenPosition.x -= IsoMath::DEFAULT_TILE_WIDTH_HALF;
+            sprite.setPosition(screenPosition.x, screenPosition.y);
+
+            t_window.draw(sprite);
         }
     };
 }

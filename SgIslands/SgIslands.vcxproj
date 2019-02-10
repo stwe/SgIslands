@@ -108,7 +108,6 @@
     <ClInclude Include="src\iso\IsoMath.hpp" />
     <ClInclude Include="src\iso\Map.hpp" />
     <ClInclude Include="src\iso\Node.hpp" />
-    <ClInclude Include="src\iso\Tile.hpp" />
     <ClInclude Include="src\iso\TileAtlas.hpp" />
     <ClInclude Include="src\iso\UnitAnimations.hpp" />
     <ClInclude Include="src\iso\VecMath.hpp" />
@@ -123,6 +122,9 @@
     <Xml Include="res\islands\island_5x5.xml" />
     <Xml Include="res\config\miscTileset.xml" />
     <Xml Include="res\config\terrainTileset.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\dev\dev.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

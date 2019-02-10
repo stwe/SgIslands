@@ -2,7 +2,7 @@
 // 
 // Filename: Astar.hpp
 // Created:  02.02.2019
-// Updated:  03.02.2019
+// Updated:  10.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -27,10 +27,10 @@ namespace sg::islands::iso
 
         Astar() = delete;
 
-        Astar(std::vector<int>& t_obstacles, const int t_width, const int t_height)
-            : m_obstacles{ t_obstacles }
-            , m_width{ t_width }
-            , m_height{ t_height }
+        explicit Astar(Map& t_map)
+            : m_map{ t_map }
+            , m_width{ t_map.GetMapWidth() }
+            , m_height{ t_map.GetMapHeight() }
         {
         }
 
@@ -183,7 +183,7 @@ namespace sg::islands::iso
     protected:
 
     private:
-        std::vector<int>& m_obstacles;
+        Map& m_map;
 
         int m_width{ -1 };
         int m_height{ -1 };
@@ -255,7 +255,8 @@ namespace sg::islands::iso
                 return false;
             }
 
-            return m_obstacles[IsoMath::From2DTo1D(t_x, t_y, m_width)] != Map::OBSTACLE;
+            // todo
+            return m_map.IsDeepWater(t_x, t_y);
         }
 
         /**

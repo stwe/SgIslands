@@ -2,7 +2,7 @@
 // 
 // Filename: Entity.hpp
 // Created:  27.01.2019
-// Updated:  08.02.2019
+// Updated:  10.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -39,7 +39,7 @@ namespace sg::islands
             m_currentScreenPosition = iso::IsoMath::ToScreen(m_mapPosition);
 
             // todo tmp code
-            m_astar = std::make_unique<iso::Astar>(t_map.GetObstaclesForShipUnits(), t_map.GetMapWidth(), t_map.GetMapHeight());
+            m_astar = std::make_unique<iso::Astar>(t_map);
         }
 
         Entity(const Entity& t_other) = delete;
@@ -110,10 +110,10 @@ namespace sg::islands
             sprite.setPosition(m_currentScreenPosition);
             sprite.setOrigin(SHIP_TILE_WIDTH_HALF, SHIP_TILE_HEIGHT_HALF);
 
-            // tmp code
+            // todo tmp code
             for (const auto& n : m_path)
             {
-                iso::Tile::DrawTile(1000, n.position.x, n.position.y, t_window, m_tileAtlas);
+                m_tileAtlas.DrawMiscTile(iso::TileAtlas::GRID_TILE, n.position.x, n.position.y, t_window);
             }
 
             t_window.draw(sprite);
