@@ -234,6 +234,9 @@ namespace sg::islands::iso
                 int framesAttr;
                 core::XmlWrapper::QueryAttribute(unit, "frames", &framesAttr);
 
+                int tileHeightAttr;
+                core::XmlWrapper::QueryAttribute(unit, "tile_height", &tileHeightAttr);
+
                 auto dirAttr{ core::XmlWrapper::GetAttribute(unit, "dir") };
                 auto unitDir{ unitsDir + dirAttr };
 
@@ -242,6 +245,9 @@ namespace sg::islands::iso
                 {
                     // create new `Animation` for this direction
                     auto animation{ std::make_unique<Animation>() };
+
+                    // set tile height
+                    animation->SetTileHeight(tileHeightAttr);
 
                     // create all frames for this `Animation`
                     for (auto i{ 0 }; i < framesAttr; ++i)

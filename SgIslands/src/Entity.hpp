@@ -107,8 +107,15 @@ namespace sg::islands
             auto& animation{ t_unitAnimations.GetAnimation(m_unitId, m_direction) };
             auto& sprite{ animation.GetSprite() };
 
-            sprite.setPosition(m_currentScreenPosition);
-            sprite.setOrigin(SHIP_TILE_WIDTH_HALF, SHIP_TILE_HEIGHT_HALF);
+            auto drawPosition{ m_currentScreenPosition };
+            const auto heightOffset{ floor(sprite.getLocalBounds().height / animation.GetTileHeight()) };
+
+            sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height);
+
+            const auto diff{ heightOffset - iso::IsoMath::DEFAULT_TILE_HEIGHT };
+            drawPosition.y += heightOffset;
+            drawPosition.y += diff > iso::IsoMath::DEFAULT_TILE_HEIGHT ? diff / 2 : diff;
+            sprite.setPosition(drawPosition);
 
             // todo tmp code
             for (const auto& n : m_path)

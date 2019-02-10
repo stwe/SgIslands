@@ -31,6 +31,7 @@ namespace sg::islands::core
         using UnitAnimationsUniquePtr = std::unique_ptr<iso::UnitAnimations>;
 
         static constexpr auto PIRATE_SHIP{ 0 };
+        static constexpr auto FARMER{ 1 };
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -122,7 +123,8 @@ namespace sg::islands::core
 
         bool m_drawGrid{ false };
 
-        std::unique_ptr<Entity> m_entity;
+        std::unique_ptr<Entity> m_shipEntity;
+        std::unique_ptr<Entity> m_farmerEntity;
 
         //-------------------------------------------------
         // Game Logic
@@ -153,8 +155,11 @@ namespace sg::islands::core
             m_map = std::make_unique<iso::Map>(m_appOptions.map);
             assert(m_map);
 
-            // create an `Entity`
-            m_entity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, sf::Vector2i(19, 11), *m_map);
+            //////////////////////////////////////////////
+
+            // create an `Entity`s
+            m_shipEntity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, sf::Vector2i(19, 11), *m_map);
+            m_farmerEntity = std::make_unique<Entity>(*m_tileAtlas, FARMER, sf::Vector2i(15, 15), *m_map);
 
             // create `UnitAnimations`
             m_unitAnimations = std::make_unique<iso::UnitAnimations>(m_appOptions.unitAnimations);
@@ -203,14 +208,15 @@ namespace sg::islands::core
                 }
 
                 // change direction of pirate ship
-                m_entity->HandleInput(*m_window, event, *m_map);
+                m_shipEntity->HandleInput(*m_window, event, *m_map);
             }
         }
 
         void Update(const sf::Time t_dt)
         {
-            // update pirate ship entity
-            m_entity->UpdateAnimations(*m_unitAnimations, t_dt);
+            // update entities
+            m_shipEntity->UpdateAnimations(*m_unitAnimations, t_dt);
+            m_farmerEntity->UpdateAnimations(*m_unitAnimations, t_dt);
         }
 
         void Render()
@@ -227,8 +233,9 @@ namespace sg::islands::core
 
             m_window->setTitle(m_appOptions.windowTitle + " " + m_statisticsText.getString());
 
-            // draw pirate ship entity
-            m_entity->Draw(*m_unitAnimations, *m_window);
+            // draw entities
+            m_shipEntity->Draw(*m_unitAnimations, *m_window);
+            m_farmerEntity->Draw(*m_unitAnimations, *m_window);
 
             m_window->display();
         }
