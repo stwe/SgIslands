@@ -21,10 +21,6 @@ namespace sg::islands
     class Entity
     {
     public:
-        static constexpr auto SHIP_TILE_WIDTH_HALF{ 112.0f };
-        static constexpr auto SHIP_TILE_HEIGHT_HALF{ 112.0f };
-        static constexpr auto SHIP_TILE_HEIGHT{ SHIP_TILE_HEIGHT_HALF * 2.0f };
-
         //-------------------------------------------------
         // Ctor. && Dtor.
         //-------------------------------------------------
@@ -53,7 +49,7 @@ namespace sg::islands
         // Game Logic
         //-------------------------------------------------
 
-        void HandleInput(sf::RenderWindow& t_window, const sf::Event& t_event, iso::Map& t_map)
+        void HandleInput(sf::RenderWindow& t_window, const sf::Event& t_event, iso::Map& t_map, const iso::UnitAnimations& t_unitAnimations)
         {
             if (t_event.type == sf::Event::KeyPressed)
             {
@@ -66,7 +62,7 @@ namespace sg::islands
                 {
                     SG_ISLANDS_DEBUG("Left Mouse pressed.");
 
-                    m_isMove = FindPathToMouse(t_window);
+                    m_isMove = FindPathToMouse(t_window, t_unitAnimations);
                 }
             }
         }
@@ -124,7 +120,24 @@ namespace sg::islands
             }
 
             t_window.draw(sprite);
+
+            if (m_renderActiveGraphic)
+            {
+                sf::VertexArray lines(sf::LineStrip, 2);
+                lines[0].position = sf::Vector2f(drawPosition.x, drawPosition.y - sprite.getLocalBounds().height);
+                lines[0].color = sf::Color::Red;
+
+                lines[1].position = sf::Vector2f(drawPosition.x + 10, drawPosition.y - sprite.getLocalBounds().height);
+                lines[1].color = sf::Color::Red;
+
+                t_window.draw(lines);
+            }
         }
+
+        void SetRenderActive(const bool t_renderActiveGraphic) { m_renderActiveGraphic = t_renderActiveGraphic; }
+
+        auto GetMapPosition() const { return m_mapPosition; }
+        auto GetRenderActive() const { return m_renderActiveGraphic; }
 
     protected:
 
@@ -148,6 +161,8 @@ namespace sg::islands
         bool m_isMove{ false };
         std::size_t m_wayPoint{ 0 };
 
+        bool m_renderActiveGraphic{ false };
+
         iso::UnitAnimations::Direction m_direction{ iso::UnitAnimations::Direction::E_DIRECTION };
 
         std::unique_ptr<iso::Astar> m_astar;
@@ -156,7 +171,7 @@ namespace sg::islands
         // Helper
         //-------------------------------------------------
 
-        bool FindPathToMouse(sf::RenderWindow& t_window)
+        bool FindPathToMouse(sf::RenderWindow& t_window, const iso::UnitAnimations& t_unitAnimations)
         {
             // get mouse position
             const auto mousePosition{ sf::Mouse::getPosition(t_window) };
@@ -174,7 +189,8 @@ namespace sg::islands
             node.position = m_mapPosition;
             endNode.position = targetMapPosition;
 
-            m_path = m_astar->FindPath(node, endNode);
+            auto& animation{ t_unitAnimations.GetAnimation(m_unitId, m_direction) };
+            m_path = m_astar->FindPath(node, endNode, animation.GetTerrainType());
 
             if (m_path.empty())
             {

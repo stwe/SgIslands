@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  09.02.2019
+// Updated:  12.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -122,6 +122,7 @@ namespace sg::islands::core
         std::size_t m_statisticsNumFrames{ 0 };
 
         bool m_drawGrid{ false };
+        int m_activeEntity{ PIRATE_SHIP };
 
         std::unique_ptr<Entity> m_shipEntity;
         std::unique_ptr<Entity> m_farmerEntity;
@@ -207,8 +208,49 @@ namespace sg::islands::core
                     m_drawGrid = !m_drawGrid;
                 }
 
-                // change direction of pirate ship
-                m_shipEntity->HandleInput(*m_window, event, *m_map);
+                if (event.type == sf::Event::MouseButtonPressed)
+                {
+                    if (event.mouseButton.button == sf::Mouse::Left)
+                    {
+                        SG_ISLANDS_DEBUG("Application Left Mouse pressed.");
+
+                        // get mouse position
+                        const auto mousePosition{ sf::Mouse::getPosition(*m_window) };
+                        const auto targetPosition{ m_window->mapPixelToCoords(mousePosition) };
+
+                        // get map position of the mouse
+                        const auto targetMapPosition{ iso::IsoMath::ToMap(targetPosition) };
+                        SG_ISLANDS_DEBUG("mouse map x: {}", targetMapPosition.x);
+                        SG_ISLANDS_DEBUG("mouse map y: {}", targetMapPosition.y);
+
+                        // todo - aktive Entity setzen - manche sprites belegen mehrere Felder
+
+                        if (targetMapPosition == m_shipEntity->GetMapPosition())
+                        {
+                            SG_ISLANDS_DEBUG("Schiff auf dem Feld");
+                            m_activeEntity = PIRATE_SHIP;
+                            m_shipEntity->SetRenderActive(true);
+                            m_farmerEntity->SetRenderActive(false);
+                        }
+                        else if (targetMapPosition == m_farmerEntity->GetMapPosition())
+                        {
+                            SG_ISLANDS_DEBUG("Farmer auf dem Feld");
+                            m_activeEntity = FARMER;
+                            m_farmerEntity->SetRenderActive(true);
+                            m_shipEntity->SetRenderActive(false);
+                        }
+
+                        if (m_activeEntity == PIRATE_SHIP && targetMapPosition != m_shipEntity->GetMapPosition())
+                        {
+                            m_shipEntity->HandleInput(*m_window, event, *m_map, *m_unitAnimations);
+                        }
+
+                        if (m_activeEntity == FARMER && targetMapPosition != m_farmerEntity->GetMapPosition())
+                        {
+                            m_farmerEntity->HandleInput(*m_window, event, *m_map, *m_unitAnimations);
+                        }
+                    }
+                }
             }
         }
 
@@ -244,6 +286,7 @@ namespace sg::islands::core
         {
             m_statisticsUpdateTime += t_dt;
             m_statisticsNumFrames += 1;
+
             if (m_statisticsUpdateTime >= sf::seconds(1.0f))
             {
                 m_statisticsText.setString(" |  FPS: " + std::to_string(m_statisticsNumFrames));

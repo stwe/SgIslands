@@ -2,7 +2,7 @@
 // 
 // Filename: ResourceHolder.hpp
 // Created:  20.01.2019
-// Updated:  09.02.2019
+// Updated:  12.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -67,7 +67,7 @@ namespace sg::islands::core
 
             if (!resourceUniquePtr->loadFromFile(t_filename))
             {
-                throw std::runtime_error("[ResourceHolder::Load()]: Failed to load resource " + t_filename);
+                throw std::runtime_error("[ResourceHolder::Load()] Failed to load resource " + t_filename);
             }
 
             m_resourceMap.emplace(t_id, std::move(resourceUniquePtr));

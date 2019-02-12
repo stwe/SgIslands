@@ -45,8 +45,10 @@ namespace sg::islands::iso
         // A* Pathfinding
         //-------------------------------------------------
 
-        std::vector<Node> FindPath(const Node& t_node, const Node& t_endNode) const
+        std::vector<Node> FindPath(const Node& t_node, const Node& t_endNode, const TerrainType& t_terrainType)
         {
+            m_terrainType = t_terrainType;
+
             std::vector<Node> empty;
 
             if (!IsValid(t_endNode))
@@ -188,6 +190,8 @@ namespace sg::islands::iso
         int m_width{ -1 };
         int m_height{ -1 };
 
+        TerrainType m_terrainType;
+
         //-------------------------------------------------
         // Helper
         //-------------------------------------------------
@@ -255,8 +259,12 @@ namespace sg::islands::iso
                 return false;
             }
 
-            // todo
-            return m_map.IsDeepWater(t_x, t_y);
+            if (m_terrainType == TerrainType::DEEP_WATER)
+            {
+                return m_map.IsDeepWater(t_x, t_y);
+            }
+
+            return m_map.IsLand(t_x, t_y);
         }
 
         /**

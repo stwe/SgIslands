@@ -2,7 +2,7 @@
 // 
 // Filename: Animation.hpp
 // Created:  26.01.2019
-// Updated:  10.02.2019
+// Updated:  12.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -17,22 +17,25 @@
 
 namespace sg::islands::iso
 {
-    struct Frame
-    {
-        sf::Texture texture;
-        double duration{ 0.0 };
-    };
-
     class Animation
     {
     public:
+        static constexpr auto FRAME_TIME{ 0.2f };
+
+        using Frame = sf::Texture;
         using Frames = std::vector<Frame>;
 
         //-------------------------------------------------
         // Ctor. && Dtor.
         //-------------------------------------------------
 
-        Animation() = default;
+        Animation() = delete;
+
+        Animation(const int t_tileHeight, const TerrainType& t_terrainType, const sf::Time& t_frameTime = sf::seconds(FRAME_TIME))
+            : m_tileHeight{ t_tileHeight }
+            , m_terrainType{ t_terrainType }
+            , m_frameTime{ t_frameTime }
+        {}
 
         Animation(const Animation& t_other) = delete;
         Animation(Animation&& t_other) noexcept = delete;
@@ -46,36 +49,26 @@ namespace sg::islands::iso
         //-------------------------------------------------
 
         const Frames& GetFrames() const noexcept { return m_frames; }
+        const sf::Sprite& GetSprite() const noexcept { return m_sprite; }
         sf::Sprite& GetSprite() noexcept { return m_sprite; }
 
         auto GetTileHeight() const { return m_tileHeight; }
-        auto GetLength() const { return m_totalLength; }
+        auto GetTerrainType() const { return m_terrainType; }
 
         //-------------------------------------------------
-        // Setter
+        // Add Frame
         //-------------------------------------------------
 
-        void SetTileHeight(const int t_tileHeight) { m_tileHeight = t_tileHeight; }
-
-        //-------------------------------------------------
-        // Add Frames
-        //-------------------------------------------------
-
-        void AddFrame(const core::Filename& t_filename, const double t_duration)
+        void AddFrame(const core::Filename& t_filename)
         {
             Frame frame;
 
             // load frame texture
-            const auto result{ frame.texture.loadFromFile(t_filename) };
+            const auto result{ frame.loadFromFile(t_filename) };
             if (!result)
             {
-                SG_ISLANDS_ERROR("[Animation::AddFrame()] Error loading texture.");
-                exit(EXIT_FAILURE);
+                throw std::runtime_error("[Animation::AddFrame()] Failed to load texture " + t_filename);
             }
-
-            // set duration
-            frame.duration = t_duration;
-            m_totalLength += frame.duration;
 
             // save frame
             m_frames.push_back(frame);
@@ -85,26 +78,30 @@ namespace sg::islands::iso
         // Update
         //-------------------------------------------------
 
-        void Update(sf::Time t_dt)
+        void Update(const sf::Time& t_dt)
         {
-            m_progress += t_dt.asSeconds();
-            auto p{ m_progress };
+            // add delta time
+            m_currentTime += t_dt;
 
-            for (auto i{ 0u }; i < m_frames.size(); ++i)
+            // if current time is bigger then the frame time advance one frame
+            if (m_currentTime >= m_frameTime)
             {
-                p -= m_frames[i].duration;
+                // reset time, but keep the remainder
+                m_currentTime = sf::microseconds(m_currentTime.asMicroseconds() % m_frameTime.asMicroseconds());
 
-                if (p > 0.0 && &(m_frames[i]) == &(m_frames.back())) {
-                    i = 0;    // start over from the beginning
-                    continue; // break off the loop and start where i is
-                }
-
-                // if we have progressed OR if we're on the last frame, apply and stop.
-                if (p <= 0.0 || &(m_frames[i]) == &m_frames.back())
+                // get next Frame index
+                if (m_currentFrame + 1 < m_frames.size())
                 {
-                    m_sprite.setTexture(m_frames[i].texture);
-                    break; // we found our frame
+                    m_currentFrame++;
                 }
+                else
+                {
+                    // animation has ended
+                    m_currentFrame = 0; // reset to start
+                }
+
+                // set the current frame
+                m_sprite.setTexture(m_frames[m_currentFrame]);
             }
         }
 
@@ -115,8 +112,11 @@ namespace sg::islands::iso
         sf::Sprite m_sprite;
 
         int m_tileHeight{ -1 };
+        TerrainType m_terrainType;
 
-        double m_totalLength{ 0.0 };
-        double m_progress{ 0.0 };
+        std::size_t m_currentFrame{ 0 };
+
+        sf::Time m_frameTime;
+        sf::Time m_currentTime{ sf::Time::Zero };
     };
 }

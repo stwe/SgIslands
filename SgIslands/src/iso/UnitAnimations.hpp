@@ -2,7 +2,7 @@
 // 
 // Filename: UnitAnimations.hpp
 // Created:  26.01.2019
-// Updated:  08.02.2019
+// Updated:  10.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -46,8 +46,6 @@ namespace sg::islands::iso
             Direction::W_DIRECTION,
             Direction::NW_DIRECTION
         };
-
-        static constexpr auto FRAME_DURATION{ 0.2 };
 
         using UnitId = int;
         using UnitMapKey = std::pair<UnitId, Direction>;
@@ -228,15 +226,36 @@ namespace sg::islands::iso
             // get each `<unit>`
             for (auto unit{ unitsElement->FirstChildElement("unit") }; unit != nullptr; unit = unit->NextSiblingElement())
             {
+                // get id
                 int idAttr;
                 core::XmlWrapper::QueryAttribute(unit, "id", &idAttr);
 
+                // get frames
                 int framesAttr;
                 core::XmlWrapper::QueryAttribute(unit, "frames", &framesAttr);
 
+                // get tile height
                 int tileHeightAttr;
                 core::XmlWrapper::QueryAttribute(unit, "tile_height", &tileHeightAttr);
 
+                // get terrain type
+                TerrainType terrainType;
+
+                auto terrainTypeAttr{ core::XmlWrapper::GetAttribute(unit, "terrain_type") };
+                if (terrainTypeAttr == "deepWater")
+                {
+                    terrainType = TerrainType::DEEP_WATER;
+                }
+                else if (terrainTypeAttr == "land")
+                {
+                    terrainType = TerrainType::LAND;
+                }
+                else
+                {
+                    throw std::runtime_error("[UnitAnimations::LoadConfigFile()] Invalid terrain_type: " + terrainTypeAttr);
+                }
+
+                // get dir
                 auto dirAttr{ core::XmlWrapper::GetAttribute(unit, "dir") };
                 auto unitDir{ unitsDir + dirAttr };
 
@@ -244,10 +263,7 @@ namespace sg::islands::iso
                 for (auto& direction : DIRECTIONS)
                 {
                     // create new `Animation` for this direction
-                    auto animation{ std::make_unique<Animation>() };
-
-                    // set tile height
-                    animation->SetTileHeight(tileHeightAttr);
+                    auto animation{ std::make_unique<Animation>(tileHeightAttr, terrainType) };
 
                     // create all frames for this `Animation`
                     for (auto i{ 0 }; i < framesAttr; ++i)
@@ -259,7 +275,7 @@ namespace sg::islands::iso
                         auto directionDir{ std::to_string(static_cast<int>(direction)) };
 
                         // add frame
-                        animation->AddFrame(unitDir + directionDir + "/" + filename, FRAME_DURATION);
+                        animation->AddFrame(unitDir + directionDir + "/" + filename);
                     }
 
                     // save `Animation` for the direction
