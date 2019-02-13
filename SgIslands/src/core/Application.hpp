@@ -31,7 +31,9 @@ namespace sg::islands::core
         using UnitAnimationsUniquePtr = std::unique_ptr<iso::UnitAnimations>;
 
         static constexpr auto PIRATE_SHIP{ 0 };
-        static constexpr auto FARMER{ 1 };
+        static constexpr auto PIRATE_SHIP_IDLE{ 1 };
+        static constexpr auto FARMER{ 2 };
+        static constexpr auto FARMER_IDLE{ 3 };
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -159,8 +161,8 @@ namespace sg::islands::core
             //////////////////////////////////////////////
 
             // create an `Entity`s
-            m_shipEntity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, sf::Vector2i(19, 11), *m_map);
-            m_farmerEntity = std::make_unique<Entity>(*m_tileAtlas, FARMER, sf::Vector2i(15, 15), *m_map);
+            m_shipEntity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, PIRATE_SHIP_IDLE, sf::Vector2i(19, 11), *m_map);
+            m_farmerEntity = std::make_unique<Entity>(*m_tileAtlas, FARMER, FARMER_IDLE, sf::Vector2i(15, 15), *m_map);
 
             // create `UnitAnimations`
             m_unitAnimations = std::make_unique<iso::UnitAnimations>(m_appOptions.unitAnimations);

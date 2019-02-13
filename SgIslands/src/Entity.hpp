@@ -27,9 +27,16 @@ namespace sg::islands
 
         Entity() = delete;
 
-        Entity(iso::TileAtlas& t_tileAtlas, const iso::UnitAnimations::UnitId t_unitId, const sf::Vector2i& t_mapPosition, iso::Map& t_map)
+        Entity(
+            iso::TileAtlas& t_tileAtlas,
+            const iso::UnitAnimations::UnitId t_unitId,
+            const iso::UnitAnimations::UnitId t_unitIdIdle,
+            const sf::Vector2i& t_mapPosition,
+            iso::Map& t_map
+        )
             : m_tileAtlas{ t_tileAtlas }
             , m_unitId{ t_unitId }
+            , m_unitIdIdle{ t_unitIdIdle }
             , m_mapPosition{ t_mapPosition }
         {
             m_currentScreenPosition = iso::IsoMath::ToScreen(m_mapPosition);
@@ -73,6 +80,11 @@ namespace sg::islands
             {
                 auto& animation{ t_unitAnimations.GetAnimation(m_unitId, direction) };
                 animation.Update(t_dt);
+
+                // update other animations ...
+                // todo idle Animation hat nur einen Frame
+                auto& animationIdle{ t_unitAnimations.GetAnimation(m_unitIdIdle, direction) };
+                animationIdle.Update(t_dt);
             }
 
             if (m_isMove)
@@ -100,18 +112,32 @@ namespace sg::islands
 
         void Draw(iso::UnitAnimations& t_unitAnimations, sf::RenderWindow& t_window)
         {
-            auto& animation{ t_unitAnimations.GetAnimation(m_unitId, m_direction) };
-            auto& sprite{ animation.GetSprite() };
+            sf::Sprite* sprite{ nullptr };
+            iso::Animation* animation{ nullptr };
+
+            if (m_isMove)
+            {
+                animation = &t_unitAnimations.GetAnimation(m_unitId, m_direction);
+                sprite = &animation->GetSprite();
+            }
+            else
+            {
+                animation = &t_unitAnimations.GetAnimation(m_unitIdIdle, m_direction);
+                sprite = &animation->GetSprite();
+            }
+
+            assert(sprite);
+            assert(animation);
 
             auto drawPosition{ m_currentScreenPosition };
-            const auto heightOffset{ floor(sprite.getLocalBounds().height / animation.GetTileHeight()) };
+            const auto heightOffset{ floor(sprite->getLocalBounds().height / animation->GetTileHeight()) };
 
-            sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height);
+            sprite->setOrigin(sprite->getLocalBounds().width / 2, sprite->getLocalBounds().height);
 
             const auto diff{ heightOffset - iso::IsoMath::DEFAULT_TILE_HEIGHT };
             drawPosition.y += heightOffset;
             drawPosition.y += diff > iso::IsoMath::DEFAULT_TILE_HEIGHT ? diff / 2 : diff;
-            sprite.setPosition(drawPosition);
+            sprite->setPosition(drawPosition);
 
             // todo tmp code
             for (const auto& n : m_path)
@@ -119,15 +145,15 @@ namespace sg::islands
                 m_tileAtlas.DrawMiscTile(iso::TileAtlas::GRID_TILE, n.position.x, n.position.y, t_window);
             }
 
-            t_window.draw(sprite);
+            t_window.draw(*sprite);
 
             if (m_renderActiveGraphic)
             {
                 sf::VertexArray lines(sf::LineStrip, 2);
-                lines[0].position = sf::Vector2f(drawPosition.x, drawPosition.y - sprite.getLocalBounds().height);
+                lines[0].position = sf::Vector2f(drawPosition.x, drawPosition.y - sprite->getLocalBounds().height);
                 lines[0].color = sf::Color::Red;
 
-                lines[1].position = sf::Vector2f(drawPosition.x + 10, drawPosition.y - sprite.getLocalBounds().height);
+                lines[1].position = sf::Vector2f(drawPosition.x + 10, drawPosition.y - sprite->getLocalBounds().height);
                 lines[1].color = sf::Color::Red;
 
                 t_window.draw(lines);
@@ -146,6 +172,7 @@ namespace sg::islands
         std::vector<iso::Node> m_path;
 
         iso::UnitAnimations::UnitId m_unitId{ -1 };
+        iso::UnitAnimations::UnitId m_unitIdIdle{ -1 };
 
         sf::Vector2i m_mapPosition{ -1, -1 };
         sf::Vector2f m_currentScreenPosition{ -1.0f, -1.0f };
