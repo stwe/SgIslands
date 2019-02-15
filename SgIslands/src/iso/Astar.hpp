@@ -2,7 +2,7 @@
 // 
 // Filename: Astar.hpp
 // Created:  02.02.2019
-// Updated:  10.02.2019
+// Updated:  15.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -45,21 +45,21 @@ namespace sg::islands::iso
         // A* Pathfinding
         //-------------------------------------------------
 
-        std::vector<Node> FindPath(const Node& t_node, const Node& t_endNode, const TerrainType& t_terrainType)
+        std::vector<Node> FindPath(const Node& t_node, const Node& t_endNode, const AssetType& t_assetType)
         {
-            m_terrainType = t_terrainType;
+            m_assetType = t_assetType;
 
             std::vector<Node> empty;
 
             if (!IsValid(t_endNode))
             {
-                SG_ISLANDS_DEBUG("[Astar::FindPath()] Destination is an obstacle.");
+                SG_ISLANDS_INFO("[Astar::FindPath()] Destination is an obstacle.");
                 return empty;
             }
 
             if (IsEndNode(t_node, t_endNode))
             {
-                SG_ISLANDS_DEBUG("[Astar::FindPath()] You are the target.");
+                SG_ISLANDS_INFO("[Astar::FindPath()] You are the target.");
                 return empty;
             }
 
@@ -169,15 +169,12 @@ namespace sg::islands::iso
                                 }
                             }
                         }
-                        else
-                        {
-                            //SG_ISLANDS_WARN("[Astar::FindPath()] Not valid position x: {}, y: {}", newXPos, newYPos);
-                        }
                     }
                 }
             }
 
-            SG_ISLANDS_WARN("[Astar::FindPath()] Target not found.");
+            // For example, you can not jump from one island to the other.
+            SG_ISLANDS_INFO("[Astar::FindPath()] Target not found.");
 
             return empty;
         }
@@ -185,12 +182,25 @@ namespace sg::islands::iso
     protected:
 
     private:
+        /**
+         * @brief Rerence to `Map`.
+         */
         Map& m_map;
 
+        /**
+         * @brief The map width.
+         */
         int m_width{ -1 };
+
+        /**
+         * @brief The map height.
+         */
         int m_height{ -1 };
 
-        TerrainType m_terrainType;
+        /**
+         * @brief The current asset type using in `FindPath()`.
+         */
+        AssetType m_assetType{ AssetType::NONE };
 
         //-------------------------------------------------
         // Helper
@@ -259,7 +269,9 @@ namespace sg::islands::iso
                 return false;
             }
 
-            if (m_terrainType == TerrainType::DEEP_WATER)
+            assert(m_assetType != AssetType::NONE);
+
+            if (m_assetType == AssetType::WATER_UNIT)
             {
                 return m_map.IsDeepWater(t_x, t_y);
             }

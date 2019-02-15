@@ -2,7 +2,7 @@
 // 
 // Filename: Main.cpp
 // Created:  20.01.2019
-// Updated:  09.02.2019
+// Updated:  15.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -17,7 +17,7 @@
 int main()
 {
     sg::islands::core::Log::Init();
-    SG_ISLANDS_INFO("Logger initialized.");
+    SG_ISLANDS_INFO("[main()] Logger initialized.");
 
     try
     {

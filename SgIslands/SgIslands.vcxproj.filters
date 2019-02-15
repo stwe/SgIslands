@@ -71,7 +71,10 @@
     <ClInclude Include="src\iso\Node.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\iso\UnitAnimations.hpp">
+    <ClInclude Include="src\iso\Assets.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\iso\AssetMetaData.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
@@ -81,9 +84,9 @@
     <Xml Include="res\config\deepWaterTileset.xml" />
     <Xml Include="res\config\terrainTileset.xml" />
     <Xml Include="res\config\miscTileset.xml" />
-    <Xml Include="res\config\unitAnimations.xml" />
     <Xml Include="res\islands\island_5x5.xml" />
     <Xml Include="res\islands\island_16x16.xml" />
+    <Xml Include="res\config\assets.xml" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\dev\dev.txt" />

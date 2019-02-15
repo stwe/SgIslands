@@ -2,7 +2,7 @@
 // 
 // Filename: Animation.hpp
 // Created:  26.01.2019
-// Updated:  12.02.2019
+// Updated:  15.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -14,6 +14,7 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Time.hpp>
+#include "AssetMetaData.hpp"
 
 namespace sg::islands::iso
 {
@@ -31,9 +32,8 @@ namespace sg::islands::iso
 
         Animation() = delete;
 
-        Animation(const int t_tileHeight, const TerrainType& t_terrainType, const sf::Time& t_frameTime = sf::seconds(FRAME_TIME))
-            : m_tileHeight{ t_tileHeight }
-            , m_terrainType{ t_terrainType }
+        explicit Animation(const AssetMetaData& t_assetMetaData, const sf::Time& t_frameTime = sf::seconds(FRAME_TIME))
+            : m_assetMetaData{ t_assetMetaData }
             , m_frameTime{ t_frameTime }
         {}
 
@@ -48,17 +48,38 @@ namespace sg::islands::iso
         // Getter
         //-------------------------------------------------
 
+        /**
+         * @brief Get a const reference to the assets metadata.
+         * @return Const reference to `AssetMetaData`
+         */
+        const AssetMetaData& GetAssetMetaData() const noexcept { return m_assetMetaData; }
+
+        /**
+         * @brief Get a const reference to the `Animation` frames.
+         * @return Const reference to `std::vector`
+         */
         const Frames& GetFrames() const noexcept { return m_frames; }
-        const sf::Sprite& GetSprite() const noexcept { return m_sprite; }
+
+        /**
+         * @brief Get a reference to the `Animation` sprite.
+         * @return Reference to `sf::Sprite`
+         */
         sf::Sprite& GetSprite() noexcept { return m_sprite; }
 
-        auto GetTileHeight() const { return m_tileHeight; }
-        auto GetTerrainType() const { return m_terrainType; }
+        /**
+         * @brief Get a const reference to the `Animation` sprite.
+         * @return Const reference to `sf::Sprite`
+         */
+        const sf::Sprite& GetSprite() const noexcept { return m_sprite; }
 
         //-------------------------------------------------
-        // Add Frame
+        // Add
         //-------------------------------------------------
 
+        /**
+         * @brief Add a texture as frame.
+         * @param t_filename The file path.
+         */
         void AddFrame(const core::Filename& t_filename)
         {
             Frame frame;
@@ -78,6 +99,10 @@ namespace sg::islands::iso
         // Update
         //-------------------------------------------------
 
+        /**
+         * @brief Update this `Animation` and set the right frame/texture.
+         * @param t_dt The delta time.
+         */
         void Update(const sf::Time& t_dt)
         {
             // add delta time
@@ -108,15 +133,13 @@ namespace sg::islands::iso
     protected:
 
     private:
+        AssetMetaData m_assetMetaData;
+        sf::Time m_frameTime;
+
         Frames m_frames;
         sf::Sprite m_sprite;
 
-        int m_tileHeight{ -1 };
-        TerrainType m_terrainType;
-
         std::size_t m_currentFrame{ 0 };
-
-        sf::Time m_frameTime;
         sf::Time m_currentTime{ sf::Time::Zero };
     };
 }

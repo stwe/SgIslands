@@ -2,7 +2,7 @@
 // 
 // Filename: Config.hpp
 // Created:  26.01.2019
-// Updated:  09.02.2019
+// Updated:  15.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -36,8 +36,8 @@ namespace sg::islands::core
         // map
         Filename map;
 
-        // animations
-        Filename unitAnimations;
+        // assets
+        Filename assets;
     };
 
     class Config
@@ -101,7 +101,7 @@ namespace sg::islands::core
             assert(!t_options.fonts.empty());
 
             //-------------------------------------------------
-            // TileAtlas, Map && Animations
+            // TileAtlas, Map && Assets
             //-------------------------------------------------
 
             SG_ISLANDS_INFO("[Config::LoadAppOptions()] Load world options.");
@@ -117,22 +117,22 @@ namespace sg::islands::core
             const auto terrain{ XmlWrapper::GetStringFromXmlElement(tileAtlasElement, "terrain") };
             const auto misc{ XmlWrapper::GetStringFromXmlElement(tileAtlasElement, "misc") };
 
-            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Background tileset: {}.", background);
-            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Terrain tileset: {}.", terrain);
-            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Misc tileset: {}.", misc);
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Background tileset file: {}.", background);
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Terrain tileset file: {}.", terrain);
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Misc tileset file: {}.", misc);
 
             t_options.backgroundTileset = background;
             t_options.terrainTileset = terrain;
             t_options.miscTileset = misc;
 
             const auto map{ XmlWrapper::GetStringFromXmlElement(worldElement, "map") };
-            const auto unitAnimations{ XmlWrapper::GetStringFromXmlElement(worldElement, "unitAnimations") };
+            const auto assets{ XmlWrapper::GetStringFromXmlElement(worldElement, "assets") };
 
-            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Map: {}.", map);
-            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Unit animations: {}.", unitAnimations);
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Map config file: {}.", map);
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Assets config file: {}.", assets);
 
             t_options.map = map;
-            t_options.unitAnimations = unitAnimations;
+            t_options.assets = assets;
 
             SG_ISLANDS_INFO("[Config::LoadAppOptions()] Options successfully loaded.");
         }

@@ -2,7 +2,7 @@
 // 
 // Filename: Entity.hpp
 // Created:  27.01.2019
-// Updated:  10.02.2019
+// Updated:  15.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -13,7 +13,7 @@
 
 #include <memory>
 #include "iso/VecMath.hpp"
-#include "iso/UnitAnimations.hpp"
+#include "iso/Assets.hpp"
 #include "iso/Astar.hpp"
 
 namespace sg::islands
@@ -29,14 +29,14 @@ namespace sg::islands
 
         Entity(
             iso::TileAtlas& t_tileAtlas,
-            const iso::UnitAnimations::UnitId t_unitId,
-            const iso::UnitAnimations::UnitId t_unitIdIdle,
+            const iso::AssetId t_assetId,
+            const iso::AssetId t_assetIdIdle,
             const sf::Vector2i& t_mapPosition,
             iso::Map& t_map
         )
             : m_tileAtlas{ t_tileAtlas }
-            , m_unitId{ t_unitId }
-            , m_unitIdIdle{ t_unitIdIdle }
+            , m_assetId{ t_assetId }
+            , m_assetIdIdle{ t_assetIdIdle }
             , m_mapPosition{ t_mapPosition }
         {
             m_currentScreenPosition = iso::IsoMath::ToScreen(m_mapPosition);
@@ -56,7 +56,7 @@ namespace sg::islands
         // Game Logic
         //-------------------------------------------------
 
-        void HandleInput(sf::RenderWindow& t_window, const sf::Event& t_event, iso::Map& t_map, const iso::UnitAnimations& t_unitAnimations)
+        void HandleInput(sf::RenderWindow& t_window, const sf::Event& t_event, iso::Map& t_map, const iso::Assets& t_assets)
         {
             if (t_event.type == sf::Event::KeyPressed)
             {
@@ -69,21 +69,21 @@ namespace sg::islands
                 {
                     SG_ISLANDS_DEBUG("Left Mouse pressed.");
 
-                    m_isMove = FindPathToMouse(t_window, t_unitAnimations);
+                    m_isMove = FindPathToMouse(t_window, t_assets);
                 }
             }
         }
 
-        void UpdateAnimations(iso::UnitAnimations& t_unitAnimations, const sf::Time t_dt)
+        void UpdateAnimations(iso::Assets& t_assets, const sf::Time t_dt)
         {
-            for (auto& direction : iso::UnitAnimations::DIRECTIONS)
+            // todo Directions
+            for (auto& direction : iso::Assets::UNIT_DIRECTIONS)
             {
-                auto& animation{ t_unitAnimations.GetAnimation(m_unitId, direction) };
+                auto& animation{ t_assets.GetAnimation(m_assetId, direction) };
                 animation.Update(t_dt);
 
                 // update other animations ...
-                // todo idle Animation hat nur einen Frame
-                auto& animationIdle{ t_unitAnimations.GetAnimation(m_unitIdIdle, direction) };
+                auto& animationIdle{ t_assets.GetAnimation(m_assetIdIdle, direction) };
                 animationIdle.Update(t_dt);
             }
 
@@ -110,19 +110,19 @@ namespace sg::islands
             }
         }
 
-        void Draw(iso::UnitAnimations& t_unitAnimations, sf::RenderWindow& t_window)
+        void Draw(iso::Assets& t_assets, sf::RenderWindow& t_window)
         {
             sf::Sprite* sprite{ nullptr };
             iso::Animation* animation{ nullptr };
 
             if (m_isMove)
             {
-                animation = &t_unitAnimations.GetAnimation(m_unitId, m_direction);
+                animation = &t_assets.GetAnimation(m_assetId, m_direction);
                 sprite = &animation->GetSprite();
             }
             else
             {
-                animation = &t_unitAnimations.GetAnimation(m_unitIdIdle, m_direction);
+                animation = &t_assets.GetAnimation(m_assetIdIdle, m_direction);
                 sprite = &animation->GetSprite();
             }
 
@@ -130,7 +130,7 @@ namespace sg::islands
             assert(animation);
 
             auto drawPosition{ m_currentScreenPosition };
-            const auto heightOffset{ floor(sprite->getLocalBounds().height / animation->GetTileHeight()) };
+            const auto heightOffset{ floor(sprite->getLocalBounds().height / animation->GetAssetMetaData().tileHeight) };
 
             sprite->setOrigin(sprite->getLocalBounds().width / 2, sprite->getLocalBounds().height);
 
@@ -171,8 +171,8 @@ namespace sg::islands
         iso::TileAtlas& m_tileAtlas;
         std::vector<iso::Node> m_path;
 
-        iso::UnitAnimations::UnitId m_unitId{ -1 };
-        iso::UnitAnimations::UnitId m_unitIdIdle{ -1 };
+        iso::AssetId m_assetId{ -1 };
+        iso::AssetId m_assetIdIdle{ -1 };
 
         sf::Vector2i m_mapPosition{ -1, -1 };
         sf::Vector2f m_currentScreenPosition{ -1.0f, -1.0f };
@@ -190,7 +190,7 @@ namespace sg::islands
 
         bool m_renderActiveGraphic{ false };
 
-        iso::UnitAnimations::Direction m_direction{ iso::UnitAnimations::Direction::E_DIRECTION };
+        iso::Assets::Direction m_direction{ iso::Assets::Direction::E_DIRECTION };
 
         std::unique_ptr<iso::Astar> m_astar;
 
@@ -198,7 +198,7 @@ namespace sg::islands
         // Helper
         //-------------------------------------------------
 
-        bool FindPathToMouse(sf::RenderWindow& t_window, const iso::UnitAnimations& t_unitAnimations)
+        bool FindPathToMouse(sf::RenderWindow& t_window, const iso::Assets& t_assets)
         {
             // get mouse position
             const auto mousePosition{ sf::Mouse::getPosition(t_window) };
@@ -216,8 +216,8 @@ namespace sg::islands
             node.position = m_mapPosition;
             endNode.position = targetMapPosition;
 
-            auto& animation{ t_unitAnimations.GetAnimation(m_unitId, m_direction) };
-            m_path = m_astar->FindPath(node, endNode, animation.GetTerrainType());
+            auto& animation{ t_assets.GetAnimation(m_assetId, m_direction) };
+            m_path = m_astar->FindPath(node, endNode, animation.GetAssetMetaData().assetType);
 
             if (m_path.empty())
             {
@@ -252,7 +252,7 @@ namespace sg::islands
             iso::VecMath::Normalize(m_spriteScreenNormalDirection);
 
             // calc the angle to the target to set the sprite `Direction`
-            m_direction = iso::UnitAnimations::GetDirectionByVec(m_spriteScreenNormalDirection);
+            m_direction = iso::Assets::GetUnitDirectionByVec(m_spriteScreenNormalDirection);
         }
     };
 }

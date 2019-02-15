@@ -16,6 +16,6 @@
             <misc>res/config/miscTileset.xml</misc>
         </tileAtlas>
         <map>res/config/example_map.xml</map>
-        <unitAnimations>res/config/unitAnimations.xml</unitAnimations>
+        <assets>res/config/assets.xml</assets>
     </world>
 </app>

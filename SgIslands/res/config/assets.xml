@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<assets>
+
+    <units>
+        <dir>res/gfx/units/</dir>
+        <unit id="0" name="Pirate1_Move" dir="pirate1/move/" frames="16" type="Water_Unit" tile_width="3" tile_height="3"></unit>
+        <unit id="1" name="Pirate1_Idle" dir="pirate1/idle/" frames="1" type="Water_Unit" tile_width="3" tile_height="3"></unit>
+        <unit id="2" name="Farmer0_Move" dir="farmer0/move/" frames="4" type="Land_Unit" tile_width="1" tile_height="1"></unit>
+        <unit id="3" name="Farmer0_Idle" dir="farmer0/idle/" frames="1" type="Land_Unit" tile_width="1" tile_height="1"></unit>
+    </units>
+
+    <buildings>
+        <dir>res/gfx/buildings/</dir>
+        <building id="4" name="Bakery0_Work" dir="bakery0/work/" frames="8" type="Building" tile_width="3" tile_height="3"></building>
+        <building id="5" name="Bakery0_Idle" dir="bakery0/idle/" frames="1" type="Building" tile_width="3" tile_height="3"></building>
+    </buildings>
+
+</assets>

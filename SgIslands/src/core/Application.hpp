@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  12.02.2019
+// Updated:  15.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -17,7 +17,7 @@
 #include "Config.hpp"
 #include "ResourceHolder.hpp"
 #include "../iso/Map.hpp"
-#include "../iso/UnitAnimations.hpp"
+#include "../iso/Assets.hpp"
 #include "../Entity.hpp"
 
 namespace sg::islands::core
@@ -28,12 +28,15 @@ namespace sg::islands::core
         using RenderWindowUniquePtr = std::unique_ptr<sf::RenderWindow>;
         using TileAtlasUniquePtr = std::unique_ptr<iso::TileAtlas>;
         using MapUniquePtr = std::unique_ptr<iso::Map>;
-        using UnitAnimationsUniquePtr = std::unique_ptr<iso::UnitAnimations>;
+        using AssetsUniquePtr = std::unique_ptr<iso::Assets>;
 
+        // asset Ids
         static constexpr auto PIRATE_SHIP{ 0 };
         static constexpr auto PIRATE_SHIP_IDLE{ 1 };
         static constexpr auto FARMER{ 2 };
         static constexpr auto FARMER_IDLE{ 3 };
+        static constexpr auto BAKERY{ 4 };
+        static constexpr auto BAKERY_IDLE{ 5 };
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -115,18 +118,16 @@ namespace sg::islands::core
         sf::View m_islandView;
 
         /**
-         * @brief All animations of moveable units.
+         * @brief The assets (units && buildings).
          */
-        UnitAnimationsUniquePtr m_unitAnimations;
+        AssetsUniquePtr m_assets;
 
         sf::Text m_statisticsText;
         sf::Time m_statisticsUpdateTime;
         std::size_t m_statisticsNumFrames{ 0 };
 
         bool m_drawGrid{ false };
-        int m_activeEntity{ PIRATE_SHIP };
 
-        std::unique_ptr<Entity> m_shipEntity;
         std::unique_ptr<Entity> m_farmerEntity;
 
         //-------------------------------------------------
@@ -160,13 +161,11 @@ namespace sg::islands::core
 
             //////////////////////////////////////////////
 
-            // create an `Entity`s
-            m_shipEntity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, PIRATE_SHIP_IDLE, sf::Vector2i(19, 11), *m_map);
-            m_farmerEntity = std::make_unique<Entity>(*m_tileAtlas, FARMER, FARMER_IDLE, sf::Vector2i(15, 15), *m_map);
-
             // create `UnitAnimations`
-            m_unitAnimations = std::make_unique<iso::UnitAnimations>(m_appOptions.unitAnimations);
-            assert(m_unitAnimations);
+            m_assets = std::make_unique<iso::Assets>(m_appOptions.assets);
+
+            // create an `Entity`s
+            m_farmerEntity = std::make_unique<Entity>(*m_tileAtlas, FARMER, FARMER_IDLE, sf::Vector2i(15, 15), *m_map);
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
@@ -225,32 +224,7 @@ namespace sg::islands::core
                         SG_ISLANDS_DEBUG("mouse map x: {}", targetMapPosition.x);
                         SG_ISLANDS_DEBUG("mouse map y: {}", targetMapPosition.y);
 
-                        // todo - aktive Entity setzen - manche sprites belegen mehrere Felder
-
-                        if (targetMapPosition == m_shipEntity->GetMapPosition())
-                        {
-                            SG_ISLANDS_DEBUG("Schiff auf dem Feld");
-                            m_activeEntity = PIRATE_SHIP;
-                            m_shipEntity->SetRenderActive(true);
-                            m_farmerEntity->SetRenderActive(false);
-                        }
-                        else if (targetMapPosition == m_farmerEntity->GetMapPosition())
-                        {
-                            SG_ISLANDS_DEBUG("Farmer auf dem Feld");
-                            m_activeEntity = FARMER;
-                            m_farmerEntity->SetRenderActive(true);
-                            m_shipEntity->SetRenderActive(false);
-                        }
-
-                        if (m_activeEntity == PIRATE_SHIP && targetMapPosition != m_shipEntity->GetMapPosition())
-                        {
-                            m_shipEntity->HandleInput(*m_window, event, *m_map, *m_unitAnimations);
-                        }
-
-                        if (m_activeEntity == FARMER && targetMapPosition != m_farmerEntity->GetMapPosition())
-                        {
-                            m_farmerEntity->HandleInput(*m_window, event, *m_map, *m_unitAnimations);
-                        }
+                        m_farmerEntity->HandleInput(*m_window, event, *m_map, *m_assets);
                     }
                 }
             }
@@ -259,8 +233,8 @@ namespace sg::islands::core
         void Update(const sf::Time t_dt)
         {
             // update entities
-            m_shipEntity->UpdateAnimations(*m_unitAnimations, t_dt);
-            m_farmerEntity->UpdateAnimations(*m_unitAnimations, t_dt);
+            //m_shipEntity->UpdateAnimations(*m_assets, t_dt);
+            m_farmerEntity->UpdateAnimations(*m_assets, t_dt);
         }
 
         void Render()
@@ -278,8 +252,8 @@ namespace sg::islands::core
             m_window->setTitle(m_appOptions.windowTitle + " " + m_statisticsText.getString());
 
             // draw entities
-            m_shipEntity->Draw(*m_unitAnimations, *m_window);
-            m_farmerEntity->Draw(*m_unitAnimations, *m_window);
+            //m_shipEntity->Draw(*m_assets, *m_window);
+            m_farmerEntity->Draw(*m_assets, *m_window);
 
             m_window->display();
         }
