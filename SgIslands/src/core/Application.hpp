@@ -169,9 +169,9 @@ namespace sg::islands::core
             m_assets = std::make_unique<iso::Assets>(m_appOptions.assets);
 
             // create an `Entity`s
-            m_farmerEntity = std::make_unique<Entity>(*m_tileAtlas, FARMER, FARMER_IDLE, sf::Vector2i(15, 15), *m_map);
-            m_pirateShipEntity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, PIRATE_SHIP_IDLE, sf::Vector2i(20, 20), *m_map);
-            m_bakeryEntity = std::make_unique<Entity>(*m_tileAtlas, BAKERY, BAKERY, sf::Vector2i(10, 8), *m_map);
+            m_farmerEntity = std::make_unique<Entity>(*m_tileAtlas, FARMER, FARMER_IDLE, sf::Vector2i(15, 15), *m_map, false);
+            m_pirateShipEntity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, PIRATE_SHIP_IDLE, sf::Vector2i(20, 20), *m_map, false);
+            m_bakeryEntity = std::make_unique<Entity>(*m_tileAtlas, BAKERY, BAKERY, sf::Vector2i(10, 8), *m_map, true);
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }

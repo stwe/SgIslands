@@ -36,6 +36,17 @@ namespace sg::islands::iso
             NW_DIRECTION = 135
         };
 
+        inline static const std::map<Direction, std::string> DIRECTION_STRINGS{
+            { Direction::N_DIRECTION, "N" },
+            { Direction::NE_DIRECTION, "NE" },
+            { Direction::E_DIRECTION, "E" },
+            { Direction::SE_DIRECTION, "SE" },
+            { Direction::S_DIRECTION, "S" },
+            { Direction::SW_DIRECTION, "SW" },
+            { Direction::W_DIRECTION, "W" },
+            { Direction::NW_DIRECTION, "NW" }
+        };
+
         static constexpr auto NUMBER_OF_UNIT_DIRECTIONS{ 8 };
         static constexpr auto NUMBER_OF_BUILDING_DIRECTIONS{ 4 };
 
@@ -101,7 +112,20 @@ namespace sg::islands::iso
          * @param t_assetId The Id of the asset.
          * @return Const reference to `AssetMetaData`
          */
-        const AssetMetaData& GetAssetMetaData(const AssetId t_assetId) const { return *m_assetsMetaDataMap.at(t_assetId); }
+        const AssetMetaData& GetAssetMetaData(const AssetId t_assetId) const
+        {
+            try
+            {
+                return *m_assetsMetaDataMap.at(t_assetId);
+            }
+            catch (const std::out_of_range& exception)
+            {
+                const auto id{ std::to_string(t_assetId) };
+
+                SG_ISLANDS_ERROR("[Assets::GetAssetMetaData()] Out of range exception: ", exception.what());
+                THROW_SG_EXCEPTION("[Assets::GetAssetMetaData()] Key: " + id + " not found.");
+            }
+        }
 
         /**
          * @brief Returns a reference to the assets map.
@@ -123,7 +147,18 @@ namespace sg::islands::iso
          */
         Animation& GetAnimation(const AssetId t_assetId, const Direction t_direction)
         {
-            return *m_assetsMap.at(std::make_pair(t_assetId, t_direction));
+            try
+            {
+                return *m_assetsMap.at(std::make_pair(t_assetId, t_direction));
+            }
+            catch (const std::out_of_range& exception)
+            {
+                const auto id{ std::to_string(t_assetId) };
+                const auto& direction{ DIRECTION_STRINGS.at(t_direction) }; // todo
+
+                SG_ISLANDS_ERROR("[Assets::GetAnimation()] Out of range exception: ", exception.what());
+                THROW_SG_EXCEPTION("[Assets::GetAnimation()] Key pair: " + id + " direction " + direction + " not found.");
+            }
         }
 
         /**
@@ -134,11 +169,22 @@ namespace sg::islands::iso
          */
         const Animation& GetAnimation(const AssetId t_assetId, const Direction t_direction) const
         {
-            return *m_assetsMap.at(std::make_pair(t_assetId, t_direction));
+            try
+            {
+                return *m_assetsMap.at(std::make_pair(t_assetId, t_direction));
+            }
+            catch (const std::out_of_range& exception)
+            {
+                const auto id{ std::to_string(t_assetId) };
+                const auto& direction{ DIRECTION_STRINGS.at(t_direction) }; // todo
+
+                SG_ISLANDS_ERROR("[Assets::GetAnimation()] Out of range exception: ", exception.what());
+                THROW_SG_EXCEPTION("[Assets::GetAnimation()] Key pair: " + id + " direction " + direction + " not found.");
+            }
         }
 
         /**
-         * @brief Computes the sprite `Direction` from a given vector.
+         * @brief Computes the sprite `Direction` of a unit from a given vector.
          * @param t_vector A direction vector.
          * @return Direction
          */

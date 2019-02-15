@@ -46,12 +46,28 @@ namespace sg::islands::core
 
         TResource& GetResource(const TId t_id)
         {
-            return *m_resourceMap.at(t_id);
+            try
+            {
+                return *m_resourceMap.at(t_id);
+            }
+            catch (const std::out_of_range& exception)
+            {
+                SG_ISLANDS_ERROR("[ResourceHolder::GetResource()] Out of range exception: ", exception.what());
+                THROW_SG_EXCEPTION("[ResourceHolder::GetResource()] Invalid key.");
+            }
         }
 
         const TResource& GetResource(const TId t_id) const
         {
-            return *m_resourceMap.at(t_id);
+            try
+            {
+                return *m_resourceMap.at(t_id);
+            }
+            catch (const std::out_of_range& exception)
+            {
+                SG_ISLANDS_ERROR("[ResourceHolder::GetResource()] Out of range exception: ", exception.what());
+                THROW_SG_EXCEPTION("[ResourceHolder::GetResource()] Invalid key.");
+            }
         }
 
         auto GetNumberOfElements() const { return m_resourceMap.size(); }
