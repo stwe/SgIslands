@@ -2,7 +2,7 @@
 // 
 // Filename: XmlWrapper.hpp
 // Created:  20.01.2019
-// Updated:  09.02.2019
+// Updated:  15.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -24,7 +24,7 @@ namespace sg::islands::core
             const auto result{ t_document.LoadFile(t_filename.c_str()) };
             if (result != tinyxml2::XML_SUCCESS)
             {
-                throw std::runtime_error("[XmlWrapper::LoadXmlFile()] XMLError: " + std::to_string(result));
+                THROW_SG_EXCEPTION("[XmlWrapper::LoadXmlFile()] XMLError: " + std::to_string(result));
             }
         }
 
@@ -33,7 +33,7 @@ namespace sg::islands::core
             const auto xmlElement{ t_element->FirstChildElement(t_name.c_str()) };
             if (!xmlElement)
             {
-                throw std::runtime_error("[XmlWrapper::GetStringFromXmlElement()] Xml element is missing: " + t_name);
+                THROW_SG_EXCEPTION("[XmlWrapper::GetStringFromXmlElement()] Xml element is missing: " + t_name);
             }
 
             return std::string(xmlElement->GetText());
@@ -49,7 +49,7 @@ namespace sg::islands::core
             const auto result{ t_document.FirstChildElement(t_name.c_str()) };
             if (!result)
             {
-                throw std::runtime_error("[XmlWrapper::GetFirstChildElement()] Xml element is missing: " + t_name);
+                THROW_SG_EXCEPTION("[XmlWrapper::GetFirstChildElement()] Xml element is missing: " + t_name);
             }
 
             return result;
@@ -60,7 +60,7 @@ namespace sg::islands::core
             const auto result{ t_element->FirstChildElement(t_name.c_str()) };
             if (!result)
             {
-                throw std::runtime_error("[XmlWrapper::GetFirstChildElement()] Xml element is missing: " + t_name);
+                THROW_SG_EXCEPTION("[XmlWrapper::GetFirstChildElement()] Xml element is missing: " + t_name);
             }
 
             return result;
@@ -71,7 +71,7 @@ namespace sg::islands::core
             const auto attr{ t_element->Attribute(t_name.c_str()) };
             if (!attr)
             {
-                throw std::runtime_error("[XmlWrapper::GetAttribute()] Error reading attribute: " + t_name);
+                THROW_SG_EXCEPTION("[XmlWrapper::GetAttribute()] Error reading attribute: " + t_name);
             }
 
             return std::string(attr);
@@ -82,7 +82,7 @@ namespace sg::islands::core
             const auto error{ t_element->QueryAttribute(t_name.c_str(), t_value) };
             if (error != tinyxml2::XML_SUCCESS)
             {
-                throw std::runtime_error("[XmlWrapper::QueryAttribute()] Error reading attribute: " + t_name);
+                THROW_SG_EXCEPTION("[XmlWrapper::QueryAttribute()] Error reading attribute: " + t_name);
             }
         }
 
@@ -91,7 +91,7 @@ namespace sg::islands::core
             const auto error{ t_element->QueryAttribute(t_name.c_str(), t_value) };
             if (error != tinyxml2::XML_SUCCESS)
             {
-                throw std::runtime_error("[XmlWrapper::QueryAttribute()] Error reading attribute: " + t_name);
+                THROW_SG_EXCEPTION("[XmlWrapper::QueryAttribute()] Error reading attribute: " + t_name);
             }
         }
 

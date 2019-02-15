@@ -99,6 +99,7 @@
     <ClInclude Include="src\core\Config.hpp" />
     <ClInclude Include="src\core\Log.hpp" />
     <ClInclude Include="src\core\ResourceHolder.hpp" />
+    <ClInclude Include="src\core\SgException.hpp" />
     <ClInclude Include="src\core\Types.hpp" />
     <ClInclude Include="src\core\XmlWrapper.hpp" />
     <ClInclude Include="src\Entity.hpp" />

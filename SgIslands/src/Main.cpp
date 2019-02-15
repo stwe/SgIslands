@@ -11,6 +11,7 @@
 
 #define _USE_MATH_DEFINES
 
+#include "core/SgException.hpp"
 #include "core/Application.hpp"
 #include "core/Log.hpp"
 

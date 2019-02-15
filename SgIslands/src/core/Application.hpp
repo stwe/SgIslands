@@ -129,6 +129,10 @@ namespace sg::islands::core
         bool m_drawGrid{ false };
 
         std::unique_ptr<Entity> m_farmerEntity;
+        std::unique_ptr<Entity> m_pirateShipEntity;;
+        std::unique_ptr<Entity> m_bakeryEntity;
+
+        int m_activeEntity{ 0 };
 
         //-------------------------------------------------
         // Game Logic
@@ -166,6 +170,8 @@ namespace sg::islands::core
 
             // create an `Entity`s
             m_farmerEntity = std::make_unique<Entity>(*m_tileAtlas, FARMER, FARMER_IDLE, sf::Vector2i(15, 15), *m_map);
+            m_pirateShipEntity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, PIRATE_SHIP_IDLE, sf::Vector2i(20, 20), *m_map);
+            m_bakeryEntity = std::make_unique<Entity>(*m_tileAtlas, BAKERY, BAKERY, sf::Vector2i(10, 8), *m_map);
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
@@ -209,6 +215,19 @@ namespace sg::islands::core
                     m_drawGrid = !m_drawGrid;
                 }
 
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num0)
+                {
+                    m_activeEntity = 0;
+                }
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num2)
+                {
+                    m_activeEntity = 2;
+                }
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num4)
+                {
+                    m_activeEntity = 4;
+                }
+
                 if (event.type == sf::Event::MouseButtonPressed)
                 {
                     if (event.mouseButton.button == sf::Mouse::Left)
@@ -224,7 +243,33 @@ namespace sg::islands::core
                         SG_ISLANDS_DEBUG("mouse map x: {}", targetMapPosition.x);
                         SG_ISLANDS_DEBUG("mouse map y: {}", targetMapPosition.y);
 
-                        m_farmerEntity->HandleInput(*m_window, event, *m_map, *m_assets);
+                        if (m_activeEntity == 0)
+                        {
+                            m_pirateShipEntity->SetRenderActive(true);
+
+                            m_farmerEntity->SetRenderActive(false);
+                            m_bakeryEntity->SetRenderActive(false);
+
+                            m_pirateShipEntity->HandleInput(*m_window, event, *m_map, *m_assets);
+                        }
+                        if (m_activeEntity == 2)
+                        {
+                            m_farmerEntity->SetRenderActive(true);
+
+                            m_pirateShipEntity->SetRenderActive(false);
+                            m_bakeryEntity->SetRenderActive(false);
+
+                            m_farmerEntity->HandleInput(*m_window, event, *m_map, *m_assets);
+                        }
+                        if (m_activeEntity == 4)
+                        {
+                            m_bakeryEntity->SetRenderActive(true);
+
+                            m_farmerEntity->SetRenderActive(false);
+                            m_pirateShipEntity->SetRenderActive(false);
+
+                            m_bakeryEntity->HandleInput(*m_window, event, *m_map, *m_assets);
+                        }
                     }
                 }
             }
@@ -233,8 +278,9 @@ namespace sg::islands::core
         void Update(const sf::Time t_dt)
         {
             // update entities
-            //m_shipEntity->UpdateAnimations(*m_assets, t_dt);
             m_farmerEntity->UpdateAnimations(*m_assets, t_dt);
+            m_pirateShipEntity->UpdateAnimations(*m_assets, t_dt);
+            m_bakeryEntity->UpdateAnimations(*m_assets, t_dt);
         }
 
         void Render()
@@ -252,8 +298,9 @@ namespace sg::islands::core
             m_window->setTitle(m_appOptions.windowTitle + " " + m_statisticsText.getString());
 
             // draw entities
-            //m_shipEntity->Draw(*m_assets, *m_window);
             m_farmerEntity->Draw(*m_assets, *m_window);
+            m_pirateShipEntity->Draw(*m_assets, *m_window);
+            m_bakeryEntity->Draw(*m_assets, *m_window);
 
             m_window->display();
         }

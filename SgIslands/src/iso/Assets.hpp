@@ -59,6 +59,8 @@ namespace sg::islands::iso
             Direction::NW_DIRECTION
         };
 
+        static constexpr auto DEFAULT_DIRECTION{ Direction::NE_DIRECTION };
+
         using AssetMetaDataUniquePtr = std::unique_ptr<AssetMetaData>;
         using AssetsMetaDataMap = std::map<AssetId, AssetMetaDataUniquePtr>;
 
@@ -209,9 +211,9 @@ namespace sg::islands::iso
                 return Direction::SE_DIRECTION;
             }
 
-            SG_ISLANDS_WARN("[Assets::GetDirectionByVec()] Return the default direction (E_DIRECTION) for angle {}.", angleDeg);
+            SG_ISLANDS_WARN("[Assets::GetDirectionByVec()] Return the default direction (NE_DIRECTION) for angle {}.", angleDeg);
 
-            return Direction::E_DIRECTION;
+            return DEFAULT_DIRECTION;
         }
 
     protected:

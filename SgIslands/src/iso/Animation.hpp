@@ -88,7 +88,7 @@ namespace sg::islands::iso
             const auto result{ frame.loadFromFile(t_filename) };
             if (!result)
             {
-                throw std::runtime_error("[Animation::AddFrame()] Failed to load texture " + t_filename);
+                THROW_SG_EXCEPTION("[Animation::AddFrame()] Failed to load texture " + t_filename);
             }
 
             // save frame

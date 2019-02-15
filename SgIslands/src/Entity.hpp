@@ -12,6 +12,7 @@
 #pragma once
 
 #include <memory>
+#include <array>
 #include "iso/VecMath.hpp"
 #include "iso/Assets.hpp"
 #include "iso/Astar.hpp"
@@ -74,17 +75,24 @@ namespace sg::islands
             }
         }
 
-        void UpdateAnimations(iso::Assets& t_assets, const sf::Time t_dt)
+        void UpdateAnimations(iso::Assets& t_assets, const sf::Time& t_dt)
         {
-            // todo Directions
-            for (auto& direction : iso::Assets::UNIT_DIRECTIONS)
-            {
-                auto& animation{ t_assets.GetAnimation(m_assetId, direction) };
-                animation.Update(t_dt);
+            const auto assetType{ t_assets.GetAssetMetaData(m_assetId).assetType };
+            const auto assetIdleType{ t_assets.GetAssetMetaData(m_assetIdIdle).assetType };
 
-                // update other animations ...
-                auto& animationIdle{ t_assets.GetAnimation(m_assetIdIdle, direction) };
-                animationIdle.Update(t_dt);
+            if (assetType == iso::AssetType::BUILDING && assetIdleType == iso::AssetType::BUILDING)
+            {
+                // building
+                HandleAssetUpdate(iso::Assets::BUILDING_DIRECTIONS, t_assets, t_dt);
+            }
+            else if (assetType != iso::AssetType::NONE && assetIdleType != iso::AssetType::NONE)
+            {
+                // water or land unit
+                HandleAssetUpdate(iso::Assets::UNIT_DIRECTIONS, t_assets, t_dt);
+            }
+            else
+            {
+                THROW_SG_EXCEPTION("[Entity::UpdateAnimations()] Invalid asset type.");
             }
 
             if (m_isMove)
@@ -190,7 +198,7 @@ namespace sg::islands
 
         bool m_renderActiveGraphic{ false };
 
-        iso::Assets::Direction m_direction{ iso::Assets::Direction::E_DIRECTION };
+        iso::Assets::Direction m_direction{ iso::Assets::DEFAULT_DIRECTION };
 
         std::unique_ptr<iso::Astar> m_astar;
 
@@ -253,6 +261,25 @@ namespace sg::islands
 
             // calc the angle to the target to set the sprite `Direction`
             m_direction = iso::Assets::GetUnitDirectionByVec(m_spriteScreenNormalDirection);
+        }
+
+        template <std::size_t N>
+        void HandleAssetUpdate(
+            const std::array<iso::Assets::Direction, N>& t_directions,
+            iso::Assets& t_assets,
+            const sf::Time& t_dt
+        )
+        {
+            for (auto& direction : t_directions)
+            {
+                // update work or move animation
+                auto& animation{ t_assets.GetAnimation(m_assetId, direction) };
+                animation.Update(t_dt);
+
+                // update idle animation (which have only one frame)
+                auto& animationIdle{ t_assets.GetAnimation(m_assetIdIdle, direction) };
+                animationIdle.Update(t_dt);
+            }
         }
     };
 }
