@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  15.02.2019
+// Updated:  17.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -16,6 +16,8 @@
 #include <SFML/Window/Event.hpp>
 #include "Config.hpp"
 #include "ResourceHolder.hpp"
+#include "imGui/imgui.h"
+#include "imGui/imgui-SFML.h"
 #include "../iso/Map.hpp"
 #include "../iso/Assets.hpp"
 #include "../Entity.hpp"
@@ -149,6 +151,9 @@ namespace sg::islands::core
             m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(m_appOptions.windowWidth, m_appOptions.windowHeight), m_appOptions.windowTitle);
             assert(m_window);
 
+            // init imGui
+            ImGui::SFML::Init(*m_window);
+
             // load and use the first font
             m_fonts.Load(1, m_appOptions.fonts[0]);
             m_statisticsText.setFont(m_fonts.GetResource(1));
@@ -171,7 +176,7 @@ namespace sg::islands::core
             // create an `Entity`s
             m_farmerEntity = std::make_unique<Entity>(*m_tileAtlas, FARMER, FARMER_IDLE, sf::Vector2i(15, 15), *m_map, false);
             m_pirateShipEntity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, PIRATE_SHIP_IDLE, sf::Vector2i(20, 20), *m_map, false);
-            m_bakeryEntity = std::make_unique<Entity>(*m_tileAtlas, BAKERY, BAKERY, sf::Vector2i(10, 8), *m_map, true);
+            m_bakeryEntity = std::make_unique<Entity>(*m_tileAtlas, BAKERY, BAKERY, sf::Vector2i(8, 7), *m_map, true);
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
@@ -181,6 +186,8 @@ namespace sg::islands::core
             sf::Event event{};
             while (m_window->pollEvent(event))
             {
+                ImGui::SFML::ProcessEvent(event);
+
                 if (event.type == sf::Event::Closed)
                 {
                     m_window->close();
@@ -302,7 +309,23 @@ namespace sg::islands::core
             m_pirateShipEntity->Draw(*m_assets, *m_window);
             m_bakeryEntity->Draw(*m_assets, *m_window);
 
+            RenderImGui();
+
+            m_tileAtlas->DrawMiscTile(iso::TileAtlas::CLICKED_TILE, 15, 15, *m_window);
+            m_tileAtlas->DrawMiscTile(iso::TileAtlas::CLICKED_TILE, 20, 20, *m_window);
+            m_tileAtlas->DrawMiscTile(iso::TileAtlas::CLICKED_TILE, 8, 7, *m_window);
+
+            // show everything
             m_window->display();
+        }
+
+        void RenderImGui()
+        {
+            ImGui::SFML::Update(*m_window, TIME_PER_FRAME);
+            ImGui::Begin("Hello, world!");
+            ImGui::Button("Look at this pretty button");
+            ImGui::End();
+            ImGui::SFML::Render(*m_window);
         }
 
         void UpdateStatistics(const sf::Time t_dt)

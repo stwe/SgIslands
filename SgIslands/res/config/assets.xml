@@ -12,8 +12,9 @@
 
     <buildings>
         <dir>res/gfx/buildings/</dir>
-        <building id="4" name="Bakery0_Work" dir="bakery0/work/" frames="8" type="Building" tile_width="3" tile_height="3"></building>
-        <building id="5" name="Bakery0_Idle" dir="bakery0/idle/" frames="1" type="Building" tile_width="3" tile_height="3"></building>
+        <!-- Building 128x128:    tile_width = 128/64 = 2    &&    tile_height = 128/32 = 4 -->
+        <building id="4" name="Bakery0_Work" dir="bakery0/work/" frames="8" type="Building" tile_width="2" tile_height="4"></building>
+        <building id="5" name="Bakery0_Idle" dir="bakery0/idle/" frames="1" type="Building" tile_width="2" tile_height="4"></building>
     </buildings>
 
 </assets>

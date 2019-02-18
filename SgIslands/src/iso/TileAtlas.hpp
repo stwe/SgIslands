@@ -2,7 +2,7 @@
 // 
 // Filename: TileAtlas.hpp
 // Created:  20.01.2019
-// Updated:  10.02.2019
+// Updated:  18.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -124,7 +124,7 @@ namespace sg::islands::iso
             sf::Sprite sprite;
             sprite.setTexture(deepWaterSouth);
 
-            auto screenPosition{ IsoMath::ToScreen(t_xMapPos, t_yMapPos, IsoMath::DEEP_WATER_TILE_WIDTH_HALF, IsoMath::DEEP_WATER_TILE_HEIGHT_HALF) };
+            auto screenPosition{ IsoMath::ToScreen(t_xMapPos, t_yMapPos, false, IsoMath::DEEP_WATER_TILE_WIDTH_HALF, IsoMath::DEEP_WATER_TILE_HEIGHT_HALF) };
 
             // adjust "origin" of the isometric
             screenPosition.x -= IsoMath::DEEP_WATER_TILE_WIDTH_HALF;

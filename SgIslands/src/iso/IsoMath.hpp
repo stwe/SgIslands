@@ -2,7 +2,7 @@
 // 
 // Filename: IsoMath.hpp
 // Created:  22.01.2019
-// Updated:  10.02.2019
+// Updated:  18.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -29,6 +29,7 @@ namespace sg::islands::iso
         static constexpr auto DEFAULT_TILE_HEIGHT{ 32 };
         static constexpr auto DEFAULT_TILE_WIDTH_HALF{ 32.0f };
         static constexpr auto DEFAULT_TILE_HEIGHT_HALF{ 16.0f };
+        static constexpr auto DEFAULT_TILE_WIDTH_QUARTER{ 16.0f };
 
         /**
          * @brief Translate between 2D and 1D coordinates.
@@ -45,12 +46,14 @@ namespace sg::islands::iso
         /**
          * @brief Isometric projection.
          * @param t_mapCoords The coordinates of the map.
+         * @param t_correction Corrects the fact that counting the tiles starts from zero.
          * @param t_tileWidthHalf The half width of a tile.
          * @param t_tileHeightHalf The half height of a tile.
          * @return sf::Vector2f()
          */
         static auto ToScreen(
             const sf::Vector2i& t_mapCoords,
+            const bool t_correction = false,
             const float t_tileWidthHalf = DEFAULT_TILE_WIDTH_HALF,
             const float t_tileHeightHalf = DEFAULT_TILE_HEIGHT_HALF
         )
@@ -58,8 +61,17 @@ namespace sg::islands::iso
             //screen.x = (map.x - map.y) * TILE_WIDTH_HALF;
             //screen.y = (map.x + map.y) * TILE_HEIGHT_HALF;
 
-            const auto screenX{ (t_mapCoords.x - t_mapCoords.y) * t_tileWidthHalf };
-            const auto screenY{ (t_mapCoords.x + t_mapCoords.y) * t_tileHeightHalf };
+            auto x{ t_mapCoords.x };
+            auto y{ t_mapCoords.y };
+
+            if (t_correction)
+            {
+                x++;
+                y++;
+            }
+
+            const auto screenX{ (x - y) * t_tileWidthHalf };
+            const auto screenY{ (x + y) * t_tileHeightHalf };
 
             return sf::Vector2f(screenX, screenY);
         }
@@ -68,6 +80,7 @@ namespace sg::islands::iso
          * @brief Isometric projection.
          * @param t_mapX The x-position in a map.
          * @param t_mapY The y-position in a map.
+         * @param t_correction Corrects the fact that counting the tiles starts from zero.
          * @param t_tileWidthHalf The half width of a tile.
          * @param t_tileHeightHalf The half height of a tile.
          * @return sf::Vector2f()
@@ -75,11 +88,12 @@ namespace sg::islands::iso
         static auto ToScreen(
             const int t_mapX,
             const int t_mapY,
+            const bool t_correction = false,
             const float t_tileWidthHalf = DEFAULT_TILE_WIDTH_HALF,
             const float t_tileHeightHalf = DEFAULT_TILE_HEIGHT_HALF
         )
         {
-            return ToScreen(sf::Vector2i(t_mapX, t_mapY), t_tileWidthHalf, t_tileHeightHalf);
+            return ToScreen(sf::Vector2i(t_mapX, t_mapY), t_correction, t_tileWidthHalf, t_tileHeightHalf);
         }
 
         /**

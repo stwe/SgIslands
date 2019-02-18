@@ -2,7 +2,7 @@
 // 
 // Filename: Entity.hpp
 // Created:  27.01.2019
-// Updated:  15.02.2019
+// Updated:  18.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -11,6 +11,7 @@
 
 #pragma once
 
+//#include <SFML/Graphics/RectangleShape.hpp>
 #include <memory>
 #include <array>
 #include "iso/VecMath.hpp"
@@ -42,7 +43,7 @@ namespace sg::islands
             , m_mapPosition{ t_mapPosition }
             , m_isBuilding{ t_isBuilding }
         {
-            m_currentScreenPosition = iso::IsoMath::ToScreen(m_mapPosition);
+            m_currentScreenPosition = iso::IsoMath::ToScreen(m_mapPosition, true);
 
             // todo tmp code
             m_astar = std::make_unique<iso::Astar>(t_map);
@@ -113,8 +114,8 @@ namespace sg::islands
 
         void Draw(iso::Assets& t_assets, sf::RenderWindow& t_window)
         {
-            sf::Sprite* sprite{ nullptr };
-            iso::Animation* animation{ nullptr };
+            sf::Sprite* sprite;
+            iso::Animation* animation;
 
             if (m_isMove)
             {
@@ -127,18 +128,58 @@ namespace sg::islands
                 sprite = &animation->GetSprite();
             }
 
-            assert(sprite);
-            assert(animation);
+            // get asset type
+            const auto assetType{ t_assets.GetAssetMetaData(m_assetId).assetType };
 
-            auto drawPosition{ m_currentScreenPosition };
-            const auto heightOffset{ floor(sprite->getLocalBounds().height / animation->GetAssetMetaData().tileHeight) };
+            // get tile width
+            const auto tileWidth{ t_assets.GetAssetMetaData(m_assetId).tileWidth };
 
-            sprite->setOrigin(sprite->getLocalBounds().width / 2, sprite->getLocalBounds().height);
+            // get tile height
+            const auto tileHeight{ t_assets.GetAssetMetaData(m_assetId).tileHeight };
 
-            const auto diff{ heightOffset - iso::IsoMath::DEFAULT_TILE_HEIGHT };
-            drawPosition.y += heightOffset;
-            drawPosition.y += diff > iso::IsoMath::DEFAULT_TILE_HEIGHT ? diff / 2 : diff;
-            sprite->setPosition(drawPosition);
+            if (assetType == iso::AssetType::BUILDING)
+            {
+                // support only for building sizes of 2x4 tiles
+                assert(tileWidth == 2);
+                assert(tileHeight == 4);
+
+                const auto x{ tileWidth * iso::IsoMath::DEFAULT_TILE_WIDTH_HALF };
+                const auto y{ tileHeight * iso::IsoMath::DEFAULT_TILE_HEIGHT_HALF };
+
+                sprite->setOrigin(x, y);
+                sprite->setPosition(m_currentScreenPosition);
+            }
+            else if (assetType == iso::AssetType::LAND_UNIT)
+            {
+                // support only for land unit sizes of 1x1 tiles
+                assert(tileWidth == 1);
+                assert(tileHeight == 1);
+
+                sprite->setOrigin(iso::IsoMath::DEFAULT_TILE_WIDTH_QUARTER, iso::IsoMath::DEFAULT_TILE_HEIGHT_HALF);
+                sprite->setPosition(m_currentScreenPosition);
+            }
+            else if (assetType == iso::AssetType::WATER_UNIT)
+            {
+                // support only for water unit sizes of 3x3 tiles
+                assert(tileWidth == 3);
+                assert(tileHeight == 3);
+
+                const auto localBounds{ sprite->getLocalBounds() };
+                //auto rect{ sf::RectangleShape(sf::Vector2f(localBounds.width, localBounds.height)) };
+
+                // copy screen position
+                auto drawPosition{ m_currentScreenPosition };
+
+                sprite->setOrigin(localBounds.width / 2, localBounds.height);
+                //rect.setOrigin(localBounds.width / 2, localBounds.height);
+
+                drawPosition.y += iso::IsoMath::DEFAULT_TILE_HEIGHT * 2;
+
+                sprite->setPosition(drawPosition);
+                //rect.setPosition(drawPosition);
+                //rect.setFillColor(sf::Color(0, 0, 128, 64));
+                //t_window.draw(rect);
+            }
 
             // todo tmp code
             for (const auto& n : m_path)
@@ -147,18 +188,6 @@ namespace sg::islands
             }
 
             t_window.draw(*sprite);
-
-            if (m_renderActiveGraphic)
-            {
-                sf::VertexArray lines(sf::LineStrip, 2);
-                lines[0].position = sf::Vector2f(drawPosition.x, drawPosition.y - sprite->getLocalBounds().height);
-                lines[0].color = sf::Color::Red;
-
-                lines[1].position = sf::Vector2f(drawPosition.x + 10, drawPosition.y - sprite->getLocalBounds().height);
-                lines[1].color = sf::Color::Red;
-
-                t_window.draw(lines);
-            }
         }
 
         void SetRenderActive(const bool t_renderActiveGraphic) { m_renderActiveGraphic = t_renderActiveGraphic; }
@@ -242,7 +271,7 @@ namespace sg::islands
             m_targetMapPosition = m_path[t_pathIndex].position;
 
             // calc target screen position
-            m_targetScreenPosition = iso::IsoMath::ToScreen(m_targetMapPosition);
+            m_targetScreenPosition = iso::IsoMath::ToScreen(m_targetMapPosition, true);
 
             // calc direction vector to the target
             m_spriteScreenDirection = iso::VecMath::Direction(m_currentScreenPosition, m_targetScreenPosition);

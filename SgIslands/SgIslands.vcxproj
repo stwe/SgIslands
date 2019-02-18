@@ -92,6 +92,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="vendor\imGui\imgui-SFML.cpp" />
+    <ClCompile Include="vendor\imGui\imgui.cpp" />
+    <ClCompile Include="vendor\imGui\imgui_demo.cpp" />
+    <ClCompile Include="vendor\imGui\imgui_draw.cpp" />
+    <ClCompile Include="vendor\imGui\imgui_widgets.cpp" />
     <ClCompile Include="vendor\tinyxml2\tinyxml2.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +118,14 @@
     <ClInclude Include="src\iso\Node.hpp" />
     <ClInclude Include="src\iso\TileAtlas.hpp" />
     <ClInclude Include="src\iso\VecMath.hpp" />
+    <ClInclude Include="vendor\imGui\imconfig-SFML.h" />
+    <ClInclude Include="vendor\imGui\imconfig.h" />
+    <ClInclude Include="vendor\imGui\imgui-SFML.h" />
+    <ClInclude Include="vendor\imGui\imgui.h" />
+    <ClInclude Include="vendor\imGui\imgui_internal.h" />
+    <ClInclude Include="vendor\imGui\imstb_rectpack.h" />
+    <ClInclude Include="vendor\imGui\imstb_textedit.h" />
+    <ClInclude Include="vendor\imGui\imstb_truetype.h" />
     <ClInclude Include="vendor\tinyxml2\tinyxml2.h" />
   </ItemGroup>
   <ItemGroup>
