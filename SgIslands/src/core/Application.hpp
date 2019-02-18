@@ -178,6 +178,12 @@ namespace sg::islands::core
             m_pirateShipEntity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, PIRATE_SHIP_IDLE, sf::Vector2i(20, 20), *m_map);
             m_bakeryEntity = std::make_unique<Entity>(*m_tileAtlas, BAKERY, BAKERY, sf::Vector2i(8, 7), *m_map);
 
+            // bakery on Island
+            m_map->SetPassable(8, 7, false);
+            m_map->SetPassable(9, 7, false);
+            m_map->SetPassable(8, 8, false);
+            m_map->SetPassable(9, 8, false);
+
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
 

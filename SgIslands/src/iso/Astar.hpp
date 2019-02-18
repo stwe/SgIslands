@@ -2,7 +2,7 @@
 // 
 // Filename: Astar.hpp
 // Created:  02.02.2019
-// Updated:  15.02.2019
+// Updated:  18.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -273,10 +273,10 @@ namespace sg::islands::iso
 
             if (m_assetType == AssetType::WATER_UNIT)
             {
-                return m_map.IsDeepWater(t_x, t_y);
+                return m_map.IsDeepWater(t_x, t_y) && m_map.IsPassable(t_x, t_y);
             }
 
-            return m_map.IsLand(t_x, t_y);
+            return m_map.IsLand(t_x, t_y) && m_map.IsPassable(t_x, t_y);
         }
 
         /**

@@ -2,7 +2,7 @@
 // 
 // Filename: Map.hpp
 // Created:  20.01.2019
-// Updated:  10.02.2019
+// Updated:  18.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -20,13 +20,13 @@ namespace sg::islands::iso
     {
         DEEP_WATER,
         LAND,
-        //OBSTACLE
     };
 
     struct MapField
     {
         TileAtlas::TileId terrainTileId;
         TerrainType terrainType;
+        bool passable;
         bool selected;
     };
 
@@ -118,6 +118,32 @@ namespace sg::islands::iso
             return m_terrainMap[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].terrainType == TerrainType::LAND;
         }
 
+        /**
+         * @brief Checks if the target is a passable tile.
+         * @param t_mapX The x-map position.
+         * @param t_mapY The y-map position.
+         * @return bool
+         */
+        auto IsPassable(const int t_mapX, const int t_mapY)
+        {
+            return m_terrainMap[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].passable;
+        }
+
+        //-------------------------------------------------
+        // Setter
+        //-------------------------------------------------
+
+        /**
+         * @brief Set passable value.
+         * @param t_mapX The x-map position
+         * @param t_mapY The y-map position
+         * @param t_passable bool
+         */
+        void SetPassable(const int t_mapX, const int t_mapY, const bool t_passable)
+        {
+            m_terrainMap[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].passable = t_passable;
+        }
+
         //-------------------------------------------------
         // TerrainMap
         //-------------------------------------------------
@@ -136,6 +162,7 @@ namespace sg::islands::iso
 
                     mapField.terrainTileId = -1;
                     mapField.terrainType = TerrainType::DEEP_WATER;
+                    mapField.passable = true;
                     mapField.selected = false;
 
                     m_terrainMap.push_back(mapField);
@@ -161,6 +188,8 @@ namespace sg::islands::iso
                         // set terrain
                         m_terrainMap[index].terrainTileId = island->GetIslandFieldByMapPosition(xMapPos, yMapPos).tileId;
                         m_terrainMap[index].terrainType = TerrainType::LAND;
+                        m_terrainMap[index].passable = true;
+                        m_terrainMap[index].selected = false;
                     }
                 }
             }
