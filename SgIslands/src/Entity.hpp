@@ -34,14 +34,12 @@ namespace sg::islands
             const iso::AssetId t_assetId,
             const iso::AssetId t_assetIdIdle,
             const sf::Vector2i& t_mapPosition,
-            iso::Map& t_map,
-            const bool t_isBuilding
+            iso::Map& t_map
         )
             : m_tileAtlas{ t_tileAtlas }
             , m_assetId{ t_assetId }
             , m_assetIdIdle{ t_assetIdIdle }
             , m_mapPosition{ t_mapPosition }
-            , m_isBuilding{ t_isBuilding }
         {
             m_currentScreenPosition = iso::IsoMath::ToScreen(m_mapPosition, true);
 
@@ -80,7 +78,9 @@ namespace sg::islands
 
         void UpdateAnimations(iso::Assets& t_assets, const sf::Time& t_dt)
         {
-            if (m_isBuilding)
+            const auto assetType{ t_assets.GetAssetMetaData(m_assetId).assetType };
+
+            if (assetType == iso::AssetType::BUILDING)
             {
                 HandleAssetUpdate(iso::Assets::BUILDING_DIRECTIONS, t_assets, t_dt);
             }
@@ -91,7 +91,7 @@ namespace sg::islands
 
             if (m_isMove)
             {
-                SetNextWayPoint(m_wayPoint);
+                SetNextWayPoint(t_assets, m_wayPoint);
 
                 if (m_lengthToTarget > 1.0f)
                 {
@@ -220,8 +220,6 @@ namespace sg::islands
 
         bool m_renderActiveGraphic{ false };
 
-        bool m_isBuilding{ false };
-
         iso::Assets::Direction m_direction{ iso::Assets::DEFAULT_DIRECTION };
 
         std::unique_ptr<iso::Astar> m_astar;
@@ -263,7 +261,7 @@ namespace sg::islands
             return true;
         }
 
-        void SetNextWayPoint(const std::size_t t_pathIndex)
+        void SetNextWayPoint(const iso::Assets& t_assets, const std::size_t t_pathIndex)
         {
             assert(t_pathIndex < m_path.size());
 
@@ -284,7 +282,8 @@ namespace sg::islands
             iso::VecMath::Normalize(m_spriteScreenNormalDirection);
 
             // only if it is a moving object: change the direction of the spit in the direction of movement
-            if (!m_isBuilding)
+            const auto assetType{ t_assets.GetAssetMetaData(m_assetId).assetType };
+            if (assetType != iso::AssetType::BUILDING)
             {
                 m_direction = iso::Assets::GetUnitDirectionByVec(m_spriteScreenNormalDirection);
             }
