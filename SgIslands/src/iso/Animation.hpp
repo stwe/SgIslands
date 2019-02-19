@@ -72,6 +72,27 @@ namespace sg::islands::iso
          */
         const sf::Sprite& GetSprite() const noexcept { return m_sprite; }
 
+        /**
+         * @brief Returns the number of frames.
+         * @return unsigned int
+         */
+        std::size_t GetNumberOfFrames() const { return m_frames.size(); }
+
+        //-------------------------------------------------
+        // Setter
+        //-------------------------------------------------
+
+        /**
+         * @brief Set a frame number.
+         * @param t_frameNumber The frame number to set.
+         */
+        void SetFrameNumber(const std::size_t t_frameNumber)
+        {
+            assert(t_frameNumber < m_frames.size());
+
+            m_sprite.setTexture(m_frames[t_frameNumber]);
+        }
+
         //-------------------------------------------------
         // Add
         //-------------------------------------------------

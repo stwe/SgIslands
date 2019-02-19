@@ -195,6 +195,14 @@ namespace sg::islands
         auto GetMapPosition() const { return m_mapPosition; }
         auto GetRenderActive() const { return m_renderActiveGraphic; }
 
+        void SetMapPosition(const int t_x, const int t_y)
+        {
+            m_mapPosition.x = t_x;
+            m_mapPosition.y = t_y;
+
+            m_currentScreenPosition = iso::IsoMath::ToScreen(m_mapPosition, true);
+        }
+
     protected:
 
     private:

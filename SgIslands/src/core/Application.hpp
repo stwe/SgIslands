@@ -136,6 +136,8 @@ namespace sg::islands::core
 
         int m_activeEntity{ 0 };
 
+        bool m_pressedBakeryButton{ false };
+
         //-------------------------------------------------
         // Game Logic
         //-------------------------------------------------
@@ -250,6 +252,22 @@ namespace sg::islands::core
                         break;
                     }
 
+                    if (event.mouseButton.button == sf::Mouse::Right && m_pressedBakeryButton)
+                    {
+                        SG_ISLANDS_DEBUG("Application Right Mouse pressed && Bakery button pressed.");
+
+                        // get mouse position
+                        const auto mousePosition{ sf::Mouse::getPosition(*m_window) };
+                        const auto targetPosition{ m_window->mapPixelToCoords(mousePosition) };
+
+                        // get map position of the mouse
+                        const auto targetMapPosition{ iso::IsoMath::ToMap(targetPosition) };
+                        SG_ISLANDS_DEBUG("mouse map x: {}", targetMapPosition.x);
+                        SG_ISLANDS_DEBUG("mouse map y: {}", targetMapPosition.y);
+
+                        m_bakeryEntity->SetMapPosition(targetMapPosition.x, targetMapPosition.y);
+                    }
+
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
                         SG_ISLANDS_DEBUG("Application Left Mouse pressed.");
@@ -336,7 +354,22 @@ namespace sg::islands::core
         {
             ImGui::SFML::Update(*m_window, TIME_PER_FRAME);
             ImGui::Begin("Menu");
-            if (ImGui::Button("Close")) { m_window->close(); };
+
+            // close button
+            if (ImGui::Button("Close"))
+            {
+                m_window->close();
+            }
+
+            // buildings
+            auto& animation{ m_assets->GetAnimation(BAKERY_IDLE, iso::Assets::DEFAULT_DIRECTION) };
+            animation.SetFrameNumber(0);
+            const auto& sprite{ animation.GetSprite() };
+            if (ImGui::ImageButton(sprite))
+            {
+                m_pressedBakeryButton = true;
+            }
+
             ImGui::End();
             ImGui::SFML::Render(*m_window);
         }
