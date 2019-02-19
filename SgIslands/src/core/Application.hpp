@@ -156,6 +156,9 @@ namespace sg::islands::core
             // init imGui
             ImGui::SFML::Init(*m_window);
 
+            auto& io{ ImGui::GetIO() };
+            io.IniFilename = "res/config/Imgui.ini";
+
             // load and use the first font
             m_fonts.Load(1, m_appOptions.fonts[0]);
             m_statisticsText.setFont(m_fonts.GetResource(1));
