@@ -192,6 +192,8 @@ namespace sg::islands::core
             sf::Event event{};
             while (m_window->pollEvent(event))
             {
+                auto& io{ ImGui::GetIO() };
+
                 ImGui::SFML::ProcessEvent(event);
 
                 if (event.type == sf::Event::Closed)
@@ -243,6 +245,11 @@ namespace sg::islands::core
 
                 if (event.type == sf::Event::MouseButtonPressed)
                 {
+                    if (io.WantCaptureMouse)
+                    {
+                        break;
+                    }
+
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
                         SG_ISLANDS_DEBUG("Application Left Mouse pressed.");
@@ -328,8 +335,8 @@ namespace sg::islands::core
         void RenderImGui()
         {
             ImGui::SFML::Update(*m_window, TIME_PER_FRAME);
-            ImGui::Begin("Hello, world!");
-            ImGui::Button("Look at this pretty button");
+            ImGui::Begin("Menu");
+            if (ImGui::Button("Close")) { m_window->close(); };
             ImGui::End();
             ImGui::SFML::Render(*m_window);
         }
