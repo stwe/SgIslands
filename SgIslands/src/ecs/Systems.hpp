@@ -153,7 +153,7 @@ namespace sg::islands::ecs
             : m_assets{ t_assets }
         {}
 
-        void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
+        void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta) override
         {
             entityx::ComponentHandle<AssetsComponent> assets;
 
@@ -167,11 +167,11 @@ namespace sg::islands::ecs
                     {
                         // update action animation
                         auto& actionAnimation{ m_assets.GetAnimation(assets->actionAssetId, direction) };
-                        actionAnimation.Update(sf::seconds(t_dt));
+                        actionAnimation.Update(core::SF_TIME_PER_FRAME);
 
                         // update idle animation (which have only one frame)
                         auto& idleAnimation{ m_assets.GetAnimation(assets->idleAssetId, direction) };
-                        idleAnimation.Update(sf::seconds(t_dt));
+                        idleAnimation.Update(core::SF_TIME_PER_FRAME);
                     }
                 }
                 else
@@ -180,11 +180,11 @@ namespace sg::islands::ecs
                     {
                         // update action animation
                         auto& actionAnimation{ m_assets.GetAnimation(assets->actionAssetId, direction) };
-                        actionAnimation.Update(sf::seconds(t_dt));
+                        actionAnimation.Update(core::SF_TIME_PER_FRAME);
 
                         // update idle animation (which have only one frame)
                         auto& idleAnimation{ m_assets.GetAnimation(assets->idleAssetId, direction) };
-                        idleAnimation.Update(sf::seconds(t_dt));
+                        idleAnimation.Update(core::SF_TIME_PER_FRAME);
                     }
                 }
             }
@@ -221,19 +221,31 @@ namespace sg::islands::ecs
 
             for (auto entity : t_entities.entities_with_components(position, target, assets, direction))
             {
-                if (target->onTheWay)
+                // get asset type
+                const auto assetType{ m_assets.GetAssetMetaData(assets->actionAssetId).assetType };
+
+                // set animation
+                if (assetType == iso::AssetType::BUILDING)
                 {
+                    // action animation
                     animation = &m_assets.GetAnimation(assets->actionAssetId, direction->direction);
                     sprite = &animation->GetSprite();
                 }
                 else
                 {
-                    animation = &m_assets.GetAnimation(assets->idleAssetId, direction->direction);
-                    sprite = &animation->GetSprite();
+                    if (target->onTheWay)
+                    {
+                        // action animation
+                        animation = &m_assets.GetAnimation(assets->actionAssetId, direction->direction);
+                        sprite = &animation->GetSprite();
+                    }
+                    else
+                    {
+                        // idle animaton
+                        animation = &m_assets.GetAnimation(assets->idleAssetId, direction->direction);
+                        sprite = &animation->GetSprite();
+                    }
                 }
-
-                // get asset type
-                const auto assetType{ m_assets.GetAssetMetaData(assets->actionAssetId).assetType };
 
                 // get tile width
                 const auto tileWidth{ m_assets.GetAssetMetaData(assets->actionAssetId).tileWidth };

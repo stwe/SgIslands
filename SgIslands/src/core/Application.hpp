@@ -75,12 +75,12 @@ namespace sg::islands::core
             {
                 const auto dt{ clock.restart() };
                 timeSinceLastUpdate += dt;
-                while (timeSinceLastUpdate > TIME_PER_FRAME)
+                while (timeSinceLastUpdate > SF_TIME_PER_FRAME)
                 {
-                    timeSinceLastUpdate -= TIME_PER_FRAME;
+                    timeSinceLastUpdate -= SF_TIME_PER_FRAME;
 
                     Input();
-                    Update(TIME_PER_FRAME);
+                    Update(SF_TIME_PER_FRAME);
                 }
 
                 UpdateStatistics(dt);
@@ -91,8 +91,6 @@ namespace sg::islands::core
     protected:
 
     private:
-        inline static const sf::Time TIME_PER_FRAME{ sf::seconds(1.0f / 60.0f) };
-
         /**
          * @brief The loaded app options.
          */
@@ -268,7 +266,7 @@ namespace sg::islands::core
                         );
 
                         // try to find path to target for all active entities
-                        systems.update<ecs::FindPathSystem>(1.0 / 60.0);
+                        systems.update<ecs::FindPathSystem>(EX_TIME_PER_FRAME);
                     }
                 }
             }
@@ -276,8 +274,8 @@ namespace sg::islands::core
 
         void Update(const sf::Time& t_dt)
         {
-            systems.update<ecs::AnimationSystem>(1.0 / 60.0);
-            systems.update<ecs::MovementSystem>(1.0 / 60.0);
+            systems.update<ecs::AnimationSystem>(EX_TIME_PER_FRAME);
+            systems.update<ecs::MovementSystem>(EX_TIME_PER_FRAME);
         }
 
         void Render()
@@ -294,7 +292,7 @@ namespace sg::islands::core
 
             m_window->setTitle(m_appOptions.windowTitle + " " + m_statisticsText.getString());
 
-            systems.update<ecs::RenderSystem>(1.0 / 60.0);
+            systems.update<ecs::RenderSystem>(EX_TIME_PER_FRAME);
 
             RenderImGui();
 
@@ -335,7 +333,7 @@ namespace sg::islands::core
 
         void RenderImGui() const
         {
-            ImGui::SFML::Update(*m_window, TIME_PER_FRAME);
+            ImGui::SFML::Update(*m_window, SF_TIME_PER_FRAME);
             ImGui::Begin("Menu");
 
             // close button

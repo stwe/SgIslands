@@ -2,7 +2,7 @@
 // 
 // Filename: Config.hpp
 // Created:  26.01.2019
-// Updated:  15.02.2019
+// Updated:  23.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -18,6 +18,9 @@
 
 namespace sg::islands::core
 {
+    inline static const sf::Time SF_TIME_PER_FRAME{ sf::seconds(1.0f / 60.0f) };
+    static constexpr double EX_TIME_PER_FRAME{ 1.0 / 60.0 };
+
     struct AppOptions
     {
         // window
