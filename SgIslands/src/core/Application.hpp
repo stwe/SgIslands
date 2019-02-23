@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  18.02.2019
+// Updated:  23.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -14,23 +14,27 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Window/Event.hpp>
+#include <entityx/entityx.h>
 #include "Config.hpp"
 #include "ResourceHolder.hpp"
 #include "imGui/imgui.h"
 #include "imGui/imgui-SFML.h"
 #include "../iso/Map.hpp"
 #include "../iso/Assets.hpp"
-#include "../Entity.hpp"
+#include "../iso/Astar.hpp"
+#include "../ecs/Components.hpp"
+#include "../ecs/Systems.hpp"
 
 namespace sg::islands::core
 {
-    class Application
+    class Application : public entityx::EntityX
     {
     public:
         using RenderWindowUniquePtr = std::unique_ptr<sf::RenderWindow>;
         using TileAtlasUniquePtr = std::unique_ptr<iso::TileAtlas>;
         using MapUniquePtr = std::unique_ptr<iso::Map>;
         using AssetsUniquePtr = std::unique_ptr<iso::Assets>;
+        using AstarUniquePtr = std::unique_ptr<iso::Astar>;
 
         // asset Ids
         static constexpr auto PIRATE_SHIP{ 0 };
@@ -124,19 +128,25 @@ namespace sg::islands::core
          */
         AssetsUniquePtr m_assets;
 
+        /**
+         * @brief A* (star) pathfinding.
+         */
+        AstarUniquePtr m_astar;
+
+        /**
+         * @brief Draw a grid if true.
+         */
+        bool m_drawGrid{ false };
+
+        // entities
+        entityx::Entity m_farmerEntity;
+        entityx::Entity m_pirateShipEntity;
+        entityx::Entity m_bakeryEntity;
+
+        // frame statistics
         sf::Text m_statisticsText;
         sf::Time m_statisticsUpdateTime;
         std::size_t m_statisticsNumFrames{ 0 };
-
-        bool m_drawGrid{ false };
-
-        std::unique_ptr<Entity> m_farmerEntity;
-        std::unique_ptr<Entity> m_pirateShipEntity;;
-        std::unique_ptr<Entity> m_bakeryEntity;
-
-        int m_activeEntity{ 0 };
-
-        bool m_pressedBakeryButton{ false };
 
         //-------------------------------------------------
         // Game Logic
@@ -155,7 +165,6 @@ namespace sg::islands::core
 
             // init imGui
             ImGui::SFML::Init(*m_window);
-
             auto& io{ ImGui::GetIO() };
             io.IniFilename = "res/config/Imgui.ini";
 
@@ -173,21 +182,16 @@ namespace sg::islands::core
             m_map = std::make_unique<iso::Map>(m_appOptions.map);
             assert(m_map);
 
-            //////////////////////////////////////////////
+            // create Astar object
+            m_astar = std::make_unique<iso::Astar>(*m_map);
+            assert(m_astar);
 
             // create `UnitAnimations`
             m_assets = std::make_unique<iso::Assets>(m_appOptions.assets);
+            assert(m_assets);
 
-            // create an `Entity`s
-            m_farmerEntity = std::make_unique<Entity>(*m_tileAtlas, FARMER, FARMER_IDLE, sf::Vector2i(15, 15), *m_map);
-            m_pirateShipEntity = std::make_unique<Entity>(*m_tileAtlas, PIRATE_SHIP, PIRATE_SHIP_IDLE, sf::Vector2i(20, 20), *m_map);
-            m_bakeryEntity = std::make_unique<Entity>(*m_tileAtlas, BAKERY, BAKERY, sf::Vector2i(8, 7), *m_map);
-
-            // bakery on Island
-            m_map->SetPassable(8, 7, false);
-            m_map->SetPassable(9, 7, false);
-            m_map->SetPassable(8, 8, false);
-            m_map->SetPassable(9, 8, false);
+            // setup `EntityX` and create entities
+            SetupEcs();
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
@@ -235,40 +239,11 @@ namespace sg::islands::core
                     m_drawGrid = !m_drawGrid;
                 }
 
-                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num0)
-                {
-                    m_activeEntity = 0;
-                }
-                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num2)
-                {
-                    m_activeEntity = 2;
-                }
-                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num4)
-                {
-                    m_activeEntity = 4;
-                }
-
                 if (event.type == sf::Event::MouseButtonPressed)
                 {
                     if (io.WantCaptureMouse)
                     {
                         break;
-                    }
-
-                    if (event.mouseButton.button == sf::Mouse::Right && m_pressedBakeryButton)
-                    {
-                        SG_ISLANDS_DEBUG("Application Right Mouse pressed && Bakery button pressed.");
-
-                        // get mouse position
-                        const auto mousePosition{ sf::Mouse::getPosition(*m_window) };
-                        const auto targetPosition{ m_window->mapPixelToCoords(mousePosition) };
-
-                        // get map position of the mouse
-                        const auto targetMapPosition{ iso::IsoMath::ToMap(targetPosition) };
-                        SG_ISLANDS_DEBUG("mouse map x: {}", targetMapPosition.x);
-                        SG_ISLANDS_DEBUG("mouse map y: {}", targetMapPosition.y);
-
-                        m_bakeryEntity->SetMapPosition(targetMapPosition.x, targetMapPosition.y);
                     }
 
                     if (event.mouseButton.button == sf::Mouse::Left)
@@ -277,51 +252,32 @@ namespace sg::islands::core
 
                         // get mouse position
                         const auto mousePosition{ sf::Mouse::getPosition(*m_window) };
-                        const auto targetPosition{ m_window->mapPixelToCoords(mousePosition) };
+                        const auto mouseWorldPosition{ m_window->mapPixelToCoords(mousePosition) };
 
                         // get map position of the mouse
-                        const auto targetMapPosition{ iso::IsoMath::ToMap(targetPosition) };
+                        const auto targetMapPosition{ iso::IsoMath::ToMap(mouseWorldPosition) };
                         SG_ISLANDS_DEBUG("mouse map x: {}", targetMapPosition.x);
                         SG_ISLANDS_DEBUG("mouse map y: {}", targetMapPosition.y);
 
-                        if (m_activeEntity == 0)
-                        {
-                            m_pirateShipEntity->SetRenderActive(true);
+                        // set the targetMapPosition as target to all active entities
+                        entities.each<ecs::TargetComponent, ecs::ActiveEntityComponent>(
+                            [&targetMapPosition](entityx::Entity t_entity, ecs::TargetComponent& t_target, ecs::ActiveEntityComponent)
+                            {
+                                t_target.targetMapPosition = targetMapPosition;
+                            }
+                        );
 
-                            m_farmerEntity->SetRenderActive(false);
-                            m_bakeryEntity->SetRenderActive(false);
-
-                            m_pirateShipEntity->HandleInput(*m_window, event, *m_map, *m_assets);
-                        }
-                        if (m_activeEntity == 2)
-                        {
-                            m_farmerEntity->SetRenderActive(true);
-
-                            m_pirateShipEntity->SetRenderActive(false);
-                            m_bakeryEntity->SetRenderActive(false);
-
-                            m_farmerEntity->HandleInput(*m_window, event, *m_map, *m_assets);
-                        }
-                        if (m_activeEntity == 4)
-                        {
-                            m_bakeryEntity->SetRenderActive(true);
-
-                            m_farmerEntity->SetRenderActive(false);
-                            m_pirateShipEntity->SetRenderActive(false);
-
-                            m_bakeryEntity->HandleInput(*m_window, event, *m_map, *m_assets);
-                        }
+                        // try to find path to target for all active entities
+                        systems.update<ecs::FindPathSystem>(1.0 / 60.0);
                     }
                 }
             }
         }
 
-        void Update(const sf::Time t_dt)
+        void Update(const sf::Time& t_dt)
         {
-            // update entities
-            m_farmerEntity->UpdateAnimations(*m_assets, t_dt);
-            m_pirateShipEntity->UpdateAnimations(*m_assets, t_dt);
-            m_bakeryEntity->UpdateAnimations(*m_assets, t_dt);
+            systems.update<ecs::AnimationSystem>(1.0 / 60.0);
+            systems.update<ecs::MovementSystem>(1.0 / 60.0);
         }
 
         void Render()
@@ -338,22 +294,46 @@ namespace sg::islands::core
 
             m_window->setTitle(m_appOptions.windowTitle + " " + m_statisticsText.getString());
 
-            // draw entities
-            m_farmerEntity->Draw(*m_assets, *m_window);
-            m_pirateShipEntity->Draw(*m_assets, *m_window);
-            m_bakeryEntity->Draw(*m_assets, *m_window);
+            systems.update<ecs::RenderSystem>(1.0 / 60.0);
 
             RenderImGui();
 
-            m_tileAtlas->DrawMiscTile(iso::TileAtlas::CLICKED_TILE, 15, 15, *m_window);
             m_tileAtlas->DrawMiscTile(iso::TileAtlas::CLICKED_TILE, 20, 20, *m_window);
-            m_tileAtlas->DrawMiscTile(iso::TileAtlas::CLICKED_TILE, 8, 7, *m_window);
 
-            // show everything
             m_window->display();
         }
 
-        void RenderImGui()
+        void SetupEcs()
+        {
+            m_farmerEntity = entities.create();
+            m_pirateShipEntity = entities.create();
+            m_bakeryEntity = entities.create();
+
+            m_farmerEntity.assign<ecs::PositionComponent>(sf::Vector2i(15, 15));
+            m_farmerEntity.assign<ecs::AssetsComponent>(FARMER, FARMER_IDLE);
+            m_farmerEntity.assign<ecs::DirectionComponent>(iso::Assets::DEFAULT_DIRECTION);
+            m_farmerEntity.assign<ecs::TargetComponent>();
+
+            m_pirateShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(20, 20));
+            m_pirateShipEntity.assign<ecs::AssetsComponent>(PIRATE_SHIP, PIRATE_SHIP_IDLE);
+            m_pirateShipEntity.assign<ecs::DirectionComponent>(iso::Assets::DEFAULT_DIRECTION);
+            m_pirateShipEntity.assign<ecs::ActiveEntityComponent>();
+            m_pirateShipEntity.assign<ecs::TargetComponent>();
+
+            m_bakeryEntity.assign<ecs::PositionComponent>(sf::Vector2i(8, 7));
+            m_bakeryEntity.assign<ecs::AssetsComponent>(BAKERY, BAKERY_IDLE);
+            m_bakeryEntity.assign<ecs::DirectionComponent>(iso::Assets::DEFAULT_DIRECTION);
+            m_bakeryEntity.assign<ecs::TargetComponent>();
+
+            systems.add<ecs::MovementSystem>(*m_assets);
+            systems.add<ecs::RenderSystem>(*m_window, *m_assets, *m_tileAtlas);
+            systems.add<ecs::AnimationSystem>(*m_assets);
+            systems.add<ecs::FindPathSystem>(*m_assets, *m_astar);
+
+            systems.configure();
+        }
+
+        void RenderImGui() const
         {
             ImGui::SFML::Update(*m_window, TIME_PER_FRAME);
             ImGui::Begin("Menu");
@@ -364,20 +344,11 @@ namespace sg::islands::core
                 m_window->close();
             }
 
-            // buildings
-            auto& animation{ m_assets->GetAnimation(BAKERY_IDLE, iso::Assets::DEFAULT_DIRECTION) };
-            animation.SetFrameNumber(0);
-            const auto& sprite{ animation.GetSprite() };
-            if (ImGui::ImageButton(sprite))
-            {
-                m_pressedBakeryButton = true;
-            }
-
             ImGui::End();
             ImGui::SFML::Render(*m_window);
         }
 
-        void UpdateStatistics(const sf::Time t_dt)
+        void UpdateStatistics(const sf::Time& t_dt)
         {
             m_statisticsUpdateTime += t_dt;
             m_statisticsNumFrames += 1;

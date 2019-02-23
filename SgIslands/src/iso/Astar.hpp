@@ -2,7 +2,7 @@
 // 
 // Filename: Astar.hpp
 // Created:  02.02.2019
-// Updated:  18.02.2019
+// Updated:  22.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -15,6 +15,7 @@
 #include <stack>
 #include "Node.hpp"
 #include "IsoMath.hpp"
+#include "Map.hpp"
 
 namespace sg::islands::iso
 {
@@ -45,7 +46,7 @@ namespace sg::islands::iso
         // A* Pathfinding
         //-------------------------------------------------
 
-        std::vector<Node> FindPath(const Node& t_node, const Node& t_endNode, const AssetType& t_assetType)
+        std::vector<Node> FindPath(const Node& t_startNode, const Node& t_endNode, const AssetType& t_assetType)
         {
             m_assetType = t_assetType;
 
@@ -57,7 +58,7 @@ namespace sg::islands::iso
                 return empty;
             }
 
-            if (IsEndNode(t_node, t_endNode))
+            if (IsEndNode(t_startNode, t_endNode))
             {
                 SG_ISLANDS_INFO("[Astar::FindPath()] You are the target.");
                 return empty;
@@ -86,8 +87,8 @@ namespace sg::islands::iso
             assert(allList.size() == static_cast<std::size_t>(m_width * m_height));
 
             // init start node
-            auto xPos{ t_node.position.x };
-            auto yPos{ t_node.position.y };
+            auto xPos{ t_startNode.position.x };
+            auto yPos{ t_startNode.position.y };
             auto index{ IsoMath::From2DTo1D(xPos, yPos, m_width) };
 
             allList[index].parentPosition.x = xPos;
@@ -177,6 +178,24 @@ namespace sg::islands::iso
             SG_ISLANDS_INFO("[Astar::FindPath()] Target not found.");
 
             return empty;
+        }
+
+        bool FindPathToMapPosition(
+            const sf::Vector2i& t_startPosition,
+            const sf::Vector2i& t_targetPosition,
+            const AssetType& t_assetType,
+            std::vector<Node>& t_path
+        )
+        {
+            Node startNode;
+            Node endNode;
+
+            startNode.position = t_startPosition;
+            endNode.position = t_targetPosition;
+
+            t_path = FindPath(startNode, endNode, t_assetType);
+
+            return !t_path.empty();
         }
 
     protected:
