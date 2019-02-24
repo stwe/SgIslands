@@ -2,7 +2,7 @@
 // 
 // Filename: Map.hpp
 // Created:  20.01.2019
-// Updated:  18.02.2019
+// Updated:  24.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -32,7 +32,7 @@ namespace sg::islands::iso
 
     using IslandUniquePtr = std::unique_ptr<Island>;
     using Islands = std::vector<IslandUniquePtr>;
-    using TerrainMap = std::vector<MapField>;
+    using MapFields = std::vector<MapField>;
 
     class Map
     {
@@ -46,7 +46,7 @@ namespace sg::islands::iso
         explicit Map(const core::Filename& t_filename)
         {
             LoadMapFile(t_filename);
-            GenerateTerrainMap();
+            GenerateMapFields();
         }
 
         Map(const Map& t_other) = delete;
@@ -85,13 +85,13 @@ namespace sg::islands::iso
         auto GetMapHeight() const { return m_mapHeight; }
 
         /**
-         * @brief Get the `Island` objects of the `Map`.
+         * @brief Get the `Island`s of the `Map`.
          * @return Reference to `std::vector`
          */
         Islands& GetIslands() noexcept { return m_islands; }
 
         /**
-         * @brief Get the `Island` objects of the `Map`.
+         * @brief Get the `Island`s of the `Map`.
          * @return Const reference to `std::vector`
          */
         const Islands& GetIslands() const noexcept { return m_islands; }
@@ -104,7 +104,7 @@ namespace sg::islands::iso
          */
         auto IsDeepWater(const int t_mapX, const int t_mapY)
         {
-            return m_terrainMap[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].terrainType == TerrainType::DEEP_WATER;
+            return m_mapFields[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].terrainType == TerrainType::DEEP_WATER;
         }
 
         /**
@@ -115,7 +115,7 @@ namespace sg::islands::iso
          */
         auto IsLand(const int t_mapX, const int t_mapY)
         {
-            return m_terrainMap[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].terrainType == TerrainType::LAND;
+            return m_mapFields[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].terrainType == TerrainType::LAND;
         }
 
         /**
@@ -126,7 +126,7 @@ namespace sg::islands::iso
          */
         auto IsPassable(const int t_mapX, const int t_mapY)
         {
-            return m_terrainMap[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].passable;
+            return m_mapFields[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].passable;
         }
 
         //-------------------------------------------------
@@ -134,24 +134,24 @@ namespace sg::islands::iso
         //-------------------------------------------------
 
         /**
-         * @brief Set passable value.
+         * @brief Set map target as passable.
          * @param t_mapX The x-map position
          * @param t_mapY The y-map position
          * @param t_passable bool
          */
         void SetPassable(const int t_mapX, const int t_mapY, const bool t_passable)
         {
-            m_terrainMap[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].passable = t_passable;
+            m_mapFields[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].passable = t_passable;
         }
 
         //-------------------------------------------------
-        // TerrainMap
+        // Map Fields
         //-------------------------------------------------
 
         /**
-         * @brief Creates a map with all information about the terrain.
+         * @brief Creates a map with all informations about the terrain and entities.
          */
-        void GenerateTerrainMap()
+        void GenerateMapFields()
         {
             // "clear" map with deep water
             for (auto y{ 0 }; y < m_mapHeight; ++y)
@@ -165,11 +165,11 @@ namespace sg::islands::iso
                     mapField.passable = true;
                     mapField.selected = false;
 
-                    m_terrainMap.push_back(mapField);
+                    m_mapFields.push_back(mapField);
                 }
             }
 
-            assert(m_terrainMap.size() == static_cast<std::size_t>(m_mapWidth * m_mapHeight));
+            assert(m_mapFields.size() == static_cast<std::size_t>(m_mapWidth * m_mapHeight));
 
             // go through all islands
             for (const auto& island : m_islands)
@@ -186,10 +186,10 @@ namespace sg::islands::iso
                         const auto index{ IsoMath::From2DTo1D(xMapPos, yMapPos, m_mapWidth) };
 
                         // set terrain
-                        m_terrainMap[index].terrainTileId = island->GetIslandFieldByMapPosition(xMapPos, yMapPos).tileId;
-                        m_terrainMap[index].terrainType = TerrainType::LAND;
-                        m_terrainMap[index].passable = true;
-                        m_terrainMap[index].selected = false;
+                        m_mapFields[index].terrainTileId = island->GetIslandFieldByMapPosition(xMapPos, yMapPos).tileId;
+                        m_mapFields[index].terrainType = TerrainType::LAND;
+                        m_mapFields[index].passable = true;
+                        m_mapFields[index].selected = false;
                     }
                 }
             }
@@ -283,7 +283,7 @@ namespace sg::islands::iso
         /**
          * @brief Stores informations about the terrain.
          */
-        TerrainMap m_terrainMap;
+        MapFields m_mapFields;
 
         //-------------------------------------------------
         // Load Data

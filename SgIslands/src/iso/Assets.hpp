@@ -2,7 +2,7 @@
 // 
 // Filename: Assets.hpp
 // Created:  14.02.2019
-// Updated:  15.02.2019
+// Updated:  24.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -12,9 +12,8 @@
 #pragma once
 
 #include <array>
-#include <map>
+#include "Asset.hpp"
 #include "Animation.hpp"
-#include "AssetMetaData.hpp"
 #include "../core/Types.hpp"
 #include "../core/XmlWrapper.hpp"
 #include "../core/Log.hpp"
@@ -24,60 +23,9 @@ namespace sg::islands::iso
     class Assets
     {
     public:
-        enum class Direction
-        {
-            N_DIRECTION = 90,
-            NE_DIRECTION = 45,
-            E_DIRECTION = 0,
-            SE_DIRECTION = 315,
-            S_DIRECTION = 270,
-            SW_DIRECTION = 225,
-            W_DIRECTION = 180,
-            NW_DIRECTION = 135
-        };
-
-        inline static const std::map<Direction, std::string> DIRECTION_STRINGS{
-            { Direction::N_DIRECTION, "N" },
-            { Direction::NE_DIRECTION, "NE" },
-            { Direction::E_DIRECTION, "E" },
-            { Direction::SE_DIRECTION, "SE" },
-            { Direction::S_DIRECTION, "S" },
-            { Direction::SW_DIRECTION, "SW" },
-            { Direction::W_DIRECTION, "W" },
-            { Direction::NW_DIRECTION, "NW" }
-        };
-
-        static constexpr auto NUMBER_OF_UNIT_DIRECTIONS{ 8 };
-        static constexpr auto NUMBER_OF_BUILDING_DIRECTIONS{ 4 };
-
-        static constexpr auto HALF_DIRECTION{ 45.0f / 2.0f };
-
-        static constexpr std::array<Direction, NUMBER_OF_UNIT_DIRECTIONS> UNIT_DIRECTIONS{
-            Direction::N_DIRECTION,
-            Direction::NE_DIRECTION,
-            Direction::E_DIRECTION,
-            Direction::SE_DIRECTION,
-            Direction::S_DIRECTION,
-            Direction::SW_DIRECTION,
-            Direction::W_DIRECTION,
-            Direction::NW_DIRECTION
-        };
-
-        static constexpr std::array<Direction, NUMBER_OF_BUILDING_DIRECTIONS> BUILDING_DIRECTIONS{
-            Direction::NE_DIRECTION,
-            Direction::SE_DIRECTION,
-            Direction::SW_DIRECTION,
-            Direction::NW_DIRECTION
-        };
-
-        static constexpr auto DEFAULT_DIRECTION{ Direction::NE_DIRECTION };
-
-        using AssetMetaDataUniquePtr = std::unique_ptr<AssetMetaData>;
-        using AssetsMetaDataMap = std::map<AssetId, AssetMetaDataUniquePtr>;
-
-        using AssetMapKey = std::pair<AssetId, Direction>;
-        using AnimationUniquePtr = std::unique_ptr<Animation>;
-        using AssetsMap = std::map<AssetMapKey, AnimationUniquePtr>;
+        using AssetName = std::string;
+        using AssetUniquePtr = std::unique_ptr<Asset>;
+        using AssetsMap = std::map<AssetName, AssetUniquePtr>;
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -102,84 +50,54 @@ namespace sg::islands::iso
         //-------------------------------------------------
 
         /**
-         * @brief Returns a const reference to the assets metadata map.
-         * @return Const reference to `std::map`
-         */
-        const AssetsMetaDataMap& GetAssetsMetaDataMap() const noexcept { return m_assetsMetaDataMap; }
-
-        /**
-         * @brief Returns a const reference to the asset metadata.
-         * @param t_assetId The Id of the asset.
-         * @return Const reference to `AssetMetaData`
-         */
-        const AssetMetaData& GetAssetMetaData(const AssetId t_assetId) const
-        {
-            try
-            {
-                return *m_assetsMetaDataMap.at(t_assetId);
-            }
-            catch (const std::out_of_range& exception)
-            {
-                const auto id{ std::to_string(t_assetId) };
-
-                SG_ISLANDS_ERROR("[Assets::GetAssetMetaData()] Out of range exception: ", exception.what());
-                THROW_SG_EXCEPTION("[Assets::GetAssetMetaData()] Key: " + id + " not found.");
-            }
-        }
-
-        /**
-         * @brief Returns a reference to the assets map.
-         * @return Reference to `std::map`
-         */
-        AssetsMap& GetAssetsMap() noexcept { return m_assetsMap; }
-
-        /**
-         * @brief Returns a const reference to the assets map.
+         * @brief Returns a const reference to the `AssetsMap`.
          * @return Const reference to `std::map`
          */
         const AssetsMap& GetAssetsMap() const noexcept { return m_assetsMap; }
 
         /**
-         * @brief Returns a reference to the animation.
-         * @param t_assetId The Id of the asset.
-         * @param t_direction The direction of the asset.
-         * @return Reference to `Animation`
+         * @brief Returns a reference to the `AssetsMap`.
+         * @return Reference to `std::map`
          */
-        Animation& GetAnimation(const AssetId t_assetId, const Direction t_direction)
+        AssetsMap& GetAssetsMap() noexcept { return m_assetsMap; }
+
+        /**
+         * @brief Returns a reference to an `Asset`.
+         * @param t_assetName The name of the `Asset`.
+         * @return Reference to `Asset`
+         */
+        Asset& GetAsset(const AssetName& t_assetName)
         {
             try
             {
-                return *m_assetsMap.at(std::make_pair(t_assetId, t_direction));
+                return *m_assetsMap.at(t_assetName);
             }
             catch (const std::out_of_range& exception)
             {
-                const auto id{ std::to_string(t_assetId) };
-                const auto& direction{ DIRECTION_STRINGS.at(t_direction) }; // todo
-
-                SG_ISLANDS_ERROR("[Assets::GetAnimation()] Out of range exception: ", exception.what());
-                THROW_SG_EXCEPTION("[Assets::GetAnimation()] Key pair: " + id + " direction " + direction + " not found.");
+                SG_ISLANDS_ERROR("[Assets::GetAsset()] Out of range exception: ", exception.what());
+                THROW_SG_EXCEPTION("[Assets::GetAsset()] Key: " + t_assetName + " not found.");
             }
         }
 
         /**
-         * @brief Returns a const reference to the animation.
-         * @param t_assetId The ID of the asset.
+         * @brief Returns a reference to the `Animation`.
+         * @param t_assetName The name of the asset.
+         * @param t_animationName The name of the animation.
          * @param t_direction The direction of the asset.
-         * @return Const reference to `Animation`
+         * @return Reference to `Animation`
          */
-        const Animation& GetAnimation(const AssetId t_assetId, const Direction t_direction) const
+        Animation& GetAnimation(const AssetName& t_assetName, const AnimationName& t_animationName, const Direction t_direction)
         {
+            auto& asset{ GetAsset(t_assetName) };
+
             try
             {
-                return *m_assetsMap.at(std::make_pair(t_assetId, t_direction));
+                return *asset.assetAnimations.at(t_animationName)->animationForDirections.at(t_direction);
             }
             catch (const std::out_of_range& exception)
             {
-                const auto id{ std::to_string(t_assetId) };
-                const auto& direction{ DIRECTION_STRINGS.at(t_direction) }; // todo
-
                 SG_ISLANDS_ERROR("[Assets::GetAnimation()] Out of range exception: ", exception.what());
-                THROW_SG_EXCEPTION("[Assets::GetAnimation()] Key pair: " + id + " direction " + direction + " not found.");
+                THROW_SG_EXCEPTION("[Assets::GetAnimation()] Animation " + t_animationName + " for asset " + t_assetName + " not found.");
             }
         }
 
@@ -265,7 +183,6 @@ namespace sg::islands::iso
     protected:
 
     private:
-        AssetsMetaDataMap m_assetsMetaDataMap;
         AssetsMap m_assetsMap;
 
         //-------------------------------------------------
@@ -273,11 +190,11 @@ namespace sg::islands::iso
         //-------------------------------------------------
 
         /**
-         * @brief Create the metadata of an asset from xml element.
+         * @brief Create an asset from xml element.
          * @param t_element The xml element.
-         * @return AssetId
+         * @return AssetName
          */
-        AssetId CreateAssetMetaDataFromXml(tinyxml2::XMLElement* t_element)
+        AssetName CreateAssetFromXml(tinyxml2::XMLElement* t_element)
         {
             // get id
             AssetId idAttr;
@@ -285,13 +202,6 @@ namespace sg::islands::iso
 
             // get name
             const auto nameAttr{ core::XmlWrapper::GetAttribute(t_element, "name") };
-
-            // get dir
-            const auto dirAttr{ core::XmlWrapper::GetAttribute(t_element, "dir") };
-
-            // get frames
-            int framesAttr;
-            core::XmlWrapper::QueryAttribute(t_element, "frames", &framesAttr);
 
             // get type
             const auto typeAttr{ core::XmlWrapper::GetAttribute(t_element, "type") };
@@ -321,20 +231,18 @@ namespace sg::islands::iso
             int tileHeightAttr;
             core::XmlWrapper::QueryAttribute(t_element, "tile_height", &tileHeightAttr);
 
-            auto assetMetaDataUniquePtr{ std::make_unique<AssetMetaData>() };
-            assert(assetMetaDataUniquePtr);
+            auto assetUniquePtr{ std::make_unique<Asset>() };
+            assert(assetUniquePtr);
 
-            assetMetaDataUniquePtr->assetId = idAttr;
-            assetMetaDataUniquePtr->name = nameAttr;
-            assetMetaDataUniquePtr->dir = dirAttr;
-            assetMetaDataUniquePtr->frames = framesAttr;
-            assetMetaDataUniquePtr->assetType = assetType;
-            assetMetaDataUniquePtr->tileWidth = tileWidthAttr;
-            assetMetaDataUniquePtr->tileHeight = tileHeightAttr;
+            assetUniquePtr->assetId = idAttr;
+            assetUniquePtr->assetName = nameAttr;
+            assetUniquePtr->assetType = assetType;
+            assetUniquePtr->tileWidth = tileWidthAttr;
+            assetUniquePtr->tileHeight = tileHeightAttr;
 
-            m_assetsMetaDataMap.emplace(idAttr, std::move(assetMetaDataUniquePtr));
+            m_assetsMap.emplace(nameAttr, std::move(assetUniquePtr));
 
-            return idAttr;
+            return nameAttr;
         }
 
         /**
@@ -363,36 +271,68 @@ namespace sg::islands::iso
 
             SG_ISLANDS_INFO("[Assets::LoadConfigFile()] Loading units from {} ...", unitsDir);
 
-            // get each `<unit>`
-            for (auto unit{ unitsElement->FirstChildElement("unit") }; unit != nullptr; unit = unit->NextSiblingElement())
+            // get each `<asset>`
+            for (auto asset{ unitsElement->FirstChildElement("asset") }; asset != nullptr; asset = asset->NextSiblingElement())
             {
-                // create metadata
-                const auto assetId{ CreateAssetMetaDataFromXml(unit) };
-                const auto& metadata{ GetAssetMetaData(assetId) };
+                // create asset
+                const auto assetName{ CreateAssetFromXml(asset) };
 
-                const auto unitDir{ unitsDir + metadata.dir };
+                // get created asset
+                auto& currentAsset{ GetAsset(assetName) };
 
-                // for each unit direction
-                for (const auto& direction : UNIT_DIRECTIONS)
+                // get each `<animation>`
+                for (auto animation{ asset->FirstChildElement("animation") }; animation != nullptr; animation = animation->NextSiblingElement())
                 {
-                    // create a new `Animation` for this unit direction
-                    auto animation{ std::make_unique<Animation>(metadata) };
+                    // get id
+                    AnimationId idAttr;
+                    core::XmlWrapper::QueryAttribute(animation, "id", &idAttr);
 
-                    // create all frames for this `Animation`
-                    for (auto i{ 0 }; i < metadata.frames; ++i)
+                    // get name
+                    const auto nameAttr{ core::XmlWrapper::GetAttribute(animation, "name") };
+
+                    // get dir
+                    const auto dirAttr{ core::XmlWrapper::GetAttribute(animation, "dir") };
+
+                    // get frames
+                    int framesAttr;
+                    core::XmlWrapper::QueryAttribute(animation, "frames", &framesAttr);
+
+                    auto assetAnimationUniquePtr{ std::make_unique<AssetAnimation>() };
+                    assert(assetAnimationUniquePtr);
+
+                    assetAnimationUniquePtr->animationId = idAttr;
+                    assetAnimationUniquePtr->animationName = nameAttr;
+                    assetAnimationUniquePtr->animationDir = dirAttr;
+                    assetAnimationUniquePtr->frames = framesAttr;
+
+                    // create an `Animation` for each direction
+                    for (const auto& direction : UNIT_DIRECTIONS)
                     {
-                        // create filename with four leading zeros
-                        const auto str{ std::to_string(i) };
-                        const auto filename{ std::string(4 - str.length(), '0') + str + ".png" };
+                        // create animation dir
+                        const auto unitDir{ unitsDir + dirAttr };
 
-                        const auto directionDir{ std::to_string(static_cast<int>(direction)) };
+                        // create a new `Animation` for this direction
+                        auto animationUniquePtr{ std::make_unique<Animation>() };
 
-                        // add frame
-                        animation->AddFrame(unitDir + directionDir + "/" + filename);
+                        // create all frames for this `Animation`
+                        for (auto i{ 0 }; i < framesAttr; ++i)
+                        {
+                            // create filename with four leading zeros
+                            const auto str{ std::to_string(i) };
+                            const auto filename{ std::string(4 - str.length(), '0') + str + ".png" };
+
+                            const auto directionDir{ std::to_string(static_cast<int>(direction)) };
+
+                            // add frame
+                            animationUniquePtr->AddFrame(unitDir + directionDir + "/" + filename);
+                        }
+
+                        // add `Animation`
+                        assetAnimationUniquePtr->animationForDirections.emplace(direction, std::move(animationUniquePtr));
                     }
 
-                    // save `Animation` for the direction
-                    m_assetsMap.emplace(std::make_pair(metadata.assetId, direction), std::move(animation));
+                    // add `AssetAnimation`
+                    currentAsset.assetAnimations.emplace(nameAttr, std::move(assetAnimationUniquePtr));
                 }
             }
 
@@ -406,40 +346,72 @@ namespace sg::islands::iso
 
             SG_ISLANDS_INFO("[Assets::LoadConfigFile()] Loading buildings from {} ...", buildingsDir);
 
-            // get each `<building>`
-            for (auto building{ buildingsElement->FirstChildElement("building") }; building != nullptr; building = building->NextSiblingElement())
+            // get each `<asset>`
+            for (auto asset{ buildingsElement->FirstChildElement("asset") }; asset != nullptr; asset = asset->NextSiblingElement())
             {
-                // create metadata
-                const auto assetId{ CreateAssetMetaDataFromXml(building) };
-                const auto& metadata{ GetAssetMetaData(assetId) };
+                // create asset
+                const auto assetName{ CreateAssetFromXml(asset) };
 
-                const auto buildingDir{ buildingsDir + metadata.dir };
+                // get created asset
+                auto& currentAsset{ GetAsset(assetName) };
 
-                // for each building direction
-                for (const auto& direction : BUILDING_DIRECTIONS)
+                // get each `<animation>`
+                for (auto animation{ asset->FirstChildElement("animation") }; animation != nullptr; animation = animation->NextSiblingElement())
                 {
-                    // create a new `Animation` for this building direction
-                    auto animation{ std::make_unique<Animation>(metadata) };
+                    // get id
+                    AnimationId idAttr;
+                    core::XmlWrapper::QueryAttribute(animation, "id", &idAttr);
 
-                    // create all frames for this `Animation`
-                    for (auto i{ 0 }; i < metadata.frames; ++i)
+                    // get name
+                    const auto nameAttr{ core::XmlWrapper::GetAttribute(animation, "name") };
+
+                    // get dir
+                    const auto dirAttr{ core::XmlWrapper::GetAttribute(animation, "dir") };
+
+                    // get frames
+                    int framesAttr;
+                    core::XmlWrapper::QueryAttribute(animation, "frames", &framesAttr);
+
+                    auto assetAnimationUniquePtr{ std::make_unique<AssetAnimation>() };
+                    assert(assetAnimationUniquePtr);
+
+                    assetAnimationUniquePtr->animationId = idAttr;
+                    assetAnimationUniquePtr->animationName = nameAttr;
+                    assetAnimationUniquePtr->animationDir = dirAttr;
+                    assetAnimationUniquePtr->frames = framesAttr;
+
+                    // create an `Animation` for each direction
+                    for (const auto& direction : BUILDING_DIRECTIONS)
                     {
-                        // create filename with four leading zeros
-                        const auto str{ std::to_string(i) };
-                        const auto filename{ std::string(4 - str.length(), '0') + str + ".png" };
+                        // create animation dir
+                        const auto buildingDir{ buildingsDir + dirAttr };
 
-                        const auto directionDir{ std::to_string(static_cast<int>(direction)) };
+                        // create a new `Animation` for this direction
+                        auto animationUniquePtr{ std::make_unique<Animation>() };
 
-                        // add frame
-                        animation->AddFrame(buildingDir + directionDir + "/" + filename);
+                        // create all frames for this `Animation`
+                        for (auto i{ 0 }; i < framesAttr; ++i)
+                        {
+                            // create filename with four leading zeros
+                            const auto str{ std::to_string(i) };
+                            const auto filename{ std::string(4 - str.length(), '0') + str + ".png" };
+
+                            const auto directionDir{ std::to_string(static_cast<int>(direction)) };
+
+                            // add frame
+                            animationUniquePtr->AddFrame(buildingDir + directionDir + "/" + filename);
+                        }
+
+                        // add `Animation`
+                        assetAnimationUniquePtr->animationForDirections.emplace(direction, std::move(animationUniquePtr));
                     }
 
-                    // save `Animation` for the direction
-                    m_assetsMap.emplace(std::make_pair(metadata.assetId, direction), std::move(animation));
+                    // add `AssetAnimation`
+                    currentAsset.assetAnimations.emplace(nameAttr, std::move(assetAnimationUniquePtr));
                 }
             }
 
-            SG_ISLANDS_INFO("[Assets::LoadConfigFile()] Successfully loaded {} assets.", m_assetsMetaDataMap.size());
+            SG_ISLANDS_INFO("[Assets::LoadConfigFile()] Successfully loaded {} assets.", m_assetsMap.size());
         }
     };
 }

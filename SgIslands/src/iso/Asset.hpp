@@ -1,8 +1,8 @@
 // This file is part of the SgIslands package.
 // 
-// Filename: AssetMetaData.hpp
+// Filename: Asset.hpp
 // Created:  15.02.2019
-// Updated:  15.02.2019
+// Updated:  24.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -11,11 +11,13 @@
 
 #pragma once
 
-#include <string>
+#include "AssetAnimation.hpp"
 
 namespace sg::islands::iso
 {
     using AssetId = int;
+    using AssetName = std::string;
+    using AssetAnimationUniquePtr = std::unique_ptr<AssetAnimation>;
 
     enum class AssetType
     {
@@ -25,14 +27,15 @@ namespace sg::islands::iso
         NONE
     };
 
-    struct AssetMetaData
+    struct Asset
     {
         AssetId assetId{ -1 };
-        std::string name;
-        std::string dir;
-        int frames{ -1 };
-        AssetType assetType{AssetType::NONE };
+        AssetName assetName;
+        AssetType assetType{ AssetType::NONE };
         int tileWidth{ -1 };
         int tileHeight{ -1 };
+
+        // ein Asset kann ein oder mehrere `AssetAnimation` enthalten (`work`, `move` or `idle`)
+        std::map<AnimationName, AssetAnimationUniquePtr> assetAnimations;
     };
 }

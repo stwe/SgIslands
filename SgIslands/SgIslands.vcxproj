@@ -110,7 +110,8 @@
     <ClInclude Include="src\ecs\Components.hpp" />
     <ClInclude Include="src\ecs\Systems.hpp" />
     <ClInclude Include="src\iso\Animation.hpp" />
-    <ClInclude Include="src\iso\AssetMetaData.hpp" />
+    <ClInclude Include="src\iso\Asset.hpp" />
+    <ClInclude Include="src\iso\AssetAnimation.hpp" />
     <ClInclude Include="src\iso\Assets.hpp" />
     <ClInclude Include="src\iso\Astar.hpp" />
     <ClInclude Include="src\iso\Island.hpp" />

@@ -31,31 +31,31 @@ namespace sg::islands::ecs
 
         void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
         {
-            entityx::ComponentHandle<AssetsComponent> assets;
-            entityx::ComponentHandle<PositionComponent> position;
-            entityx::ComponentHandle<TargetComponent> target;
-            entityx::ComponentHandle<ActiveEntityComponent> activeEntity;
+            entityx::ComponentHandle<AssetComponent> assetComponent;
+            entityx::ComponentHandle<PositionComponent> positionComponent;
+            entityx::ComponentHandle<TargetComponent> targetComponent;
+            entityx::ComponentHandle<ActiveEntityComponent> activeEntityComponent;
 
-            for (auto entity : t_entities.entities_with_components(assets, position, target, activeEntity))
+            for (auto entity : t_entities.entities_with_components(assetComponent, positionComponent, targetComponent, activeEntityComponent))
             {
                 // get asset type
-                const auto assetType{ m_assets.GetAssetMetaData(assets->actionAssetId).assetType };
+                const auto assetType{ m_assets.GetAsset(assetComponent->assetName).assetType };
 
                 // run `FindPathToMapPosition()` if valid target position
-                if (target->targetMapPosition.x >= 0 && target->targetMapPosition.y >= 0)
+                if (targetComponent->targetMapPosition.x >= 0 && targetComponent->targetMapPosition.y >= 0)
                 {
                     // find path to target
                     const auto findNewPath{ m_astar.FindPathToMapPosition(
-                        position->mapPosition,
-                        target->targetMapPosition,
+                        positionComponent->mapPosition,
+                        targetComponent->targetMapPosition,
                         assetType,
-                        target->pathToTarget
+                        targetComponent->pathToTarget
                     ) };
 
                     if (findNewPath)
                     {
-                        target->nextWayPoint = 1;
-                        target->onTheWay = true;
+                        targetComponent->nextWayPoint = 1;
+                        targetComponent->onTheWay = true;
                     }
                 }
             }
@@ -81,56 +81,56 @@ namespace sg::islands::ecs
 
         void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
         {
-            entityx::ComponentHandle<PositionComponent> position;
-            entityx::ComponentHandle<TargetComponent> target;
-            entityx::ComponentHandle<ActiveEntityComponent> activeEntity;
-            entityx::ComponentHandle<AssetsComponent> assets;
-            entityx::ComponentHandle<DirectionComponent> direction;
+            entityx::ComponentHandle<PositionComponent> positionComponent;
+            entityx::ComponentHandle<TargetComponent> targetComponent;
+            entityx::ComponentHandle<ActiveEntityComponent> activeEntityComponent;
+            entityx::ComponentHandle<AssetComponent> assetComponent;
+            entityx::ComponentHandle<DirectionComponent> directionComponent;
 
-            for (auto entity : t_entities.entities_with_components(position, target, activeEntity, assets, direction))
+            for (auto entity : t_entities.entities_with_components(positionComponent, targetComponent, activeEntityComponent, assetComponent, directionComponent))
             {
-                if (target->onTheWay)
+                if (targetComponent->onTheWay)
                 {
-                    assert(target->nextWayPoint < target->pathToTarget.size());
+                    assert(targetComponent->nextWayPoint < targetComponent->pathToTarget.size());
 
                     // the next position ist the target
-                    auto targetMapPosition = target->pathToTarget[target->nextWayPoint].position;
+                    auto targetMapPosition = targetComponent->pathToTarget[targetComponent->nextWayPoint].position;
 
                     // calc target screen position
                     auto targetScreenPosition = iso::IsoMath::ToScreen(targetMapPosition, true);
 
                     // calc direction vector to the target
-                    auto spriteScreenDirection = iso::VecMath::Direction(position->screenPosition, targetScreenPosition);
+                    auto spriteScreenDirection = iso::VecMath::Direction(positionComponent->screenPosition, targetScreenPosition);
 
                     // calc the length to the target
-                    target->lengthToTarget = iso::VecMath::Length(spriteScreenDirection);
+                    targetComponent->lengthToTarget = iso::VecMath::Length(spriteScreenDirection);
 
                     // normalize the direction vector
-                    direction->spriteScreenNormalDirection = spriteScreenDirection;
-                    iso::VecMath::Normalize(direction->spriteScreenNormalDirection);
+                    directionComponent->spriteScreenNormalDirection = spriteScreenDirection;
+                    iso::VecMath::Normalize(directionComponent->spriteScreenNormalDirection);
 
-                    // only if it is a moving object: change the direction of the spit in the direction of movement
-                    const auto assetType{ m_assets.GetAssetMetaData(assets->actionAssetId).assetType };
+                    // only if it is a moving object: change the direction of the sprite in the direction of movement
+                    const auto assetType{ m_assets.GetAsset(assetComponent->assetName).assetType };
                     if (assetType != iso::AssetType::BUILDING)
                     {
-                        direction->direction = iso::Assets::GetUnitDirectionByVec(direction->spriteScreenNormalDirection);
+                        directionComponent->direction = iso::Assets::GetUnitDirectionByVec(directionComponent->spriteScreenNormalDirection);
                     }
 
-                    if (target->lengthToTarget > 1.0f)
+                    if (targetComponent->lengthToTarget > 1.0f)
                     {
-                        position->screenPosition.x += direction->spriteScreenNormalDirection.x;
-                        position->screenPosition.y += direction->spriteScreenNormalDirection.y;
+                        positionComponent->screenPosition.x += directionComponent->spriteScreenNormalDirection.x;
+                        positionComponent->screenPosition.y += directionComponent->spriteScreenNormalDirection.y;
                     }
 
-                    if (target->lengthToTarget <= 1.0f)
+                    if (targetComponent->lengthToTarget <= 1.0f)
                     {
-                        position->mapPosition = target->targetMapPosition;
-                        target->nextWayPoint++;
+                        positionComponent->mapPosition = targetComponent->targetMapPosition;
+                        targetComponent->nextWayPoint++;
                     }
 
-                    if (target->nextWayPoint == target->pathToTarget.size())
+                    if (targetComponent->nextWayPoint == targetComponent->pathToTarget.size())
                     {
-                        target->onTheWay = false;
+                        targetComponent->onTheWay = false;
                     }
                 }
             }
@@ -155,35 +155,36 @@ namespace sg::islands::ecs
 
         void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta) override
         {
-            entityx::ComponentHandle<AssetsComponent> assets;
+            entityx::ComponentHandle<AssetComponent> assetComponent;
 
-            for (auto entity : t_entities.entities_with_components(assets))
+            for (auto entity : t_entities.entities_with_components(assetComponent))
             {
-                const auto assetType{ m_assets.GetAssetMetaData(assets->actionAssetId).assetType };
+                const auto& asset{ m_assets.GetAsset(assetComponent->assetName) };
+                const auto assetType{ asset.assetType };
 
                 if (assetType == iso::AssetType::BUILDING)
                 {
-                    for (const auto& direction : iso::Assets::BUILDING_DIRECTIONS)
+                    for (const auto& direction : iso::BUILDING_DIRECTIONS)
                     {
                         // update action animation
-                        auto& actionAnimation{ m_assets.GetAnimation(assets->actionAssetId, direction) };
+                        auto& actionAnimation{ m_assets.GetAnimation(asset.assetName, "Work", direction) };
                         actionAnimation.Update(core::SF_TIME_PER_FRAME);
 
                         // update idle animation (which have only one frame)
-                        auto& idleAnimation{ m_assets.GetAnimation(assets->idleAssetId, direction) };
+                        auto& idleAnimation{ m_assets.GetAnimation(asset.assetName, "Idle", direction) };
                         idleAnimation.Update(core::SF_TIME_PER_FRAME);
                     }
                 }
                 else
                 {
-                    for (const auto& direction : iso::Assets::UNIT_DIRECTIONS)
+                    for (const auto& direction : iso::UNIT_DIRECTIONS)
                     {
                         // update action animation
-                        auto& actionAnimation{ m_assets.GetAnimation(assets->actionAssetId, direction) };
+                        auto& actionAnimation{ m_assets.GetAnimation(asset.assetName, "Move", direction) };
                         actionAnimation.Update(core::SF_TIME_PER_FRAME);
 
                         // update idle animation (which have only one frame)
-                        auto& idleAnimation{ m_assets.GetAnimation(assets->idleAssetId, direction) };
+                        auto& idleAnimation{ m_assets.GetAnimation(asset.assetName, "Idle", direction) };
                         idleAnimation.Update(core::SF_TIME_PER_FRAME);
                     }
                 }
@@ -214,44 +215,44 @@ namespace sg::islands::ecs
             sf::Sprite* sprite;
             iso::Animation* animation;
 
-            entityx::ComponentHandle<PositionComponent> position;
-            entityx::ComponentHandle<TargetComponent> target;
-            entityx::ComponentHandle<AssetsComponent> assets;
-            entityx::ComponentHandle<DirectionComponent> direction;
+            entityx::ComponentHandle<PositionComponent> positionComponent;
+            entityx::ComponentHandle<TargetComponent> targetComponent;
+            entityx::ComponentHandle<AssetComponent> assetComponent;
+            entityx::ComponentHandle<DirectionComponent> directionComponent;
 
-            for (auto entity : t_entities.entities_with_components(position, target, assets, direction))
+            for (auto entity : t_entities.entities_with_components(positionComponent, targetComponent, assetComponent, directionComponent))
             {
-                // get asset type
-                const auto assetType{ m_assets.GetAssetMetaData(assets->actionAssetId).assetType };
+                const auto& asset{ m_assets.GetAsset(assetComponent->assetName) };
+                const auto assetType{ asset.assetType };
 
                 // set animation
                 if (assetType == iso::AssetType::BUILDING)
                 {
                     // action animation
-                    animation = &m_assets.GetAnimation(assets->actionAssetId, direction->direction);
+                    animation = &m_assets.GetAnimation(asset.assetName, "Work", directionComponent->direction);
                     sprite = &animation->GetSprite();
                 }
                 else
                 {
-                    if (target->onTheWay)
+                    if (targetComponent->onTheWay)
                     {
                         // action animation
-                        animation = &m_assets.GetAnimation(assets->actionAssetId, direction->direction);
+                        animation = &m_assets.GetAnimation(asset.assetName, "Move", directionComponent->direction);
                         sprite = &animation->GetSprite();
                     }
                     else
                     {
                         // idle animaton
-                        animation = &m_assets.GetAnimation(assets->idleAssetId, direction->direction);
+                        animation = &m_assets.GetAnimation(asset.assetName, "Idle", directionComponent->direction);
                         sprite = &animation->GetSprite();
                     }
                 }
 
                 // get tile width
-                const auto tileWidth{ m_assets.GetAssetMetaData(assets->actionAssetId).tileWidth };
+                const auto tileWidth{ asset.tileWidth };
 
                 // get tile height
-                const auto tileHeight{ m_assets.GetAssetMetaData(assets->actionAssetId).tileHeight };
+                const auto tileHeight{ asset.tileHeight };
 
                 if (assetType == iso::AssetType::BUILDING)
                 {
@@ -263,7 +264,7 @@ namespace sg::islands::ecs
                     const auto y{ tileHeight * iso::IsoMath::DEFAULT_TILE_HEIGHT_HALF };
 
                     sprite->setOrigin(x, y);
-                    sprite->setPosition(position->screenPosition);
+                    sprite->setPosition(positionComponent->screenPosition);
                 }
                 else if (assetType == iso::AssetType::LAND_UNIT)
                 {
@@ -272,7 +273,7 @@ namespace sg::islands::ecs
                     assert(tileHeight == 1);
 
                     sprite->setOrigin(iso::IsoMath::DEFAULT_TILE_WIDTH_QUARTER, iso::IsoMath::DEFAULT_TILE_HEIGHT_HALF);
-                    sprite->setPosition(position->screenPosition);
+                    sprite->setPosition(positionComponent->screenPosition);
                 }
                 else if (assetType == iso::AssetType::WATER_UNIT)
                 {
@@ -284,7 +285,7 @@ namespace sg::islands::ecs
                     //auto rect{ sf::RectangleShape(sf::Vector2f(localBounds.width, localBounds.height)) };
 
                     // copy screen position
-                    auto drawPosition{ position->screenPosition };
+                    auto drawPosition{ positionComponent->screenPosition };
 
                     sprite->setOrigin(localBounds.width / 2, localBounds.height);
                     //rect.setOrigin(localBounds.width / 2, localBounds.height);
@@ -298,9 +299,9 @@ namespace sg::islands::ecs
                 }
 
                 // draw path to target if exist
-                if (!target->pathToTarget.empty())
+                if (!targetComponent->pathToTarget.empty())
                 {
-                    for (const auto& node : target->pathToTarget)
+                    for (const auto& node : targetComponent->pathToTarget)
                     {
                         m_tileAtlas.DrawMiscTile(iso::TileAtlas::GRID_TILE, node.position.x, node.position.y, m_window);
                     }

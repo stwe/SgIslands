@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  23.02.2019
+// Updated:  24.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -35,14 +35,6 @@ namespace sg::islands::core
         using MapUniquePtr = std::unique_ptr<iso::Map>;
         using AssetsUniquePtr = std::unique_ptr<iso::Assets>;
         using AstarUniquePtr = std::unique_ptr<iso::Astar>;
-
-        // asset Ids
-        static constexpr auto PIRATE_SHIP{ 0 };
-        static constexpr auto PIRATE_SHIP_IDLE{ 1 };
-        static constexpr auto FARMER{ 2 };
-        static constexpr auto FARMER_IDLE{ 3 };
-        static constexpr auto BAKERY{ 4 };
-        static constexpr auto BAKERY_IDLE{ 5 };
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -141,6 +133,8 @@ namespace sg::islands::core
         entityx::Entity m_pirateShipEntity;
         entityx::Entity m_bakeryEntity;
 
+        std::vector<entityx::Entity> m_entities;
+
         // frame statistics
         sf::Text m_statisticsText;
         sf::Time m_statisticsUpdateTime;
@@ -180,11 +174,11 @@ namespace sg::islands::core
             m_map = std::make_unique<iso::Map>(m_appOptions.map);
             assert(m_map);
 
-            // create Astar object
+            // create `Astar` object
             m_astar = std::make_unique<iso::Astar>(*m_map);
             assert(m_astar);
 
-            // create `UnitAnimations`
+            // create `Assets`
             m_assets = std::make_unique<iso::Assets>(m_appOptions.assets);
             assert(m_assets);
 
@@ -257,6 +251,16 @@ namespace sg::islands::core
                         SG_ISLANDS_DEBUG("mouse map x: {}", targetMapPosition.x);
                         SG_ISLANDS_DEBUG("mouse map y: {}", targetMapPosition.y);
 
+
+
+                        /*
+
+                        wenn click auf entity, dann setze entity als aktiv
+                            - ansonsten suche Pfad
+
+                        */
+
+
                         // set the targetMapPosition as target to all active entities
                         entities.each<ecs::TargetComponent, ecs::ActiveEntityComponent>(
                             [&targetMapPosition](entityx::Entity t_entity, ecs::TargetComponent& t_target, ecs::ActiveEntityComponent)
@@ -267,6 +271,11 @@ namespace sg::islands::core
 
                         // try to find path to target for all active entities
                         systems.update<ecs::FindPathSystem>(EX_TIME_PER_FRAME);
+
+
+
+
+
                     }
                 }
             }
@@ -308,19 +317,19 @@ namespace sg::islands::core
             m_bakeryEntity = entities.create();
 
             m_farmerEntity.assign<ecs::PositionComponent>(sf::Vector2i(15, 15));
-            m_farmerEntity.assign<ecs::AssetsComponent>(FARMER, FARMER_IDLE);
-            m_farmerEntity.assign<ecs::DirectionComponent>(iso::Assets::DEFAULT_DIRECTION);
+            m_farmerEntity.assign<ecs::AssetComponent>("Farmer0");
+            m_farmerEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_farmerEntity.assign<ecs::TargetComponent>();
 
             m_pirateShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(20, 20));
-            m_pirateShipEntity.assign<ecs::AssetsComponent>(PIRATE_SHIP, PIRATE_SHIP_IDLE);
-            m_pirateShipEntity.assign<ecs::DirectionComponent>(iso::Assets::DEFAULT_DIRECTION);
+            m_pirateShipEntity.assign<ecs::AssetComponent>("Pirate1");
+            m_pirateShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_pirateShipEntity.assign<ecs::ActiveEntityComponent>();
             m_pirateShipEntity.assign<ecs::TargetComponent>();
 
             m_bakeryEntity.assign<ecs::PositionComponent>(sf::Vector2i(8, 7));
-            m_bakeryEntity.assign<ecs::AssetsComponent>(BAKERY, BAKERY_IDLE);
-            m_bakeryEntity.assign<ecs::DirectionComponent>(iso::Assets::DEFAULT_DIRECTION);
+            m_bakeryEntity.assign<ecs::AssetComponent>("Bakery0");
+            m_bakeryEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_bakeryEntity.assign<ecs::TargetComponent>();
 
             systems.add<ecs::MovementSystem>(*m_assets);
@@ -329,6 +338,10 @@ namespace sg::islands::core
             systems.add<ecs::FindPathSystem>(*m_assets, *m_astar);
 
             systems.configure();
+
+            m_entities.push_back(m_farmerEntity);
+            m_entities.push_back(m_pirateShipEntity);
+            m_entities.push_back(m_bakeryEntity);
         }
 
         void RenderImGui() const

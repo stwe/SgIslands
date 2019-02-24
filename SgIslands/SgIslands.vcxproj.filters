@@ -86,9 +86,6 @@
     <ClInclude Include="src\iso\Assets.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\iso\AssetMetaData.hpp">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="src\core\SgException.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -120,6 +117,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\ecs\Systems.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\iso\Asset.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\iso\AssetAnimation.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

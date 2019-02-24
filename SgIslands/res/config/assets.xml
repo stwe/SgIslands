@@ -4,17 +4,27 @@
 
     <units>
         <dir>res/gfx/units/</dir>
-        <unit id="0" name="Pirate1_Move" dir="pirate1/move/" frames="16" type="Water_Unit" tile_width="3" tile_height="3"></unit>
-        <unit id="1" name="Pirate1_Idle" dir="pirate1/idle/" frames="1" type="Water_Unit" tile_width="3" tile_height="3"></unit>
-        <unit id="2" name="Farmer0_Move" dir="farmer0/move/" frames="4" type="Land_Unit" tile_width="1" tile_height="1"></unit>
-        <unit id="3" name="Farmer0_Idle" dir="farmer0/idle/" frames="1" type="Land_Unit" tile_width="1" tile_height="1"></unit>
+
+        <asset id="0" name="Pirate1" type="Water_Unit" tile_width="3" tile_height="3">
+            <animation id="0" name="Move" dir="pirate1/move/" frames="16"></animation>
+            <animation id="1" name="Idle" dir="pirate1/idle/" frames="1"></animation>
+        </asset>
+
+        <asset id="1" name="Farmer0" type="Land_Unit" tile_width="1" tile_height="1">
+            <animation id="0" name="Move" dir="farmer0/move/" frames="4"></animation>
+            <animation id="1" name="Idle" dir="farmer0/idle/" frames="1"></animation>
+        </asset>
     </units>
 
     <buildings>
         <dir>res/gfx/buildings/</dir>
+
         <!-- Building 128x128:    tile_width = 128/64 = 2    &&    tile_height = 128/32 = 4 -->
-        <building id="4" name="Bakery0_Work" dir="bakery0/work/" frames="8" type="Building" tile_width="2" tile_height="4"></building>
-        <building id="5" name="Bakery0_Idle" dir="bakery0/idle/" frames="1" type="Building" tile_width="2" tile_height="4"></building>
+
+        <asset id="2" name="Bakery0" type="Building" tile_width="2" tile_height="4">
+            <animation id="0" name="Work" dir="bakery0/work/" frames="8"></animation>
+            <animation id="1" name="Idle" dir="bakery0/idle/" frames="1"></animation>
+        </asset>
     </buildings>
 
 </assets>
