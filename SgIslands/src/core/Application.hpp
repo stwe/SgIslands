@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  24.02.2019
+// Updated:  25.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -132,8 +132,6 @@ namespace sg::islands::core
         entityx::Entity m_farmerEntity;
         entityx::Entity m_pirateShipEntity;
         entityx::Entity m_bakeryEntity;
-
-        std::vector<entityx::Entity> m_entities;
 
         // frame statistics
         sf::Text m_statisticsText;
@@ -338,10 +336,6 @@ namespace sg::islands::core
             systems.add<ecs::FindPathSystem>(*m_assets, *m_astar);
 
             systems.configure();
-
-            m_entities.push_back(m_farmerEntity);
-            m_entities.push_back(m_pirateShipEntity);
-            m_entities.push_back(m_bakeryEntity);
         }
 
         void RenderImGui() const

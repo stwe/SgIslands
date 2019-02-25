@@ -2,7 +2,7 @@
 // 
 // Filename: Animation.hpp
 // Created:  26.01.2019
-// Updated:  24.02.2019
+// Updated:  25.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -70,6 +70,10 @@ namespace sg::islands::iso
         // Setter
         //-------------------------------------------------
 
+        /**
+         * @brief Set the frame duration time.
+         * @param t_frameTime The frame time.
+         */
         void SetFrameTime(const sf::Time& t_frameTime) { m_frameTime = t_frameTime; }
 
         /**

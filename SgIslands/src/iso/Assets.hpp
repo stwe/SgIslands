@@ -2,7 +2,7 @@
 // 
 // Filename: Assets.hpp
 // Created:  14.02.2019
-// Updated:  24.02.2019
+// Updated:  25.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -62,6 +62,24 @@ namespace sg::islands::iso
         AssetsMap& GetAssetsMap() noexcept { return m_assetsMap; }
 
         /**
+         * @brief Returns a const reference to an `Asset`.
+         * @param t_assetName The name of the `Asset`.
+         * @return Const reference to `Asset`
+         */
+        const Asset& GetAsset(const AssetName& t_assetName) const
+        {
+            try
+            {
+                return *m_assetsMap.at(t_assetName);
+            }
+            catch (const std::out_of_range& exception)
+            {
+                SG_ISLANDS_ERROR("[Assets::GetAsset()] Out of range exception: ", exception.what());
+                THROW_SG_EXCEPTION("[Assets::GetAsset()] Key: " + t_assetName + " not found.");
+            }
+        }
+
+        /**
          * @brief Returns a reference to an `Asset`.
          * @param t_assetName The name of the `Asset`.
          * @return Reference to `Asset`
@@ -80,10 +98,32 @@ namespace sg::islands::iso
         }
 
         /**
+         * @brief Returns a const reference to the `Animation`.
+         * @param t_assetName The name of the asset (e.g. `Pirate1`).
+         * @param t_animationName The name of the animation (e.g. `Move`, `Work` or `Idle`).
+         * @param t_direction The direction of the asset (e.g. `NE_DIRECTION`).
+         * @return Const reference to `Animation`
+         */
+        const Animation& GetAnimation(const AssetName& t_assetName, const AnimationName& t_animationName, const Direction t_direction) const
+        {
+            const auto& asset{ GetAsset(t_assetName) };
+
+            try
+            {
+                return *asset.assetAnimations.at(t_animationName)->animationForDirections.at(t_direction);
+            }
+            catch (const std::out_of_range& exception)
+            {
+                SG_ISLANDS_ERROR("[Assets::GetAnimation()] Out of range exception: ", exception.what());
+                THROW_SG_EXCEPTION("[Assets::GetAnimation()] Animation " + t_animationName + " for asset " + t_assetName + " not found.");
+            }
+        }
+
+        /**
          * @brief Returns a reference to the `Animation`.
-         * @param t_assetName The name of the asset.
-         * @param t_animationName The name of the animation.
-         * @param t_direction The direction of the asset.
+         * @param t_assetName The name of the asset (e.g. `Pirate1`).
+         * @param t_animationName The name of the animation (e.g. `Move`, `Work` or `Idle`).
+         * @param t_direction The direction of the asset (e.g. `NE_DIRECTION`).
          * @return Reference to `Animation`
          */
         Animation& GetAnimation(const AssetName& t_assetName, const AnimationName& t_animationName, const Direction t_direction)
@@ -104,7 +144,7 @@ namespace sg::islands::iso
         /**
          * @brief Computes the sprite `Direction` of a unit from a given vector.
          * @param t_vector A direction vector.
-         * @return Direction
+         * @return `Direction`
          */
         static Direction GetUnitDirectionByVec(const sf::Vector2f& t_vector)
         {
@@ -246,6 +286,7 @@ namespace sg::islands::iso
         }
 
         /**
+         * todo
          * @brief Load all assets from a given config file.
          * @param t_filename The xml file with asset configurations.
          */

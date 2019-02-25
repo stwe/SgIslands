@@ -2,7 +2,7 @@
 // 
 // Filename: Asset.hpp
 // Created:  15.02.2019
-// Updated:  24.02.2019
+// Updated:  25.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -35,7 +35,10 @@ namespace sg::islands::iso
         int tileWidth{ -1 };
         int tileHeight{ -1 };
 
-        // ein Asset kann ein oder mehrere `AssetAnimation` enthalten (`work`, `move` or `idle`)
+        /**
+         * @brief An `Asset` can contain multiple `AssetAnimationUniquePtr`.
+         *        The key is an `AnimationName`, such `Work`, `Move` or `Idle`.
+         */
         std::map<AnimationName, AssetAnimationUniquePtr> assetAnimations;
     };
 }

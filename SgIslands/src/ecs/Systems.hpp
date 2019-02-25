@@ -2,7 +2,7 @@
 // 
 // Filename: Systems.hpp
 // Created:  21.02.2019
-// Updated:  23.02.2019
+// Updated:  25.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -94,13 +94,13 @@ namespace sg::islands::ecs
                     assert(targetComponent->nextWayPoint < targetComponent->pathToTarget.size());
 
                     // the next position ist the target
-                    auto targetMapPosition = targetComponent->pathToTarget[targetComponent->nextWayPoint].position;
+                    auto targetMapPosition{ targetComponent->pathToTarget[targetComponent->nextWayPoint].position };
 
                     // calc target screen position
-                    auto targetScreenPosition = iso::IsoMath::ToScreen(targetMapPosition, true);
+                    auto targetScreenPosition{ iso::IsoMath::ToScreen(targetMapPosition, true) };
 
                     // calc direction vector to the target
-                    auto spriteScreenDirection = iso::VecMath::Direction(positionComponent->screenPosition, targetScreenPosition);
+                    auto spriteScreenDirection{ iso::VecMath::Direction(positionComponent->screenPosition, targetScreenPosition) };
 
                     // calc the length to the target
                     targetComponent->lengthToTarget = iso::VecMath::Length(spriteScreenDirection);

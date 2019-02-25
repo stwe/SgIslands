@@ -2,7 +2,7 @@
 // 
 // Filename: AssetAnimation.hpp
 // Created:  24.02.2019
-// Updated:  24.02.2019
+// Updated:  25.02.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -64,6 +64,10 @@ namespace sg::islands::iso
         AnimationName animationName;
         std::string animationDir;
         int frames{ -1 };
+
+        /**
+         * @brief An `Animation` for every direction.
+         */
         std::map<Direction, AnimationUniquePtr> animationForDirections;
     };
 }
