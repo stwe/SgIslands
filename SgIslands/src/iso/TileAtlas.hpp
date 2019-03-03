@@ -2,7 +2,7 @@
 // 
 // Filename: TileAtlas.hpp
 // Created:  20.01.2019
-// Updated:  18.02.2019
+// Updated:  03.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -44,6 +44,7 @@ namespace sg::islands::iso
 
         static constexpr auto GRID_TILE{ 1000 };
         static constexpr auto CLICKED_TILE{ 2000 };
+        static constexpr auto ENTITY_TILE{ 3000 };
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -51,7 +52,7 @@ namespace sg::islands::iso
 
         TileAtlas() = delete;
 
-        explicit TileAtlas(
+        TileAtlas(
             const core::Filename& t_filenameBackgroundTileset,
             const core::Filename& t_filenameTerrainTileset,
             const core::Filename& t_filenameMiscTileset

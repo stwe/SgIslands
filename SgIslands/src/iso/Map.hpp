@@ -2,7 +2,7 @@
 // 
 // Filename: Map.hpp
 // Created:  20.01.2019
-// Updated:  24.02.2019
+// Updated:  03.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -13,6 +13,7 @@
 
 #include "Island.hpp"
 #include "IsoMath.hpp"
+#include "Asset.hpp"
 
 namespace sg::islands::iso
 {
@@ -26,6 +27,7 @@ namespace sg::islands::iso
     {
         TileAtlas::TileId terrainTileId;
         TerrainType terrainType;
+        AssetId assetId;
         bool passable;
         bool selected;
     };
@@ -102,7 +104,7 @@ namespace sg::islands::iso
          * @param t_mapY The y-map position.
          * @return bool
          */
-        auto IsDeepWater(const int t_mapX, const int t_mapY)
+        auto IsDeepWater(const int t_mapX, const int t_mapY) const
         {
             return m_mapFields[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].terrainType == TerrainType::DEEP_WATER;
         }
@@ -113,9 +115,20 @@ namespace sg::islands::iso
          * @param t_mapY The y-map position.
          * @return bool
          */
-        auto IsLand(const int t_mapX, const int t_mapY)
+        auto IsLand(const int t_mapX, const int t_mapY) const
         {
             return m_mapFields[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].terrainType == TerrainType::LAND;
+        }
+
+        /**
+         * @brief Return the AssetId of the given position.
+         * @param t_mapX The x-map position.
+         * @param t_mapY The y-map position.
+         * @return AssetId
+         */
+        auto GetAssetId(const int t_mapX, const int t_mapY) const
+        {
+            return m_mapFields[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].assetId;
         }
 
         /**
@@ -124,7 +137,7 @@ namespace sg::islands::iso
          * @param t_mapY The y-map position.
          * @return bool
          */
-        auto IsPassable(const int t_mapX, const int t_mapY)
+        auto IsPassable(const int t_mapX, const int t_mapY) const
         {
             return m_mapFields[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].passable;
         }
@@ -132,6 +145,17 @@ namespace sg::islands::iso
         //-------------------------------------------------
         // Setter
         //-------------------------------------------------
+
+        /**
+         * @brief Set an `Asset` Id.
+         * @param t_mapX The x-map position.
+         * @param t_mapY The y-map position.
+         * @param t_assetId The Id to set.
+         */
+        void SetAssetId(const int t_mapX, const int t_mapY, const AssetId t_assetId)
+        {
+            m_mapFields[IsoMath::From2DTo1D(t_mapX, t_mapY, m_mapWidth)].assetId = t_assetId;
+        }
 
         /**
          * @brief Set map target as passable.
@@ -162,6 +186,7 @@ namespace sg::islands::iso
 
                     mapField.terrainTileId = -1;
                     mapField.terrainType = TerrainType::DEEP_WATER;
+                    mapField.assetId = -1;
                     mapField.passable = true;
                     mapField.selected = false;
 
@@ -188,7 +213,8 @@ namespace sg::islands::iso
                         // set terrain
                         m_mapFields[index].terrainTileId = island->GetIslandFieldByMapPosition(xMapPos, yMapPos).tileId;
                         m_mapFields[index].terrainType = TerrainType::LAND;
-                        m_mapFields[index].passable = true;
+                        m_mapFields[index].assetId = -1; // so far no assets
+                        m_mapFields[index].passable = true; // completely passable terrain
                         m_mapFields[index].selected = false;
                     }
                 }
@@ -229,6 +255,34 @@ namespace sg::islands::iso
                     text.setFillColor(sf::Color::Blue);
                     text.setPosition(screenPosition.x + 1, screenPosition.y + 40);
                     t_window.draw(text);
+                }
+            }
+        }
+
+        void DrawAssetGrid(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas, const core::FontHolder& t_fontHolder) const
+        {
+            sf::Text text;
+            text.setFont(t_fontHolder.GetResource(1));
+            text.setCharacterSize(10);
+
+            for (auto y{ 0 }; y < m_mapHeight; ++y)
+            {
+                for (auto x{ 0 }; x < m_mapWidth; ++x)
+                {
+                    t_tileAtlas.DrawMiscTile(TileAtlas::GRID_TILE, x, y, t_window);
+
+                    const auto screenPosition{ IsoMath::ToScreen(x, y) };
+                    const auto assetId{ GetAssetId(x, y) };
+
+                    if (assetId >= 0)
+                    {
+                        t_tileAtlas.DrawMiscTile(TileAtlas::ENTITY_TILE, x, y, t_window);
+
+                        text.setString(std::to_string(assetId));
+                        text.setFillColor(sf::Color::Red);
+                        text.setPosition(screenPosition.x - 4, screenPosition.y + 40);
+                        t_window.draw(text);
+                    }
                 }
             }
         }
@@ -315,7 +369,7 @@ namespace sg::islands::iso
             SG_ISLANDS_INFO("[Map::LoadMapFile()] Map height in default tiles: {} ", m_mapHeight);
 
             // get `<islands>` element
-            auto islands{ core::XmlWrapper::GetFirstChildElement(mapElement, "islands") };
+            const auto islands{ core::XmlWrapper::GetFirstChildElement(mapElement, "islands") };
 
             // get each island
             for (auto island{ islands->FirstChildElement("island") }; island != nullptr; island = island->NextSiblingElement())

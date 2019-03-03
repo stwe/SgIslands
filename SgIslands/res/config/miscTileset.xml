@@ -9,4 +9,7 @@
     <tile id="2000">
         <image width="64" height="64" source="../gfx/misc/clicked.png" path="res/gfx/misc/clicked.png"/>
     </tile>
+    <tile id="3000">
+        <image width="64" height="64" source="../gfx/misc/entity.png" path="res/gfx/misc/entity.png"/>
+    </tile>
 </tileset>

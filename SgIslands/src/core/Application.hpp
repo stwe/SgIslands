@@ -294,7 +294,8 @@ namespace sg::islands::core
 
             if (m_drawGrid)
             {
-                m_map->DrawGrid(*m_window, *m_tileAtlas, m_fonts);
+                //m_map->DrawGrid(*m_window, *m_tileAtlas, m_fonts);
+                m_map->DrawAssetGrid(*m_window, *m_tileAtlas, m_fonts);
             }
 
             m_window->setTitle(m_appOptions.windowTitle + " " + m_statisticsText.getString());
@@ -303,7 +304,7 @@ namespace sg::islands::core
 
             RenderImGui();
 
-            m_tileAtlas->DrawMiscTile(iso::TileAtlas::CLICKED_TILE, 20, 20, *m_window);
+            //m_tileAtlas->DrawMiscTile(iso::TileAtlas::CLICKED_TILE, 20, 20, *m_window);
 
             m_window->display();
         }
@@ -315,27 +316,64 @@ namespace sg::islands::core
             m_bakeryEntity = entities.create();
 
             m_farmerEntity.assign<ecs::PositionComponent>(sf::Vector2i(15, 15));
-            m_farmerEntity.assign<ecs::AssetComponent>("Farmer0");
+            m_farmerEntity.assign<ecs::AssetComponent>(1, "Farmer0");
             m_farmerEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_farmerEntity.assign<ecs::TargetComponent>();
 
             m_pirateShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(20, 20));
-            m_pirateShipEntity.assign<ecs::AssetComponent>("Pirate1");
+            m_pirateShipEntity.assign<ecs::AssetComponent>(0, "Pirate1");
             m_pirateShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_pirateShipEntity.assign<ecs::ActiveEntityComponent>();
             m_pirateShipEntity.assign<ecs::TargetComponent>();
 
             m_bakeryEntity.assign<ecs::PositionComponent>(sf::Vector2i(8, 7));
-            m_bakeryEntity.assign<ecs::AssetComponent>("Bakery0");
+            m_bakeryEntity.assign<ecs::AssetComponent>(2, "Bakery0");
             m_bakeryEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_bakeryEntity.assign<ecs::TargetComponent>();
 
+            const auto renderEntities{ true };
+
             systems.add<ecs::MovementSystem>(*m_assets);
-            systems.add<ecs::RenderSystem>(*m_window, *m_assets, *m_tileAtlas);
+            systems.add<ecs::RenderSystem>(*m_window, *m_assets, *m_tileAtlas, renderEntities);
             systems.add<ecs::AnimationSystem>(*m_assets);
             systems.add<ecs::FindPathSystem>(*m_assets, *m_astar);
 
             systems.configure();
+
+            // todo: in ein System packen
+            entities.each<ecs::PositionComponent, ecs::AssetComponent>(
+                [this](entityx::Entity t_entity, const ecs::PositionComponent& t_positionComponent, const ecs::AssetComponent& t_assetComponent)
+                {
+                    m_map->SetAssetId(t_positionComponent.mapPosition.x, t_positionComponent.mapPosition.y, t_assetComponent.assetId);
+
+                    // einige Entities sind größer als ein Tile
+                    const auto& asset{ m_assets->GetAsset(t_assetComponent.assetId) };
+                    if (asset.tileHeight > 1 || asset.tileWidth > 1)
+                    {
+                        auto tileHeight{ asset.tileHeight };
+                        auto tileWidth{ asset.tileWidth };
+
+                        if (asset.assetType == iso::AssetType::BUILDING)
+                        {
+                            tileHeight /= 2;
+                            for (auto x{ t_positionComponent.mapPosition.x }; x < t_positionComponent.mapPosition.x + tileWidth; ++x)
+                            {
+                                for (auto y{ t_positionComponent.mapPosition.y }; y < t_positionComponent.mapPosition.y + tileHeight; ++y)
+                                {
+                                    m_map->SetAssetId(x, y, t_assetComponent.assetId);
+                                }
+                            }
+                        }
+                        else if (asset.assetType == iso::AssetType::WATER_UNIT)
+                        {
+                            for (auto y{ t_positionComponent.mapPosition.y - 1 }; y < t_positionComponent.mapPosition.y + tileHeight - 1; ++y)
+                            {
+                                m_map->SetAssetId(t_positionComponent.mapPosition.x, y, t_assetComponent.assetId);
+                            }
+                        }
+                    }
+                }
+            );
         }
 
         void RenderImGui() const

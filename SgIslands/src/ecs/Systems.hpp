@@ -39,8 +39,8 @@ namespace sg::islands::ecs
             for (auto entity : t_entities.entities_with_components(assetComponent, positionComponent, targetComponent, activeEntityComponent))
             {
                 // get asset type
-                // todo: use asset id
-                const auto assetType{ m_assets.GetAsset(assetComponent->assetName).assetType };
+                assert(assetComponent->assetId >= 0);
+                const auto assetType{ m_assets.GetAsset(assetComponent->assetId).assetType };
 
                 // run `FindPathToMapPosition()` if valid target position
                 if (targetComponent->targetMapPosition.x >= 0 && targetComponent->targetMapPosition.y >= 0)
@@ -111,7 +111,8 @@ namespace sg::islands::ecs
                     iso::VecMath::Normalize(directionComponent->spriteScreenNormalDirection);
 
                     // only if it is a moving object: change the direction of the sprite in the direction of movement
-                    const auto assetType{ m_assets.GetAsset(assetComponent->assetName).assetType };
+                    assert(assetComponent->assetId >= 0);
+                    const auto assetType{ m_assets.GetAsset(assetComponent->assetId).assetType };
                     if (assetType != iso::AssetType::BUILDING)
                     {
                         directionComponent->direction = iso::Assets::GetUnitDirectionByVec(directionComponent->spriteScreenNormalDirection);
@@ -160,7 +161,8 @@ namespace sg::islands::ecs
 
             for (auto entity : t_entities.entities_with_components(assetComponent))
             {
-                const auto& asset{ m_assets.GetAsset(assetComponent->assetName) };
+                assert(assetComponent->assetId >= 0);
+                const auto& asset{ m_assets.GetAsset(assetComponent->assetId) };
                 const auto assetType{ asset.assetType };
 
                 if (assetType == iso::AssetType::BUILDING)
@@ -168,11 +170,11 @@ namespace sg::islands::ecs
                     for (const auto& direction : iso::BUILDING_DIRECTIONS)
                     {
                         // update action animation
-                        auto& actionAnimation{ m_assets.GetAnimation(asset.assetName, "Work", direction) };
+                        auto& actionAnimation{ m_assets.GetAnimation(asset.assetId, "Work", direction) };
                         actionAnimation.Update(core::SF_TIME_PER_FRAME);
 
                         // update idle animation (which have only one frame)
-                        auto& idleAnimation{ m_assets.GetAnimation(asset.assetName, "Idle", direction) };
+                        auto& idleAnimation{ m_assets.GetAnimation(asset.assetId, "Idle", direction) };
                         idleAnimation.Update(core::SF_TIME_PER_FRAME);
                     }
                 }
@@ -181,11 +183,11 @@ namespace sg::islands::ecs
                     for (const auto& direction : iso::UNIT_DIRECTIONS)
                     {
                         // update action animation
-                        auto& actionAnimation{ m_assets.GetAnimation(asset.assetName, "Move", direction) };
+                        auto& actionAnimation{ m_assets.GetAnimation(asset.assetId, "Move", direction) };
                         actionAnimation.Update(core::SF_TIME_PER_FRAME);
 
                         // update idle animation (which have only one frame)
-                        auto& idleAnimation{ m_assets.GetAnimation(asset.assetName, "Idle", direction) };
+                        auto& idleAnimation{ m_assets.GetAnimation(asset.assetId, "Idle", direction) };
                         idleAnimation.Update(core::SF_TIME_PER_FRAME);
                     }
                 }
@@ -205,10 +207,11 @@ namespace sg::islands::ecs
     class RenderSystem : public entityx::System<RenderSystem>
     {
     public:
-        RenderSystem(sf::RenderWindow& t_window, iso::Assets& t_assets, iso::TileAtlas& t_tileAtlas)
+        RenderSystem(sf::RenderWindow& t_window, iso::Assets& t_assets, iso::TileAtlas& t_tileAtlas, const bool t_renderEntities)
             : m_window{ t_window }
             , m_assets{ t_assets }
             , m_tileAtlas{ t_tileAtlas }
+            , m_renderEntities{ t_renderEntities }
         {}
 
         void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
@@ -223,14 +226,15 @@ namespace sg::islands::ecs
 
             for (auto entity : t_entities.entities_with_components(positionComponent, targetComponent, assetComponent, directionComponent))
             {
-                const auto& asset{ m_assets.GetAsset(assetComponent->assetName) };
+                assert(assetComponent->assetId >= 0);
+                const auto& asset{ m_assets.GetAsset(assetComponent->assetId) };
                 const auto assetType{ asset.assetType };
 
                 // set animation
                 if (assetType == iso::AssetType::BUILDING)
                 {
                     // action animation
-                    animation = &m_assets.GetAnimation(asset.assetName, "Work", directionComponent->direction);
+                    animation = &m_assets.GetAnimation(asset.assetId, "Work", directionComponent->direction);
                     sprite = &animation->GetSprite();
                 }
                 else
@@ -238,13 +242,13 @@ namespace sg::islands::ecs
                     if (targetComponent->onTheWay)
                     {
                         // action animation
-                        animation = &m_assets.GetAnimation(asset.assetName, "Move", directionComponent->direction);
+                        animation = &m_assets.GetAnimation(asset.assetId, "Move", directionComponent->direction);
                         sprite = &animation->GetSprite();
                     }
                     else
                     {
                         // idle animaton
-                        animation = &m_assets.GetAnimation(asset.assetName, "Idle", directionComponent->direction);
+                        animation = &m_assets.GetAnimation(asset.assetId, "Idle", directionComponent->direction);
                         sprite = &animation->GetSprite();
                     }
                 }
@@ -308,7 +312,10 @@ namespace sg::islands::ecs
                     }
                 }
 
-                m_window.draw(*sprite);
+                if (m_renderEntities)
+                {
+                    m_window.draw(*sprite);
+                }
             }
         }
 
@@ -318,5 +325,6 @@ namespace sg::islands::ecs
         sf::RenderWindow& m_window;
         iso::Assets& m_assets;
         iso::TileAtlas& m_tileAtlas;
+        bool m_renderEntities{ true };
     };
 }
