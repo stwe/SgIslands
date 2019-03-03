@@ -308,7 +308,88 @@ namespace sg::islands::iso
         }
 
         /**
-         * todo
+         * @brief Load `Asset`s from given xml element.
+         * @tparam Size Number of directions.
+         * @param t_element Xml element from which to read.
+         * @param t_dir The base directory from the `<dir>` element.
+         * @param t_directions An array with all directions.
+         */
+        template <std::size_t Size>
+        void LoadAssetsFromElement(
+            const tinyxml2::XMLElement* const t_element,
+            const std::string& t_dir,
+            const std::array<Direction, Size>& t_directions
+        )
+        {
+            SG_ISLANDS_INFO("[Assets::LoadAssetsFromElement()] Loading assets from {} ...", t_dir);
+
+            // get each `<asset>`
+            for (auto asset{ t_element->FirstChildElement("asset") }; asset != nullptr; asset = asset->NextSiblingElement())
+            {
+                // create asset
+                const auto assetId{ CreateAssetFromXml(asset) };
+
+                // get each `<animation>`
+                for (auto animation{ asset->FirstChildElement("animation") }; animation != nullptr; animation = animation->NextSiblingElement())
+                {
+                    // get id
+                    AnimationId idAttr;
+                    core::XmlWrapper::QueryAttribute(animation, "id", &idAttr);
+
+                    // get name
+                    const auto nameAttr{ core::XmlWrapper::GetAttribute(animation, "name") };
+
+                    // get dir
+                    const auto dirAttr{ core::XmlWrapper::GetAttribute(animation, "dir") };
+
+                    // get frames
+                    int framesAttr;
+                    core::XmlWrapper::QueryAttribute(animation, "frames", &framesAttr);
+
+                    // create `AssetAnimation`
+                    auto assetAnimationUniquePtr{ std::make_unique<AssetAnimation>() };
+                    assert(assetAnimationUniquePtr);
+
+                    assetAnimationUniquePtr->animationId = idAttr;
+                    assetAnimationUniquePtr->animationName = nameAttr;
+                    assetAnimationUniquePtr->animationDir = dirAttr;
+                    assetAnimationUniquePtr->frames = framesAttr;
+
+                    // create an `Animation` for each direction
+                    for (const auto& direction : t_directions)
+                    {
+                        // create animation dir
+                        const auto dir{ t_dir + dirAttr };
+
+                        // create a new `Animation` for this direction
+                        auto animationUniquePtr{ std::make_unique<Animation>() };
+
+                        // create all frames for this `Animation`
+                        for (auto i{ 0 }; i < framesAttr; ++i)
+                        {
+                            // create filename with four leading zeros
+                            const auto str{ std::to_string(i) };
+                            const auto filename{ std::string(4 - str.length(), '0') + str + ".png" };
+
+                            const auto directionDir{ std::to_string(static_cast<int>(direction)) };
+
+                            // add frame
+                            animationUniquePtr->AddFrame(dir + directionDir + "/" + filename);
+                        }
+
+                        // add `Animation` to `AssetAnimation`
+                        assetAnimationUniquePtr->animationForDirections.emplace(direction, std::move(animationUniquePtr));
+                    }
+
+                    // add `AssetAnimation` to `Asset`
+                    GetAsset(assetId).assetAnimations.emplace(nameAttr, std::move(assetAnimationUniquePtr));
+                }
+            }
+
+            SG_ISLANDS_INFO("[Assets::LoadAssetsFromElement()] Successfully loaded assets.");
+        }
+
+        /**
          * @brief Load all assets from a given config file.
          * @param t_filename The xml file with asset configurations.
          */
@@ -332,70 +413,7 @@ namespace sg::islands::iso
             // get the units base directory from the `<dir>` element
             const auto unitsDir{ core::XmlWrapper::GetStringFromXmlElement(unitsElement, "dir") };
 
-            SG_ISLANDS_INFO("[Assets::LoadConfigFile()] Loading units from {} ...", unitsDir);
-
-            // get each `<asset>`
-            for (auto asset{ unitsElement->FirstChildElement("asset") }; asset != nullptr; asset = asset->NextSiblingElement())
-            {
-                // create asset
-                const auto assetId{ CreateAssetFromXml(asset) };
-
-                // get each `<animation>`
-                for (auto animation{ asset->FirstChildElement("animation") }; animation != nullptr; animation = animation->NextSiblingElement())
-                {
-                    // get id
-                    AnimationId idAttr;
-                    core::XmlWrapper::QueryAttribute(animation, "id", &idAttr);
-
-                    // get name
-                    const auto nameAttr{ core::XmlWrapper::GetAttribute(animation, "name") };
-
-                    // get dir
-                    const auto dirAttr{ core::XmlWrapper::GetAttribute(animation, "dir") };
-
-                    // get frames
-                    int framesAttr;
-                    core::XmlWrapper::QueryAttribute(animation, "frames", &framesAttr);
-
-                    // create `AssetAnimation`
-                    auto assetAnimationUniquePtr{ std::make_unique<AssetAnimation>() };
-                    assert(assetAnimationUniquePtr);
-
-                    assetAnimationUniquePtr->animationId = idAttr;
-                    assetAnimationUniquePtr->animationName = nameAttr;
-                    assetAnimationUniquePtr->animationDir = dirAttr;
-                    assetAnimationUniquePtr->frames = framesAttr;
-
-                    // create an `Animation` for each direction
-                    for (const auto& direction : UNIT_DIRECTIONS)
-                    {
-                        // create animation dir
-                        const auto unitDir{ unitsDir + dirAttr };
-
-                        // create a new `Animation` for this direction
-                        auto animationUniquePtr{ std::make_unique<Animation>() };
-
-                        // create all frames for this `Animation`
-                        for (auto i{ 0 }; i < framesAttr; ++i)
-                        {
-                            // create filename with four leading zeros
-                            const auto str{ std::to_string(i) };
-                            const auto filename{ std::string(4 - str.length(), '0') + str + ".png" };
-
-                            const auto directionDir{ std::to_string(static_cast<int>(direction)) };
-
-                            // add frame
-                            animationUniquePtr->AddFrame(unitDir + directionDir + "/" + filename);
-                        }
-
-                        // add `Animation` to `AssetAnimation`
-                        assetAnimationUniquePtr->animationForDirections.emplace(direction, std::move(animationUniquePtr));
-                    }
-
-                    // add `AssetAnimation` to `Asset`
-                    GetAsset(assetId).assetAnimations.emplace(nameAttr, std::move(assetAnimationUniquePtr));
-                }
-            }
+            LoadAssetsFromElement<NUMBER_OF_UNIT_DIRECTIONS>(unitsElement, unitsDir, UNIT_DIRECTIONS);
 
             // read buildings ...
 
@@ -405,72 +423,9 @@ namespace sg::islands::iso
             // get the buildings base directory from the `<dir>` element
             const auto buildingsDir{ core::XmlWrapper::GetStringFromXmlElement(buildingsElement, "dir") };
 
-            SG_ISLANDS_INFO("[Assets::LoadConfigFile()] Loading buildings from {} ...", buildingsDir);
+            LoadAssetsFromElement<NUMBER_OF_BUILDING_DIRECTIONS>(buildingsElement, buildingsDir, BUILDING_DIRECTIONS);
 
-            // get each `<asset>`
-            for (auto asset{ buildingsElement->FirstChildElement("asset") }; asset != nullptr; asset = asset->NextSiblingElement())
-            {
-                // create asset
-                const auto assetId{ CreateAssetFromXml(asset) };
-
-                // get each `<animation>`
-                for (auto animation{ asset->FirstChildElement("animation") }; animation != nullptr; animation = animation->NextSiblingElement())
-                {
-                    // get id
-                    AnimationId idAttr;
-                    core::XmlWrapper::QueryAttribute(animation, "id", &idAttr);
-
-                    // get name
-                    const auto nameAttr{ core::XmlWrapper::GetAttribute(animation, "name") };
-
-                    // get dir
-                    const auto dirAttr{ core::XmlWrapper::GetAttribute(animation, "dir") };
-
-                    // get frames
-                    int framesAttr;
-                    core::XmlWrapper::QueryAttribute(animation, "frames", &framesAttr);
-
-                    // create `AssetAnimation`
-                    auto assetAnimationUniquePtr{ std::make_unique<AssetAnimation>() };
-                    assert(assetAnimationUniquePtr);
-
-                    assetAnimationUniquePtr->animationId = idAttr;
-                    assetAnimationUniquePtr->animationName = nameAttr;
-                    assetAnimationUniquePtr->animationDir = dirAttr;
-                    assetAnimationUniquePtr->frames = framesAttr;
-
-                    // create an `Animation` for each direction
-                    for (const auto& direction : BUILDING_DIRECTIONS)
-                    {
-                        // create animation dir
-                        const auto buildingDir{ buildingsDir + dirAttr };
-
-                        // create a new `Animation` for this direction
-                        auto animationUniquePtr{ std::make_unique<Animation>() };
-
-                        // create all frames for this `Animation`
-                        for (auto i{ 0 }; i < framesAttr; ++i)
-                        {
-                            // create filename with four leading zeros
-                            const auto str{ std::to_string(i) };
-                            const auto filename{ std::string(4 - str.length(), '0') + str + ".png" };
-
-                            const auto directionDir{ std::to_string(static_cast<int>(direction)) };
-
-                            // add frame
-                            animationUniquePtr->AddFrame(buildingDir + directionDir + "/" + filename);
-                        }
-
-                        // add `Animation` to `AssetAnimation`
-                        assetAnimationUniquePtr->animationForDirections.emplace(direction, std::move(animationUniquePtr));
-                    }
-
-                    // add `AssetAnimation` to `Asset`
-                    GetAsset(assetId).assetAnimations.emplace(nameAttr, std::move(assetAnimationUniquePtr));
-                }
-            }
-
-            SG_ISLANDS_INFO("[Assets::LoadConfigFile()] Successfully loaded {} assets.", m_assetsMap.size());
+            SG_ISLANDS_INFO("[Assets::LoadConfigFile()] Loaded {} assets.", m_assetsMap.size());
         }
     };
 }
