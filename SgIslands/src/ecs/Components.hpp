@@ -2,7 +2,7 @@
 // 
 // Filename: Components.hpp
 // Created:  21.02.2019
-// Updated:  24.02.2019
+// Updated:  03.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -12,6 +12,7 @@
 #pragma once
 
 #include <SFML/System/Vector2.hpp>
+#include <utility>
 
 namespace sg::islands::ecs
 {
@@ -42,10 +43,16 @@ namespace sg::islands::ecs
     {
         AssetComponent() = default;
 
-        explicit AssetComponent(const iso::AssetName& t_assetName)
-            : assetName{ t_assetName }
+        explicit AssetComponent(iso::AssetName t_assetName)
+            : assetName{ std::move(t_assetName) }
         {}
 
+        AssetComponent(const iso::AssetId t_assetId, iso::AssetName t_assetName)
+            : assetId{ t_assetId }
+            , assetName{std::move(t_assetName)}
+        {}
+
+        iso::AssetId assetId{ -1 };
         iso::AssetName assetName;
     };
 

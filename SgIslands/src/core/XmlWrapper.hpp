@@ -2,7 +2,7 @@
 // 
 // Filename: XmlWrapper.hpp
 // Created:  20.01.2019
-// Updated:  15.02.2019
+// Updated:  03.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -28,7 +28,7 @@ namespace sg::islands::core
             }
         }
 
-        static std::string GetStringFromXmlElement(const tinyxml2::XMLElement* t_element, const std::string& t_name)
+        static std::string GetStringFromXmlElement(const tinyxml2::XMLElement* const t_element, const std::string& t_name)
         {
             const auto xmlElement{ t_element->FirstChildElement(t_name.c_str()) };
             if (!xmlElement)
@@ -39,12 +39,12 @@ namespace sg::islands::core
             return std::string(xmlElement->GetText());
         }
 
-        static int GetIntFromXmlElement(const tinyxml2::XMLElement* t_element, const std::string& t_name)
+        static int GetIntFromXmlElement(const tinyxml2::XMLElement* const t_element, const std::string& t_name)
         {
             return static_cast<int>(std::strtol(GetStringFromXmlElement(t_element, t_name).c_str(), nullptr, 10));
         }
 
-        static tinyxml2::XMLElement* GetFirstChildElement(tinyxml2::XMLDocument& t_document, const std::string& t_name)
+        static const tinyxml2::XMLElement* GetFirstChildElement(const tinyxml2::XMLDocument& t_document, const std::string& t_name)
         {
             const auto result{ t_document.FirstChildElement(t_name.c_str()) };
             if (!result)
@@ -55,7 +55,7 @@ namespace sg::islands::core
             return result;
         }
 
-        static tinyxml2::XMLElement* GetFirstChildElement(tinyxml2::XMLElement* t_element, const std::string& t_name)
+        static const tinyxml2::XMLElement* GetFirstChildElement(const tinyxml2::XMLElement* const t_element, const std::string& t_name)
         {
             const auto result{ t_element->FirstChildElement(t_name.c_str()) };
             if (!result)
@@ -66,7 +66,7 @@ namespace sg::islands::core
             return result;
         }
 
-        static std::string GetAttribute(const tinyxml2::XMLElement* t_element, const std::string& t_name)
+        static std::string GetAttribute(const tinyxml2::XMLElement* const t_element, const std::string& t_name)
         {
             const auto attr{ t_element->Attribute(t_name.c_str()) };
             if (!attr)
@@ -77,7 +77,7 @@ namespace sg::islands::core
             return std::string(attr);
         }
 
-        static void QueryAttribute(tinyxml2::XMLElement* t_element, const std::string& t_name, bool* t_value)
+        static void QueryAttribute(const tinyxml2::XMLElement* const t_element, const std::string& t_name, bool* t_value)
         {
             const auto error{ t_element->QueryAttribute(t_name.c_str(), t_value) };
             if (error != tinyxml2::XML_SUCCESS)
@@ -86,7 +86,7 @@ namespace sg::islands::core
             }
         }
 
-        static void QueryAttribute(tinyxml2::XMLElement* t_element, const std::string& t_name, int* t_value)
+        static void QueryAttribute(const tinyxml2::XMLElement* const t_element, const std::string& t_name, int* t_value)
         {
             const auto error{ t_element->QueryAttribute(t_name.c_str(), t_value) };
             if (error != tinyxml2::XML_SUCCESS)

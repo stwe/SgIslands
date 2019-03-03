@@ -2,7 +2,7 @@
 // 
 // Filename: Systems.hpp
 // Created:  21.02.2019
-// Updated:  25.02.2019
+// Updated:  03.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -39,6 +39,7 @@ namespace sg::islands::ecs
             for (auto entity : t_entities.entities_with_components(assetComponent, positionComponent, targetComponent, activeEntityComponent))
             {
                 // get asset type
+                // todo: use asset id
                 const auto assetType{ m_assets.GetAsset(assetComponent->assetName).assetType };
 
                 // run `FindPathToMapPosition()` if valid target position

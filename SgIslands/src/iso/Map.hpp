@@ -211,7 +211,6 @@ namespace sg::islands::iso
             {
                 for (auto x{ 0 }; x < m_mapWidth; ++x)
                 {
-
                     t_tileAtlas.DrawMiscTile(TileAtlas::GRID_TILE, x, y, t_window);
 
                     const auto screenPosition{ IsoMath::ToScreen(x, y) };

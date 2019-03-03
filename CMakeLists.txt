@@ -20,5 +20,5 @@ add_executable(SgIslands ${SOURCE})
 target_include_directories(SgIslands PUBLIC SgIslands/vendor/)
 
 set(SFML_STATIC_LIBRARIES TRUE)
-target_link_libraries(SgIslands sfml-graphics sfml-window sfml-system opengl32)
+target_link_libraries(SgIslands sfml-graphics sfml-window sfml-system opengl32 entityx-d)
 

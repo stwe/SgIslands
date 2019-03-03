@@ -2,7 +2,7 @@
 // 
 // Filename: Assets.hpp
 // Created:  14.02.2019
-// Updated:  25.02.2019
+// Updated:  03.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <array>
+#include <vector>
 #include "Asset.hpp"
 #include "Animation.hpp"
 #include "../core/Types.hpp"
@@ -23,9 +23,9 @@ namespace sg::islands::iso
     class Assets
     {
     public:
-        using AssetName = std::string;
         using AssetUniquePtr = std::unique_ptr<Asset>;
-        using AssetsMap = std::map<AssetName, AssetUniquePtr>;
+        using AssetsMap = std::vector<AssetUniquePtr>;
+        using AssetsIdMap = std::map<AssetName, AssetId>;
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -51,94 +51,102 @@ namespace sg::islands::iso
 
         /**
          * @brief Returns a const reference to the `AssetsMap`.
-         * @return Const reference to `std::map`
+         * @return Const reference to `std::vector`
          */
         const AssetsMap& GetAssetsMap() const noexcept { return m_assetsMap; }
 
         /**
          * @brief Returns a reference to the `AssetsMap`.
-         * @return Reference to `std::map`
+         * @return Reference to `std::vector`
          */
         AssetsMap& GetAssetsMap() noexcept { return m_assetsMap; }
 
         /**
-         * @brief Returns a const reference to an `Asset`.
+         * @brief Returns a const reference to the `AssetsIdMap`.
+         * @return Const reference to `std::map`
+         */
+        const AssetsIdMap& GetAssetsIdMap() const noexcept { return m_assetsIdMap; }
+
+        /**
+         * @brief Returns a reference to the `AssetsIdMap`.
+         * @return Reference to `std::map`
+         */
+        AssetsIdMap& GetAssetsIdMap() noexcept { return m_assetsIdMap; }
+
+        /**
+         * @brief Returns a const reference to an `Asset` by Id.
+         * @param t_assetId The Id of the `Asset`.
+         * @return Const reference to `Asset`
+         */
+        const Asset& GetAsset(const AssetId& t_assetId) const { return *m_assetsMap[t_assetId]; }
+
+        /**
+         * @brief Returns a reference to an `Asset` by Id.
+         * @param t_assetId The Id of the `Asset`.
+         * @return Reference to `Asset`
+         */
+        Asset& GetAsset(const AssetId& t_assetId) { return *m_assetsMap[t_assetId]; }
+
+        /**
+         * @brief Returns a const reference to an `Asset` by name.
          * @param t_assetName The name of the `Asset`.
          * @return Const reference to `Asset`
          */
-        const Asset& GetAsset(const AssetName& t_assetName) const
-        {
-            try
-            {
-                return *m_assetsMap.at(t_assetName);
-            }
-            catch (const std::out_of_range& exception)
-            {
-                SG_ISLANDS_ERROR("[Assets::GetAsset()] Out of range exception: ", exception.what());
-                THROW_SG_EXCEPTION("[Assets::GetAsset()] Key: " + t_assetName + " not found.");
-            }
-        }
+        const Asset& GetAsset(const AssetName& t_assetName) const { return *m_assetsMap[m_assetsIdMap.at(t_assetName)]; }
 
         /**
-         * @brief Returns a reference to an `Asset`.
+         * @brief Returns a reference to an `Asset` by name.
          * @param t_assetName The name of the `Asset`.
          * @return Reference to `Asset`
          */
-        Asset& GetAsset(const AssetName& t_assetName)
-        {
-            try
-            {
-                return *m_assetsMap.at(t_assetName);
-            }
-            catch (const std::out_of_range& exception)
-            {
-                SG_ISLANDS_ERROR("[Assets::GetAsset()] Out of range exception: ", exception.what());
-                THROW_SG_EXCEPTION("[Assets::GetAsset()] Key: " + t_assetName + " not found.");
-            }
-        }
+        Asset& GetAsset(const AssetName& t_assetName) { return *m_assetsMap[m_assetsIdMap.at(t_assetName)]; }
 
         /**
          * @brief Returns a const reference to the `Animation`.
-         * @param t_assetName The name of the asset (e.g. `Pirate1`).
-         * @param t_animationName The name of the animation (e.g. `Move`, `Work` or `Idle`).
-         * @param t_direction The direction of the asset (e.g. `NE_DIRECTION`).
+         * @param t_assetName The name of the `Asset` (e.g. `Pirate1`).
+         * @param t_animationName The name of the `AssetAnimation` (e.g. `Move`, `Work` or `Idle`).
+         * @param t_direction The `Direction` of the `Asset` (e.g. `NE_DIRECTION`).
          * @return Const reference to `Animation`
          */
         const Animation& GetAnimation(const AssetName& t_assetName, const AnimationName& t_animationName, const Direction t_direction) const
         {
-            const auto& asset{ GetAsset(t_assetName) };
-
-            try
-            {
-                return *asset.assetAnimations.at(t_animationName)->animationForDirections.at(t_direction);
-            }
-            catch (const std::out_of_range& exception)
-            {
-                SG_ISLANDS_ERROR("[Assets::GetAnimation()] Out of range exception: ", exception.what());
-                THROW_SG_EXCEPTION("[Assets::GetAnimation()] Animation " + t_animationName + " for asset " + t_assetName + " not found.");
-            }
+            return *GetAsset(t_assetName).assetAnimations.at(t_animationName)->animationForDirections.at(t_direction);
         }
 
         /**
          * @brief Returns a reference to the `Animation`.
-         * @param t_assetName The name of the asset (e.g. `Pirate1`).
-         * @param t_animationName The name of the animation (e.g. `Move`, `Work` or `Idle`).
-         * @param t_direction The direction of the asset (e.g. `NE_DIRECTION`).
+         * @param t_assetName The name of the `Asset` (e.g. `Pirate1`).
+         * @param t_animationName The name of the `AssetAnimation` (e.g. `Move`, `Work` or `Idle`).
+         * @param t_direction The `Direction` of the `Asset` (e.g. `NE_DIRECTION`).
          * @return Reference to `Animation`
          */
         Animation& GetAnimation(const AssetName& t_assetName, const AnimationName& t_animationName, const Direction t_direction)
         {
-            auto& asset{ GetAsset(t_assetName) };
+            return *GetAsset(t_assetName).assetAnimations.at(t_animationName)->animationForDirections.at(t_direction);
+        }
 
-            try
-            {
-                return *asset.assetAnimations.at(t_animationName)->animationForDirections.at(t_direction);
-            }
-            catch (const std::out_of_range& exception)
-            {
-                SG_ISLANDS_ERROR("[Assets::GetAnimation()] Out of range exception: ", exception.what());
-                THROW_SG_EXCEPTION("[Assets::GetAnimation()] Animation " + t_animationName + " for asset " + t_assetName + " not found.");
-            }
+        /**
+         * @brief Returns a const reference to the `Animation`.
+         * @param t_assetId The Id of the `Asset`.
+         * @param t_animationName The name of the `AssetAnimation` (e.g. `Move`, `Work` or `Idle`).
+         * @param t_direction The `Direction` of the `Asset` (e.g. `NE_DIRECTION`).
+         * @return Const reference to `Animation`
+         */
+        const Animation& GetAnimation(const AssetId& t_assetId, const AnimationName& t_animationName, const Direction t_direction) const
+        {
+            return *GetAsset(t_assetId).assetAnimations.at(t_animationName)->animationForDirections.at(t_direction);
+        }
+
+        /**
+         * @brief Returns reference to the `Animation`.
+         * @param t_assetId The Id of the `Asset`.
+         * @param t_animationName The name of the `AssetAnimation` (e.g. `Move`, `Work` or `Idle`).
+         * @param t_direction The `Direction` of the `Asset` (e.g. `NE_DIRECTION`).
+         * @return Reference to `Animation`
+         */
+        Animation& GetAnimation(const AssetId& t_assetId, const AnimationName& t_animationName, const Direction t_direction)
+        {
+            return *GetAsset(t_assetId).assetAnimations.at(t_animationName)->animationForDirections.at(t_direction);
         }
 
         /**
@@ -223,18 +231,26 @@ namespace sg::islands::iso
     protected:
 
     private:
+        /**
+         * @brief Container for all assets. The id of the asset is the index.
+         */
         AssetsMap m_assetsMap;
+
+        /**
+         * @brief Stores the corresponding id for each asset name.
+         */
+        AssetsIdMap m_assetsIdMap;
 
         //-------------------------------------------------
         // Load Data
         //-------------------------------------------------
 
         /**
-         * @brief Create an asset from xml element.
+         * @brief Create an `Asset` from xml element.
          * @param t_element The xml element.
-         * @return AssetName
+         * @return AssetId
          */
-        AssetName CreateAssetFromXml(tinyxml2::XMLElement* t_element)
+        AssetId CreateAssetFromXml(const tinyxml2::XMLElement* const t_element)
         {
             // get id
             AssetId idAttr;
@@ -271,18 +287,24 @@ namespace sg::islands::iso
             int tileHeightAttr;
             core::XmlWrapper::QueryAttribute(t_element, "tile_height", &tileHeightAttr);
 
+            // create `Asset`
             auto assetUniquePtr{ std::make_unique<Asset>() };
             assert(assetUniquePtr);
 
+            // set values
             assetUniquePtr->assetId = idAttr;
             assetUniquePtr->assetName = nameAttr;
             assetUniquePtr->assetType = assetType;
             assetUniquePtr->tileWidth = tileWidthAttr;
             assetUniquePtr->tileHeight = tileHeightAttr;
 
-            m_assetsMap.emplace(nameAttr, std::move(assetUniquePtr));
+            // push back to a vector for access via Id
+            m_assetsMap.push_back(std::move(assetUniquePtr));
 
-            return nameAttr;
+            // this can be used to address an asset with its name
+            m_assetsIdMap.emplace(nameAttr, idAttr);
+
+            return idAttr;
         }
 
         /**
@@ -316,10 +338,7 @@ namespace sg::islands::iso
             for (auto asset{ unitsElement->FirstChildElement("asset") }; asset != nullptr; asset = asset->NextSiblingElement())
             {
                 // create asset
-                const auto assetName{ CreateAssetFromXml(asset) };
-
-                // get created asset
-                auto& currentAsset{ GetAsset(assetName) };
+                const auto assetId{ CreateAssetFromXml(asset) };
 
                 // get each `<animation>`
                 for (auto animation{ asset->FirstChildElement("animation") }; animation != nullptr; animation = animation->NextSiblingElement())
@@ -338,6 +357,7 @@ namespace sg::islands::iso
                     int framesAttr;
                     core::XmlWrapper::QueryAttribute(animation, "frames", &framesAttr);
 
+                    // create `AssetAnimation`
                     auto assetAnimationUniquePtr{ std::make_unique<AssetAnimation>() };
                     assert(assetAnimationUniquePtr);
 
@@ -368,12 +388,12 @@ namespace sg::islands::iso
                             animationUniquePtr->AddFrame(unitDir + directionDir + "/" + filename);
                         }
 
-                        // add `Animation`
+                        // add `Animation` to `AssetAnimation`
                         assetAnimationUniquePtr->animationForDirections.emplace(direction, std::move(animationUniquePtr));
                     }
 
-                    // add `AssetAnimation`
-                    currentAsset.assetAnimations.emplace(nameAttr, std::move(assetAnimationUniquePtr));
+                    // add `AssetAnimation` to `Asset`
+                    GetAsset(assetId).assetAnimations.emplace(nameAttr, std::move(assetAnimationUniquePtr));
                 }
             }
 
@@ -391,10 +411,7 @@ namespace sg::islands::iso
             for (auto asset{ buildingsElement->FirstChildElement("asset") }; asset != nullptr; asset = asset->NextSiblingElement())
             {
                 // create asset
-                const auto assetName{ CreateAssetFromXml(asset) };
-
-                // get created asset
-                auto& currentAsset{ GetAsset(assetName) };
+                const auto assetId{ CreateAssetFromXml(asset) };
 
                 // get each `<animation>`
                 for (auto animation{ asset->FirstChildElement("animation") }; animation != nullptr; animation = animation->NextSiblingElement())
@@ -413,6 +430,7 @@ namespace sg::islands::iso
                     int framesAttr;
                     core::XmlWrapper::QueryAttribute(animation, "frames", &framesAttr);
 
+                    // create `AssetAnimation`
                     auto assetAnimationUniquePtr{ std::make_unique<AssetAnimation>() };
                     assert(assetAnimationUniquePtr);
 
@@ -443,12 +461,12 @@ namespace sg::islands::iso
                             animationUniquePtr->AddFrame(buildingDir + directionDir + "/" + filename);
                         }
 
-                        // add `Animation`
+                        // add `Animation` to `AssetAnimation`
                         assetAnimationUniquePtr->animationForDirections.emplace(direction, std::move(animationUniquePtr));
                     }
 
-                    // add `AssetAnimation`
-                    currentAsset.assetAnimations.emplace(nameAttr, std::move(assetAnimationUniquePtr));
+                    // add `AssetAnimation` to `Asset`
+                    GetAsset(assetId).assetAnimations.emplace(nameAttr, std::move(assetAnimationUniquePtr));
                 }
             }
 
