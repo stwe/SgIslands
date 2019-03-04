@@ -2,7 +2,7 @@
 // 
 // Filename: Components.hpp
 // Created:  21.02.2019
-// Updated:  03.03.2019
+// Updated:  04.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -70,5 +70,10 @@ namespace sg::islands::ecs
 
     struct ActiveEntityComponent
     {
+    };
+
+    struct RenderComponent
+    {
+        bool render{ false };
     };
 }

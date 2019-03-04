@@ -2,7 +2,7 @@
 // 
 // Filename: Map.hpp
 // Created:  20.01.2019
-// Updated:  03.03.2019
+// Updated:  04.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -259,7 +259,7 @@ namespace sg::islands::iso
             }
         }
 
-        void DrawAssetGrid(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas, const core::FontHolder& t_fontHolder) const
+        void DrawAssetsGrid(sf::RenderWindow& t_window, const TileAtlas& t_tileAtlas, const core::FontHolder& t_fontHolder) const
         {
             sf::Text text;
             text.setFont(t_fontHolder.GetResource(1));

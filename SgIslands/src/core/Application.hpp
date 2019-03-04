@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  25.02.2019
+// Updated:  04.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -128,6 +128,16 @@ namespace sg::islands::core
          */
         bool m_drawGrid{ false };
 
+        /**
+         * @brief Draw a assets id grid if true.
+         */
+        bool m_drawAssetsGrid{ false };
+
+        /**
+         * @brief Draw Entities if true.
+         */
+        bool m_drawEntities{ false };
+
         // entities
         entityx::Entity m_farmerEntity;
         entityx::Entity m_pirateShipEntity;
@@ -216,18 +226,6 @@ namespace sg::islands::core
                 {
                     m_islandView.move(40, 0);
                 }
-                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R)
-                {
-                    m_islandView.rotate(25.0f);
-                }
-                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Z)
-                {
-                    m_islandView.zoom(1.5f);
-                }
-                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::G)
-                {
-                    m_drawGrid = !m_drawGrid;
-                }
 
                 if (event.type == sf::Event::MouseButtonPressed)
                 {
@@ -294,8 +292,12 @@ namespace sg::islands::core
 
             if (m_drawGrid)
             {
-                //m_map->DrawGrid(*m_window, *m_tileAtlas, m_fonts);
-                m_map->DrawAssetGrid(*m_window, *m_tileAtlas, m_fonts);
+                m_map->DrawGrid(*m_window, *m_tileAtlas, m_fonts);
+            }
+
+            if (m_drawAssetsGrid)
+            {
+                m_map->DrawAssetsGrid(*m_window, *m_tileAtlas, m_fonts);
             }
 
             m_window->setTitle(m_appOptions.windowTitle + " " + m_statisticsText.getString());
@@ -303,8 +305,6 @@ namespace sg::islands::core
             systems.update<ecs::RenderSystem>(EX_TIME_PER_FRAME);
 
             RenderImGui();
-
-            //m_tileAtlas->DrawMiscTile(iso::TileAtlas::CLICKED_TILE, 20, 20, *m_window);
 
             m_window->display();
         }
@@ -319,69 +319,60 @@ namespace sg::islands::core
             m_farmerEntity.assign<ecs::AssetComponent>(1, "Farmer0");
             m_farmerEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_farmerEntity.assign<ecs::TargetComponent>();
+            m_farmerEntity.assign<ecs::RenderComponent>();
 
             m_pirateShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(20, 20));
             m_pirateShipEntity.assign<ecs::AssetComponent>(0, "Pirate1");
             m_pirateShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_pirateShipEntity.assign<ecs::ActiveEntityComponent>();
             m_pirateShipEntity.assign<ecs::TargetComponent>();
+            m_pirateShipEntity.assign<ecs::RenderComponent>();
 
             m_bakeryEntity.assign<ecs::PositionComponent>(sf::Vector2i(8, 7));
             m_bakeryEntity.assign<ecs::AssetComponent>(2, "Bakery0");
             m_bakeryEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_bakeryEntity.assign<ecs::TargetComponent>();
-
-            const auto renderEntities{ true };
+            m_bakeryEntity.assign<ecs::RenderComponent>();
 
             systems.add<ecs::MovementSystem>(*m_assets);
-            systems.add<ecs::RenderSystem>(*m_window, *m_assets, *m_tileAtlas, renderEntities);
+            systems.add<ecs::RenderSystem>(*m_window, *m_assets, *m_tileAtlas, *m_map);
             systems.add<ecs::AnimationSystem>(*m_assets);
             systems.add<ecs::FindPathSystem>(*m_assets, *m_astar);
 
             systems.configure();
-
-            // todo: in ein System packen
-            entities.each<ecs::PositionComponent, ecs::AssetComponent>(
-                [this](entityx::Entity t_entity, const ecs::PositionComponent& t_positionComponent, const ecs::AssetComponent& t_assetComponent)
-                {
-                    m_map->SetAssetId(t_positionComponent.mapPosition.x, t_positionComponent.mapPosition.y, t_assetComponent.assetId);
-
-                    // einige Entities sind größer als ein Tile
-                    const auto& asset{ m_assets->GetAsset(t_assetComponent.assetId) };
-                    if (asset.tileHeight > 1 || asset.tileWidth > 1)
-                    {
-                        auto tileHeight{ asset.tileHeight };
-                        auto tileWidth{ asset.tileWidth };
-
-                        if (asset.assetType == iso::AssetType::BUILDING)
-                        {
-                            tileHeight /= 2;
-                            for (auto x{ t_positionComponent.mapPosition.x }; x < t_positionComponent.mapPosition.x + tileWidth; ++x)
-                            {
-                                for (auto y{ t_positionComponent.mapPosition.y }; y < t_positionComponent.mapPosition.y + tileHeight; ++y)
-                                {
-                                    m_map->SetAssetId(x, y, t_assetComponent.assetId);
-                                }
-                            }
-                        }
-                        else if (asset.assetType == iso::AssetType::WATER_UNIT)
-                        {
-                            for (auto y{ t_positionComponent.mapPosition.y - 1 }; y < t_positionComponent.mapPosition.y + tileHeight - 1; ++y)
-                            {
-                                m_map->SetAssetId(t_positionComponent.mapPosition.x, y, t_assetComponent.assetId);
-                            }
-                        }
-                    }
-                }
-            );
         }
 
-        void RenderImGui() const
+        void RenderImGui()
         {
             ImGui::SFML::Update(*m_window, SF_TIME_PER_FRAME);
             ImGui::Begin("Menu");
 
-            // close button
+            // draw grid
+            if (ImGui::Button("Draw Grid"))
+            {
+                m_drawGrid = !m_drawGrid;
+            }
+
+            // draw assets grid
+            if (ImGui::Button("Draw Assets Grid"))
+            {
+                m_drawAssetsGrid = !m_drawAssetsGrid;
+            }
+
+            // draw entities
+            if (ImGui::Button("Draw Entities"))
+            {
+                m_drawEntities = !m_drawEntities;
+
+                entities.each<ecs::RenderComponent>(
+                    [this](entityx::Entity t_entity, ecs::RenderComponent& t_renderComponent)
+                    {
+                        t_renderComponent.render = m_drawEntities;
+                    }
+                );
+            }
+
+            // close
             if (ImGui::Button("Close"))
             {
                 m_window->close();

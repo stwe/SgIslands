@@ -2,7 +2,7 @@
 // 
 // Filename: Systems.hpp
 // Created:  21.02.2019
-// Updated:  03.03.2019
+// Updated:  04.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -207,11 +207,16 @@ namespace sg::islands::ecs
     class RenderSystem : public entityx::System<RenderSystem>
     {
     public:
-        RenderSystem(sf::RenderWindow& t_window, iso::Assets& t_assets, iso::TileAtlas& t_tileAtlas, const bool t_renderEntities)
+        RenderSystem(
+            sf::RenderWindow& t_window,
+            iso::Assets& t_assets,
+            iso::TileAtlas& t_tileAtlas,
+            iso::Map& t_map
+        )
             : m_window{ t_window }
             , m_assets{ t_assets }
             , m_tileAtlas{ t_tileAtlas }
-            , m_renderEntities{ t_renderEntities }
+            , m_map{ t_map }
         {}
 
         void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
@@ -223,8 +228,9 @@ namespace sg::islands::ecs
             entityx::ComponentHandle<TargetComponent> targetComponent;
             entityx::ComponentHandle<AssetComponent> assetComponent;
             entityx::ComponentHandle<DirectionComponent> directionComponent;
+            entityx::ComponentHandle<RenderComponent> renderComponent;
 
-            for (auto entity : t_entities.entities_with_components(positionComponent, targetComponent, assetComponent, directionComponent))
+            for (auto entity : t_entities.entities_with_components(positionComponent, targetComponent, assetComponent, directionComponent, renderComponent))
             {
                 assert(assetComponent->assetId >= 0);
                 const auto& asset{ m_assets.GetAsset(assetComponent->assetId) };
@@ -312,9 +318,38 @@ namespace sg::islands::ecs
                     }
                 }
 
-                if (m_renderEntities)
+                if (renderComponent->render)
                 {
                     m_window.draw(*sprite);
+                }
+
+                m_map.SetAssetId(positionComponent->mapPosition.x, positionComponent->mapPosition.y, assetComponent->assetId);
+
+                // einige Entities sind größer als ein Tile
+                const auto& currentAsset{ m_assets.GetAsset(assetComponent->assetId) };
+                if (currentAsset.tileHeight > 1 || currentAsset.tileWidth > 1)
+                {
+                    auto tHeight{ currentAsset.tileHeight };
+                    auto tWidth{ currentAsset.tileWidth };
+
+                    if (currentAsset.assetType == iso::AssetType::BUILDING)
+                    {
+                        tHeight /= 2;
+                        for (auto x{ positionComponent->mapPosition.x }; x < positionComponent->mapPosition.x + tWidth; ++x)
+                        {
+                            for (auto y{ positionComponent->mapPosition.y }; y < positionComponent->mapPosition.y + tHeight; ++y)
+                            {
+                                m_map.SetAssetId(x, y, assetComponent->assetId);
+                            }
+                        }
+                    }
+                    else if (currentAsset.assetType == iso::AssetType::WATER_UNIT)
+                    {
+                        for (auto y{ positionComponent->mapPosition.y - 1 }; y < positionComponent->mapPosition.y + tHeight - 1; ++y)
+                        {
+                            m_map.SetAssetId(positionComponent->mapPosition.x, y, assetComponent->assetId);
+                        }
+                    }
                 }
             }
         }
@@ -325,6 +360,6 @@ namespace sg::islands::ecs
         sf::RenderWindow& m_window;
         iso::Assets& m_assets;
         iso::TileAtlas& m_tileAtlas;
-        bool m_renderEntities{ true };
+        iso::Map& m_map;
     };
 }
