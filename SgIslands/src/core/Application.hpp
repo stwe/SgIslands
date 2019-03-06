@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  04.03.2019
+// Updated:  06.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -139,8 +139,12 @@ namespace sg::islands::core
         bool m_drawEntities{ false };
 
         // entities
-        entityx::Entity m_farmerEntity;
+        entityx::Entity m_fisherShipEntity;
+        entityx::Entity m_frigateShipEntity;
+        entityx::Entity m_hukerShipEntity;
         entityx::Entity m_pirateShipEntity;
+        entityx::Entity m_traderShipEntity;
+        entityx::Entity m_farmerEntity;
         entityx::Entity m_bakeryEntity;
 
         // frame statistics
@@ -311,30 +315,68 @@ namespace sg::islands::core
 
         void SetupEcs()
         {
-            m_farmerEntity = entities.create();
+            // ships
+            m_fisherShipEntity = entities.create();
+            m_frigateShipEntity = entities.create();
+            m_hukerShipEntity = entities.create();
             m_pirateShipEntity = entities.create();
+            m_traderShipEntity = entities.create();
+
+            // farmer && bakery
+            m_farmerEntity = entities.create();
             m_bakeryEntity = entities.create();
 
+            // setup ships
+            m_fisherShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(18, 8));
+            m_fisherShipEntity.assign<ecs::AssetComponent>(0, "Fisher0");
+            m_fisherShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
+            m_fisherShipEntity.assign<ecs::ActiveEntityComponent>();
+            m_fisherShipEntity.assign<ecs::TargetComponent>();
+            m_fisherShipEntity.assign<ecs::RenderComponent>();
+
+            m_frigateShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(4, 25));
+            m_frigateShipEntity.assign<ecs::AssetComponent>(1, "Figate0");
+            m_frigateShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
+            //m_frigateShipEntity.assign<ecs::ActiveEntityComponent>();
+            m_frigateShipEntity.assign<ecs::TargetComponent>();
+            m_frigateShipEntity.assign<ecs::RenderComponent>();
+
+            m_hukerShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(30, 30));
+            m_hukerShipEntity.assign<ecs::AssetComponent>(2, "Huker0");
+            m_hukerShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
+            //m_hukerShipEntity.assign<ecs::ActiveEntityComponent>();
+            m_hukerShipEntity.assign<ecs::TargetComponent>();
+            m_hukerShipEntity.assign<ecs::RenderComponent>();
+
+            m_pirateShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(20, 20));
+            m_pirateShipEntity.assign<ecs::AssetComponent>(3, "Pirate1");
+            m_pirateShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
+            //m_pirateShipEntity.assign<ecs::ActiveEntityComponent>();
+            m_pirateShipEntity.assign<ecs::TargetComponent>();
+            m_pirateShipEntity.assign<ecs::RenderComponent>();
+
+            m_traderShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(14, 25));
+            m_traderShipEntity.assign<ecs::AssetComponent>(4, "Trader0");
+            m_traderShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
+            //m_traderShipEntity.assign<ecs::ActiveEntityComponent>();
+            m_traderShipEntity.assign<ecs::TargetComponent>();
+            m_traderShipEntity.assign<ecs::RenderComponent>();
+
+            // setup farmer
             m_farmerEntity.assign<ecs::PositionComponent>(sf::Vector2i(15, 15));
-            m_farmerEntity.assign<ecs::AssetComponent>(1, "Farmer0");
+            m_farmerEntity.assign<ecs::AssetComponent>(5, "Farmer0");
             m_farmerEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_farmerEntity.assign<ecs::TargetComponent>();
             m_farmerEntity.assign<ecs::RenderComponent>();
 
-            m_pirateShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(20, 20));
-            m_pirateShipEntity.assign<ecs::AssetComponent>(0, "Pirate1");
-            m_pirateShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
-            m_pirateShipEntity.assign<ecs::ActiveEntityComponent>();
-            m_pirateShipEntity.assign<ecs::TargetComponent>();
-            m_pirateShipEntity.assign<ecs::RenderComponent>();
-
+            // setup bakery
             m_bakeryEntity.assign<ecs::PositionComponent>(sf::Vector2i(8, 7));
-            m_bakeryEntity.assign<ecs::AssetComponent>(2, "Bakery0");
+            m_bakeryEntity.assign<ecs::AssetComponent>(6, "Bakery0");
             m_bakeryEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_bakeryEntity.assign<ecs::TargetComponent>();
             m_bakeryEntity.assign<ecs::RenderComponent>();
 
-            systems.add<ecs::MovementSystem>(*m_assets);
+            systems.add<ecs::MovementSystem>(*m_assets, *m_map);
             systems.add<ecs::RenderSystem>(*m_window, *m_assets, *m_tileAtlas, *m_map);
             systems.add<ecs::AnimationSystem>(*m_assets);
             systems.add<ecs::FindPathSystem>(*m_assets, *m_astar);

@@ -39,6 +39,8 @@ namespace sg::islands::iso
     class Map
     {
     public:
+        static constexpr AssetId NO_ASSET{ -1 };
+
         //-------------------------------------------------
         // Ctor. && Dtor.
         //-------------------------------------------------
@@ -158,6 +160,16 @@ namespace sg::islands::iso
         }
 
         /**
+         * @brief Clear `Asset` Id on given map position.
+         * @param t_mapX The x-map position.
+         * @param t_mapY The y-map position.
+         */
+        void RemoveAssetId(const int t_mapX, const int t_mapY)
+        {
+            SetAssetId(t_mapX, t_mapY, NO_ASSET);
+        }
+
+        /**
          * @brief Set map target as passable.
          * @param t_mapX The x-map position
          * @param t_mapY The y-map position
@@ -186,7 +198,7 @@ namespace sg::islands::iso
 
                     mapField.terrainTileId = -1;
                     mapField.terrainType = TerrainType::DEEP_WATER;
-                    mapField.assetId = -1;
+                    mapField.assetId = NO_ASSET;
                     mapField.passable = true;
                     mapField.selected = false;
 
@@ -213,7 +225,7 @@ namespace sg::islands::iso
                         // set terrain
                         m_mapFields[index].terrainTileId = island->GetIslandFieldByMapPosition(xMapPos, yMapPos).tileId;
                         m_mapFields[index].terrainType = TerrainType::LAND;
-                        m_mapFields[index].assetId = -1; // so far no assets
+                        m_mapFields[index].assetId = NO_ASSET; // so far no assets
                         m_mapFields[index].passable = true; // completely passable terrain
                         m_mapFields[index].selected = false;
                     }

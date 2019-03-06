@@ -5,12 +5,36 @@
     <units>
         <dir>res/gfx/units/</dir>
 
-        <asset id="0" name="Pirate1" type="Water_Unit" tile_width="3" tile_height="3">
-            <animation id="0" name="Move" dir="pirate1/move/" frames="16"></animation>
-            <animation id="1" name="Idle" dir="pirate1/idle/" frames="1"></animation>
+        <!-- Ships -->
+
+        <asset id="0" name="Fisher0" type="Water_Unit" tile_width="1" tile_height="1">
+            <animation id="0" name="Move" dir="ships/fisher0/move/" frames="1"></animation>
+            <animation id="1" name="Idle" dir="ships/fisher0/idle/" frames="1"></animation>
         </asset>
 
-        <asset id="1" name="Farmer0" type="Land_Unit" tile_width="1" tile_height="1">
+        <asset id="1" name="Frigate0" type="Water_Unit" tile_width="3" tile_height="3">
+            <animation id="0" name="Move" dir="ships/frigate0/move/" frames="1"></animation>
+            <animation id="1" name="Idle" dir="ships/frigate0/idle/" frames="1"></animation>
+        </asset>
+
+        <asset id="2" name="Huker0" type="Water_Unit" tile_width="3" tile_height="3">
+            <animation id="0" name="Move" dir="ships/huker0/move/" frames="1"></animation>
+            <animation id="1" name="Idle" dir="ships/huker0/idle/" frames="1"></animation>
+        </asset>
+
+        <asset id="3" name="Pirate1" type="Water_Unit" tile_width="3" tile_height="3">
+            <animation id="0" name="Move" dir="ships/pirate1/move/" frames="16"></animation>
+            <animation id="1" name="Idle" dir="ships/pirate1/idle/" frames="1"></animation>
+        </asset>
+
+        <asset id="4" name="Trader0" type="Water_Unit" tile_width="3" tile_height="3">
+            <animation id="0" name="Move" dir="ships/trader0/move/" frames="1"></animation>
+            <animation id="1" name="Idle" dir="ships/trader0/idle/" frames="1"></animation>
+        </asset>
+
+        <!-- Farmer -->
+
+        <asset id="5" name="Farmer0" type="Land_Unit" tile_width="1" tile_height="1">
             <animation id="0" name="Move" dir="farmer0/move/" frames="4"></animation>
             <animation id="1" name="Idle" dir="farmer0/idle/" frames="1"></animation>
         </asset>
@@ -21,7 +45,7 @@
 
         <!-- Building 128x128:    tile_width = 128/64 = 2    &&    tile_height = 128/32 = 4 -->
 
-        <asset id="2" name="Bakery0" type="Building" tile_width="2" tile_height="4">
+        <asset id="6" name="Bakery0" type="Building" tile_width="2" tile_height="4">
             <animation id="0" name="Work" dir="bakery0/work/" frames="8"></animation>
             <animation id="1" name="Idle" dir="bakery0/idle/" frames="1"></animation>
         </asset>

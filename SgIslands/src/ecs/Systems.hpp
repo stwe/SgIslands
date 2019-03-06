@@ -2,7 +2,7 @@
 // 
 // Filename: Systems.hpp
 // Created:  21.02.2019
-// Updated:  04.03.2019
+// Updated:  06.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <entityx/System.h>
 #include "Components.hpp"
 #include "../iso/VecMath.hpp"
@@ -76,8 +77,9 @@ namespace sg::islands::ecs
     class MovementSystem : public entityx::System<MovementSystem>
     {
     public:
-        explicit MovementSystem(iso::Assets& t_assets)
+        explicit MovementSystem(iso::Assets& t_assets, iso::Map& t_map)
             : m_assets{ t_assets }
+            , m_map{ t_map } // todo
         {}
 
         void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
@@ -95,10 +97,10 @@ namespace sg::islands::ecs
                     assert(targetComponent->nextWayPoint < targetComponent->pathToTarget.size());
 
                     // the next position ist the target
-                    auto targetMapPosition{ targetComponent->pathToTarget[targetComponent->nextWayPoint].position };
+                    auto nextTargetMapPosition{ targetComponent->pathToTarget[targetComponent->nextWayPoint].position };
 
                     // calc target screen position
-                    auto targetScreenPosition{ iso::IsoMath::ToScreen(targetMapPosition, true) };
+                    auto targetScreenPosition{ iso::IsoMath::ToScreen(nextTargetMapPosition, true) };
 
                     // calc direction vector to the target
                     auto spriteScreenDirection{ iso::VecMath::Direction(positionComponent->screenPosition, targetScreenPosition) };
@@ -142,6 +144,7 @@ namespace sg::islands::ecs
 
     private:
         iso::Assets& m_assets;
+        iso::Map& m_map;
     };
 
     //-------------------------------------------------
@@ -286,27 +289,41 @@ namespace sg::islands::ecs
                     sprite->setOrigin(iso::IsoMath::DEFAULT_TILE_WIDTH_QUARTER, iso::IsoMath::DEFAULT_TILE_HEIGHT_HALF);
                     sprite->setPosition(positionComponent->screenPosition);
                 }
-                else if (assetType == iso::AssetType::WATER_UNIT)
+                else if (assetType == iso::AssetType::WATER_UNIT && tileWidth == 3 && tileHeight == 3)
                 {
-                    // support only for water unit sizes of 3x3 tiles
-                    assert(tileWidth == 3);
-                    assert(tileHeight == 3);
-
                     const auto localBounds{ sprite->getLocalBounds() };
-                    //auto rect{ sf::RectangleShape(sf::Vector2f(localBounds.width, localBounds.height)) };
+                    auto rect{ sf::RectangleShape(sf::Vector2f(localBounds.width, localBounds.height)) };
 
                     // copy screen position
                     auto drawPosition{ positionComponent->screenPosition };
 
                     sprite->setOrigin(localBounds.width / 2, localBounds.height);
-                    //rect.setOrigin(localBounds.width / 2, localBounds.height);
+                    rect.setOrigin(localBounds.width / 2, localBounds.height);
 
                     drawPosition.y += iso::IsoMath::DEFAULT_TILE_HEIGHT * 2;
 
                     sprite->setPosition(drawPosition);
-                    //rect.setPosition(drawPosition);
-                    //rect.setFillColor(sf::Color(0, 0, 128, 64));
-                    //t_window.draw(rect);
+                    rect.setPosition(drawPosition);
+                    rect.setFillColor(sf::Color(0, 0, 128, 64));
+                    m_window.draw(rect);
+                }
+                else if (assetType == iso::AssetType::WATER_UNIT && tileWidth == 1 && tileHeight == 1)
+                {
+                    const auto localBounds{ sprite->getLocalBounds() };
+                    auto rect{ sf::RectangleShape(sf::Vector2f(localBounds.width, localBounds.height)) };
+
+                    // copy screen position
+                    auto drawPosition{ positionComponent->screenPosition };
+
+                    sprite->setOrigin(localBounds.width / 2, localBounds.height);
+                    rect.setOrigin(localBounds.width / 2, localBounds.height);
+
+                    drawPosition.y += iso::IsoMath::DEFAULT_TILE_HEIGHT;
+
+                    sprite->setPosition(drawPosition);
+                    rect.setPosition(drawPosition);
+                    rect.setFillColor(sf::Color(0, 0, 128, 64));
+                    m_window.draw(rect);
                 }
 
                 // draw path to target if exist
@@ -318,14 +335,13 @@ namespace sg::islands::ecs
                     }
                 }
 
+                // draw sprite
                 if (renderComponent->render)
                 {
                     m_window.draw(*sprite);
                 }
 
-                m_map.SetAssetId(positionComponent->mapPosition.x, positionComponent->mapPosition.y, assetComponent->assetId);
-
-                // einige Entities sind größer als ein Tile
+                /*
                 const auto& currentAsset{ m_assets.GetAsset(assetComponent->assetId) };
                 if (currentAsset.tileHeight > 1 || currentAsset.tileWidth > 1)
                 {
@@ -351,6 +367,7 @@ namespace sg::islands::ecs
                         }
                     }
                 }
+                */
             }
         }
 
