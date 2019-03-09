@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  06.03.2019
+// Updated:  09.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -17,8 +17,10 @@
 #include <entityx/entityx.h>
 #include "Config.hpp"
 #include "ResourceHolder.hpp"
+#include "Mouse.hpp"
 #include "imGui/imgui.h"
 #include "imGui/imgui-SFML.h"
+#include "Collision.hpp"
 #include "../iso/Map.hpp"
 #include "../iso/Assets.hpp"
 #include "../iso/Astar.hpp"
@@ -35,6 +37,8 @@ namespace sg::islands::core
         using MapUniquePtr = std::unique_ptr<iso::Map>;
         using AssetsUniquePtr = std::unique_ptr<iso::Assets>;
         using AstarUniquePtr = std::unique_ptr<iso::Astar>;
+        using BitmaskManagerUniquePtr = std::unique_ptr<BitmaskManager>;
+        using MouseUniquePtr = std::unique_ptr<Mouse>;
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -124,6 +128,16 @@ namespace sg::islands::core
         AstarUniquePtr m_astar;
 
         /**
+         * @brief The `BitmaskManager` for pixel perfect collision detection.
+         */
+        BitmaskManagerUniquePtr m_bitmaskManager;
+
+        /**
+         * @brief A custom mouse cursor.
+         */
+        MouseUniquePtr m_mouse;
+
+        /**
          * @brief Draw a grid if true.
          */
         bool m_drawGrid{ false };
@@ -138,6 +152,8 @@ namespace sg::islands::core
          */
         bool m_drawEntities{ false };
 
+        bool m_drawMenu{ false };
+
         // entities
         entityx::Entity m_fisherShipEntity;
         entityx::Entity m_frigateShipEntity;
@@ -151,6 +167,12 @@ namespace sg::islands::core
         sf::Text m_statisticsText;
         sf::Time m_statisticsUpdateTime;
         std::size_t m_statisticsNumFrames{ 0 };
+
+        // collision
+        sf::Texture m_texture1;
+        sf::Texture m_texture2;
+        sf::Sprite m_sprite1;
+        sf::Sprite m_sprite2;
 
         //-------------------------------------------------
         // Game Logic
@@ -168,9 +190,14 @@ namespace sg::islands::core
             assert(m_window);
 
             // init imGui
+            // todo
             ImGui::SFML::Init(*m_window);
             auto& io{ ImGui::GetIO() };
+            //io.DisplaySize.x = m_window->getSize().x;
+            //io.DisplaySize.y = m_window->getSize().y;
             io.IniFilename = "res/config/Imgui.ini";
+            //io.ConfigFlags |= ImGuiMouseCursor_None;
+            //io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
             // load and use the first font
             m_fonts.Load(1, m_appOptions.fonts[0]);
@@ -194,8 +221,27 @@ namespace sg::islands::core
             m_assets = std::make_unique<iso::Assets>(m_appOptions.assets);
             assert(m_assets);
 
+            // create `BitmaskManager`
+            m_bitmaskManager = std::make_unique<BitmaskManager>();
+            assert(m_bitmaskManager);
+
+            // create `Mouse`
+            m_mouse = std::make_unique<Mouse>(*m_bitmaskManager, m_appOptions.mouseCursor);
+            assert(m_mouse);
+
+            // hide default mouse cursor
+            m_window->setMouseCursorVisible(false);
+
             // setup `EntityX` and create entities
             SetupEcs();
+
+            // load mouse cursor && collision
+            m_bitmaskManager->CreateTextureAndBitmask(m_texture1, "res/gfx/units/ships/frigate0/idle/0/0000.png");
+            m_bitmaskManager->CreateTextureAndBitmask(m_texture2, "res/gfx/units/ships/pirate1/idle/0/0000.png");
+            m_sprite1.setTexture(m_texture1);
+            m_sprite2.setTexture(m_texture2);
+            m_sprite1.setPosition(160, 100);
+            m_sprite2.setPosition(160, 280);
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
@@ -231,6 +277,11 @@ namespace sg::islands::core
                     m_islandView.move(40, 0);
                 }
 
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::M)
+                {
+                    m_drawMenu = !m_drawMenu;
+                }
+
                 if (event.type == sf::Event::MouseButtonPressed)
                 {
                     if (io.WantCaptureMouse)
@@ -238,9 +289,20 @@ namespace sg::islands::core
                         break;
                     }
 
+                    // activate sprite
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
-                        SG_ISLANDS_DEBUG("Application Left Mouse pressed.");
+                        SG_ISLANDS_DEBUG("Left Mouse pressed.");
+
+                        const sf::Uint8 alphaLimit{ 100 };
+                        auto b{ m_mouse->CollisionWith(m_sprite1, alphaLimit) };
+                        SG_ISLANDS_DEBUG("Pixel perfect result: {}", b);
+                    }
+
+                    // search path
+                    if (event.mouseButton.button == sf::Mouse::Right)
+                    {
+                        SG_ISLANDS_DEBUG("Right Mouse pressed.");
 
                         // get mouse position
                         const auto mousePosition{ sf::Mouse::getPosition(*m_window) };
@@ -250,16 +312,6 @@ namespace sg::islands::core
                         const auto targetMapPosition{ iso::IsoMath::ToMap(mouseWorldPosition) };
                         SG_ISLANDS_DEBUG("mouse map x: {}", targetMapPosition.x);
                         SG_ISLANDS_DEBUG("mouse map y: {}", targetMapPosition.y);
-
-
-
-                        /*
-
-                        wenn click auf entity, dann setze entity als aktiv
-                            - ansonsten suche Pfad
-
-                        */
-
 
                         // set the targetMapPosition as target to all active entities
                         entities.each<ecs::TargetComponent, ecs::ActiveEntityComponent>(
@@ -271,11 +323,6 @@ namespace sg::islands::core
 
                         // try to find path to target for all active entities
                         systems.update<ecs::FindPathSystem>(EX_TIME_PER_FRAME);
-
-
-
-
-
                     }
                 }
             }
@@ -283,6 +330,10 @@ namespace sg::islands::core
 
         void Update(const sf::Time& t_dt)
         {
+            const auto mousePosition{ sf::Mouse::getPosition(*m_window) };
+            const auto mouseWorldPosition{ m_window->mapPixelToCoords(mousePosition) };
+            m_mouse->SetPosition(mouseWorldPosition);
+
             systems.update<ecs::AnimationSystem>(EX_TIME_PER_FRAME);
             systems.update<ecs::MovementSystem>(EX_TIME_PER_FRAME);
         }
@@ -308,7 +359,16 @@ namespace sg::islands::core
 
             systems.update<ecs::RenderSystem>(EX_TIME_PER_FRAME);
 
-            RenderImGui();
+            m_window->draw(m_sprite1);
+            m_window->draw(m_sprite2);
+
+            if (m_drawMenu)
+            {
+                RenderImGui();
+                m_window->setMouseCursorVisible(false);
+            }
+
+            m_window->draw(*m_mouse);
 
             m_window->display();
         }
@@ -412,6 +472,83 @@ namespace sg::islands::core
                         t_renderComponent.render = m_drawEntities;
                     }
                 );
+            }
+
+            // active entity
+            auto fisherShip{ m_fisherShipEntity.has_component<ecs::ActiveEntityComponent>() };
+            auto frigateShip{ m_frigateShipEntity.has_component<ecs::ActiveEntityComponent>() };
+            auto hukerShip{ m_hukerShipEntity.has_component<ecs::ActiveEntityComponent>() };
+            auto pirateShip{ m_pirateShipEntity.has_component<ecs::ActiveEntityComponent>() };
+            auto traderShip{ m_traderShipEntity.has_component<ecs::ActiveEntityComponent>() };
+
+            ImGui::Checkbox("Fisher Ship", &fisherShip);
+            ImGui::SameLine(150);
+            if (ImGui::Button("Toggle##0"))
+            {
+                if (fisherShip)
+                {
+                    m_fisherShipEntity.remove<ecs::ActiveEntityComponent>();
+                }
+                else
+                {
+                    m_fisherShipEntity.assign<ecs::ActiveEntityComponent>();
+                }
+            }
+
+            ImGui::Checkbox("Frigate Ship", &frigateShip);
+            ImGui::SameLine(150);
+            if (ImGui::Button("Toggle##1"))
+            {
+                if (frigateShip)
+                {
+                    m_frigateShipEntity.remove<ecs::ActiveEntityComponent>();
+                }
+                else
+                {
+                    m_frigateShipEntity.assign<ecs::ActiveEntityComponent>();
+                }
+            }
+
+            ImGui::Checkbox("Huker Ship", &hukerShip);
+            ImGui::SameLine(150);
+            if (ImGui::Button("Toggle##2"))
+            {
+                if (hukerShip)
+                {
+                    m_hukerShipEntity.remove<ecs::ActiveEntityComponent>();
+                }
+                else
+                {
+                    m_hukerShipEntity.assign<ecs::ActiveEntityComponent>();
+                }
+            }
+
+            ImGui::Checkbox("Pirate Ship", &pirateShip);
+            ImGui::SameLine(150);
+            if (ImGui::Button("Toggle##3"))
+            {
+                if (pirateShip)
+                {
+                    m_pirateShipEntity.remove<ecs::ActiveEntityComponent>();
+                }
+                else
+                {
+                    m_pirateShipEntity.assign<ecs::ActiveEntityComponent>();
+                }
+            }
+
+            ImGui::Checkbox("Trader Ship", &traderShip);
+            ImGui::SameLine(150);
+            if (ImGui::Button("Toggle##4"))
+            {
+                if (traderShip)
+                {
+                    m_traderShipEntity.remove<ecs::ActiveEntityComponent>();
+                }
+                else
+                {
+                    m_traderShipEntity.assign<ecs::ActiveEntityComponent>();
+                }
             }
 
             // close

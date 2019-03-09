@@ -9,6 +9,7 @@
     <fonts>
         <font>res/fonts/font.ttf</font>
     </fonts>
+    <mouse>res/gfx/cursors/cursor.png</mouse>
     <world>
         <tileAtlas>
             <background>res/config/deepWaterTileset.xml</background>

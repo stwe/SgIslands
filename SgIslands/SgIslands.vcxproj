@@ -100,9 +100,12 @@
     <ClCompile Include="vendor\tinyxml2\tinyxml2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Collision.hpp" />
     <ClInclude Include="src\core\Application.hpp" />
+    <ClInclude Include="src\core\BitmaskManager.hpp" />
     <ClInclude Include="src\core\Config.hpp" />
     <ClInclude Include="src\core\Log.hpp" />
+    <ClInclude Include="src\core\Mouse.hpp" />
     <ClInclude Include="src\core\ResourceHolder.hpp" />
     <ClInclude Include="src\core\SgException.hpp" />
     <ClInclude Include="src\core\Types.hpp" />

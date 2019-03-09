@@ -2,7 +2,7 @@
 // 
 // Filename: Config.hpp
 // Created:  26.01.2019
-// Updated:  23.02.2019
+// Updated:  09.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -30,6 +30,9 @@ namespace sg::islands::core
 
         // fonts
         std::vector<Filename> fonts;
+
+        // mouse cursor
+        Filename mouseCursor;
 
         // tilesets
         Filename backgroundTileset;
@@ -102,6 +105,19 @@ namespace sg::islands::core
             }
 
             assert(!t_options.fonts.empty());
+
+            //-------------------------------------------------
+            // Mouse Cursor
+            //-------------------------------------------------
+
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Load mouse cursor option.");
+
+            // get `<mouse>` element
+            const auto mouse{ XmlWrapper::GetStringFromXmlElement(appElement, "mouse") };
+
+            SG_ISLANDS_INFO("[Config::LoadAppOptions()] Mouse cursor file: {}.", mouse);
+
+            t_options.mouseCursor = mouse;
 
             //-------------------------------------------------
             // TileAtlas, Map && Assets
