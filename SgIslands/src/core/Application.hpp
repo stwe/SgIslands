@@ -168,12 +168,6 @@ namespace sg::islands::core
         sf::Time m_statisticsUpdateTime;
         std::size_t m_statisticsNumFrames{ 0 };
 
-        // collision
-        sf::Texture m_texture1;
-        sf::Texture m_texture2;
-        sf::Sprite m_sprite1;
-        sf::Sprite m_sprite2;
-
         //-------------------------------------------------
         // Game Logic
         //-------------------------------------------------
@@ -217,13 +211,13 @@ namespace sg::islands::core
             m_astar = std::make_unique<iso::Astar>(*m_map);
             assert(m_astar);
 
-            // create `Assets`
-            m_assets = std::make_unique<iso::Assets>(m_appOptions.assets);
-            assert(m_assets);
-
             // create `BitmaskManager`
             m_bitmaskManager = std::make_unique<BitmaskManager>();
             assert(m_bitmaskManager);
+
+            // create `Assets`
+            m_assets = std::make_unique<iso::Assets>(m_appOptions.assets, *m_bitmaskManager);
+            assert(m_assets);
 
             // create `Mouse`
             m_mouse = std::make_unique<Mouse>(*m_bitmaskManager, m_appOptions.mouseCursor);
@@ -234,14 +228,6 @@ namespace sg::islands::core
 
             // setup `EntityX` and create entities
             SetupEcs();
-
-            // load mouse cursor && collision
-            m_bitmaskManager->CreateTextureAndBitmask(m_texture1, "res/gfx/units/ships/frigate0/idle/0/0000.png");
-            m_bitmaskManager->CreateTextureAndBitmask(m_texture2, "res/gfx/units/ships/pirate1/idle/0/0000.png");
-            m_sprite1.setTexture(m_texture1);
-            m_sprite2.setTexture(m_texture2);
-            m_sprite1.setPosition(160, 100);
-            m_sprite2.setPosition(160, 280);
 
             SG_ISLANDS_INFO("[Application::Init()] Initialization finished.");
         }
@@ -294,9 +280,19 @@ namespace sg::islands::core
                     {
                         SG_ISLANDS_DEBUG("Left Mouse pressed.");
 
-                        const sf::Uint8 alphaLimit{ 100 };
-                        auto b{ m_mouse->CollisionWith(m_sprite1, alphaLimit) };
-                        SG_ISLANDS_DEBUG("Pixel perfect result: {}", b);
+                        // set the targetMapPosition as target to all active entities
+                        entities.each<ecs::DirectionComponent, ecs::AssetComponent>(
+                            [this](entityx::Entity t_entity, ecs::DirectionComponent& t_directionComponent, ecs::AssetComponent& t_assetComponent)
+                            {
+                                const sf::Uint8 alphaLimit{ 100 };
+
+                                const auto& animation{ m_assets->GetAnimation(t_assetComponent.assetId, "Idle", t_directionComponent.direction) };
+                                const auto& sprite{ animation.GetSprite() };
+
+                                const auto b{ m_mouse->CollisionWith(sprite, alphaLimit) };
+                                SG_ISLANDS_DEBUG("Pixel perfect result: {} for {}", b, t_assetComponent.assetName);
+                            }
+                        );
                     }
 
                     // search path
@@ -358,9 +354,6 @@ namespace sg::islands::core
             m_window->setTitle(m_appOptions.windowTitle + " " + m_statisticsText.getString());
 
             systems.update<ecs::RenderSystem>(EX_TIME_PER_FRAME);
-
-            m_window->draw(m_sprite1);
-            m_window->draw(m_sprite2);
 
             if (m_drawMenu)
             {

@@ -2,7 +2,7 @@
 // 
 // Filename: Assets.hpp
 // Created:  14.02.2019
-// Updated:  03.03.2019
+// Updated:  09.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -33,7 +33,8 @@ namespace sg::islands::iso
 
         Assets() = delete;
 
-        explicit Assets(const core::Filename& t_filename)
+        explicit Assets(const core::Filename& t_filename, core::BitmaskManager& t_bitmaskManager)
+            : m_bitmaskManager{ t_bitmaskManager }
         {
             LoadConfigFile(t_filename);
         }
@@ -232,6 +233,11 @@ namespace sg::islands::iso
 
     private:
         /**
+         * @brief Reference to the `BitmaskManager`.
+         */
+        core::BitmaskManager& m_bitmaskManager;
+
+        /**
          * @brief Container for all assets. The id of the asset is the index.
          */
         AssetsMap m_assetsMap;
@@ -358,6 +364,8 @@ namespace sg::islands::iso
                     // create an `Animation` for each direction
                     for (const auto& direction : t_directions)
                     {
+                        sf::Image image;
+
                         // create animation dir
                         const auto dir{ t_dir + dirAttr };
 
@@ -375,6 +383,19 @@ namespace sg::islands::iso
 
                             // add frame
                             animationUniquePtr->AddFrame(dir + directionDir + "/" + filename);
+
+                            // add `Bitmask`
+                            if (nameAttr == "Idle")
+                            {
+                                // load image
+                                image.loadFromFile(dir + directionDir + "/" + filename);
+
+                                // get texture
+                                const auto& texture{ animationUniquePtr->GetFrames()[0] };
+
+                                // create bitmask
+                                m_bitmaskManager.CreateBitmask(&texture, image);
+                            }
                         }
 
                         // add `Animation` to `AssetAnimation`

@@ -99,11 +99,6 @@ namespace sg::islands::core
             CreateBitmask(&t_loadIntoTexture, image);
         }
 
-    protected:
-
-    private:
-        Bitmasks m_bitmasks;
-
         void CreateBitmask(const sf::Texture* const t_texture, const sf::Image& t_image)
         {
             Bitmask bitmask;
@@ -119,5 +114,10 @@ namespace sg::islands::core
 
             m_bitmasks.emplace(t_texture, bitmask);
         }
+
+    protected:
+
+    private:
+        Bitmasks m_bitmasks;
     };
 }

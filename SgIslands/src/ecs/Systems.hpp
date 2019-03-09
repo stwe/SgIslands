@@ -2,7 +2,7 @@
 // 
 // Filename: Systems.hpp
 // Created:  21.02.2019
-// Updated:  06.03.2019
+// Updated:  09.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -242,8 +242,8 @@ namespace sg::islands::ecs
                 // set animation
                 if (assetType == iso::AssetType::BUILDING)
                 {
-                    // action animation
-                    animation = &m_assets.GetAnimation(asset.assetId, "Work", directionComponent->direction);
+                    // idle animation
+                    animation = &m_assets.GetAnimation(asset.assetId, "Idle", directionComponent->direction);
                     sprite = &animation->GetSprite();
                 }
                 else
