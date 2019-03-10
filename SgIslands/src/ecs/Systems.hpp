@@ -292,38 +292,38 @@ namespace sg::islands::ecs
                 else if (assetType == iso::AssetType::WATER_UNIT && tileWidth == 3 && tileHeight == 3)
                 {
                     const auto localBounds{ sprite->getLocalBounds() };
-                    auto rect{ sf::RectangleShape(sf::Vector2f(localBounds.width, localBounds.height)) };
+                    //auto rect{ sf::RectangleShape(sf::Vector2f(localBounds.width, localBounds.height)) };
 
                     // copy screen position
                     auto drawPosition{ positionComponent->screenPosition };
 
                     sprite->setOrigin(localBounds.width / 2, localBounds.height);
-                    rect.setOrigin(localBounds.width / 2, localBounds.height);
+                    //rect.setOrigin(localBounds.width / 2, localBounds.height);
 
                     drawPosition.y += iso::IsoMath::DEFAULT_TILE_HEIGHT * 2;
 
                     sprite->setPosition(drawPosition);
-                    rect.setPosition(drawPosition);
-                    rect.setFillColor(sf::Color(0, 0, 128, 64));
-                    m_window.draw(rect);
+                    //rect.setPosition(drawPosition);
+                    //rect.setFillColor(sf::Color(0, 0, 128, 64));
+                    //m_window.draw(rect);
                 }
                 else if (assetType == iso::AssetType::WATER_UNIT && tileWidth == 1 && tileHeight == 1)
                 {
                     const auto localBounds{ sprite->getLocalBounds() };
-                    auto rect{ sf::RectangleShape(sf::Vector2f(localBounds.width, localBounds.height)) };
+                    //auto rect{ sf::RectangleShape(sf::Vector2f(localBounds.width, localBounds.height)) };
 
                     // copy screen position
                     auto drawPosition{ positionComponent->screenPosition };
 
                     sprite->setOrigin(localBounds.width / 2, localBounds.height);
-                    rect.setOrigin(localBounds.width / 2, localBounds.height);
+                    //rect.setOrigin(localBounds.width / 2, localBounds.height);
 
                     drawPosition.y += iso::IsoMath::DEFAULT_TILE_HEIGHT;
 
                     sprite->setPosition(drawPosition);
-                    rect.setPosition(drawPosition);
-                    rect.setFillColor(sf::Color(0, 0, 128, 64));
-                    m_window.draw(rect);
+                    //rect.setPosition(drawPosition);
+                    //rect.setFillColor(sf::Color(0, 0, 128, 64));
+                    //m_window.draw(rect);
                 }
 
                 // draw path to target if exist
@@ -340,34 +340,6 @@ namespace sg::islands::ecs
                 {
                     m_window.draw(*sprite);
                 }
-
-                /*
-                const auto& currentAsset{ m_assets.GetAsset(assetComponent->assetId) };
-                if (currentAsset.tileHeight > 1 || currentAsset.tileWidth > 1)
-                {
-                    auto tHeight{ currentAsset.tileHeight };
-                    auto tWidth{ currentAsset.tileWidth };
-
-                    if (currentAsset.assetType == iso::AssetType::BUILDING)
-                    {
-                        tHeight /= 2;
-                        for (auto x{ positionComponent->mapPosition.x }; x < positionComponent->mapPosition.x + tWidth; ++x)
-                        {
-                            for (auto y{ positionComponent->mapPosition.y }; y < positionComponent->mapPosition.y + tHeight; ++y)
-                            {
-                                m_map.SetAssetId(x, y, assetComponent->assetId);
-                            }
-                        }
-                    }
-                    else if (currentAsset.assetType == iso::AssetType::WATER_UNIT)
-                    {
-                        for (auto y{ positionComponent->mapPosition.y - 1 }; y < positionComponent->mapPosition.y + tHeight - 1; ++y)
-                        {
-                            m_map.SetAssetId(positionComponent->mapPosition.x, y, assetComponent->assetId);
-                        }
-                    }
-                }
-                */
             }
         }
 

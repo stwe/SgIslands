@@ -74,6 +74,6 @@ namespace sg::islands::ecs
 
     struct RenderComponent
     {
-        bool render{ false };
+        bool render{ true };
     };
 }

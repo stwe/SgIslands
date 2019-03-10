@@ -150,9 +150,9 @@ namespace sg::islands::core
         /**
          * @brief Draw Entities if true.
          */
-        bool m_drawEntities{ false };
+        bool m_drawEntities{ true };
 
-        bool m_drawMenu{ false };
+        bool m_drawMenu{ true };
 
         // entities
         entityx::Entity m_fisherShipEntity;
@@ -184,11 +184,8 @@ namespace sg::islands::core
             assert(m_window);
 
             // init imGui
-            // todo
             ImGui::SFML::Init(*m_window);
             auto& io{ ImGui::GetIO() };
-            //io.DisplaySize.x = m_window->getSize().x;
-            //io.DisplaySize.y = m_window->getSize().y;
             io.IniFilename = "res/config/Imgui.ini";
             //io.ConfigFlags |= ImGuiMouseCursor_None;
             //io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
@@ -289,8 +286,23 @@ namespace sg::islands::core
                                 const auto& animation{ m_assets->GetAnimation(t_assetComponent.assetId, "Idle", t_directionComponent.direction) };
                                 const auto& sprite{ animation.GetSprite() };
 
-                                const auto b{ m_mouse->CollisionWith(sprite, alphaLimit) };
-                                SG_ISLANDS_DEBUG("Pixel perfect result: {} for {}", b, t_assetComponent.assetName);
+                                const auto clickedEntity{ m_mouse->CollisionWith(sprite, alphaLimit) };
+
+                                if (clickedEntity)
+                                {
+                                    // remove `ActiveEntityComponent` from all entities
+                                    entities.each<ecs::ActiveEntityComponent>(
+                                        [](entityx::Entity t_entity, ecs::ActiveEntityComponent)
+                                        {
+                                            t_entity.remove<ecs::ActiveEntityComponent>();
+                                        }
+                                    );
+
+                                    // activate new entity
+                                    t_entity.assign<ecs::ActiveEntityComponent>();
+                                }
+
+                                SG_ISLANDS_DEBUG("Pixel perfect result: {} for {}", clickedEntity, t_assetComponent.assetName);
                             }
                         );
                     }
