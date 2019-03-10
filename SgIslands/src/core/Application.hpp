@@ -26,6 +26,7 @@
 #include "../iso/Astar.hpp"
 #include "../ecs/Components.hpp"
 #include "../ecs/Systems.hpp"
+#include "../gui/Gui.hpp"
 
 namespace sg::islands::core
 {
@@ -39,6 +40,7 @@ namespace sg::islands::core
         using AstarUniquePtr = std::unique_ptr<iso::Astar>;
         using BitmaskManagerUniquePtr = std::unique_ptr<BitmaskManager>;
         using MouseUniquePtr = std::unique_ptr<Mouse>;
+        using GuiUniquePtr = std::unique_ptr<gui::Gui>;
 
         //-------------------------------------------------
         // Ctor. && Dtor.
@@ -118,6 +120,11 @@ namespace sg::islands::core
         sf::View m_islandView;
 
         /**
+         * @brief A Gui view.
+         */
+        sf::View m_guiView;
+
+        /**
          * @brief The assets (units && buildings).
          */
         AssetsUniquePtr m_assets;
@@ -138,6 +145,11 @@ namespace sg::islands::core
         MouseUniquePtr m_mouse;
 
         /**
+         * @brief A `Gui` instance.
+         */
+        GuiUniquePtr m_gui;
+
+        /**
          * @brief Draw a grid if true.
          */
         bool m_drawGrid{ false };
@@ -152,7 +164,7 @@ namespace sg::islands::core
          */
         bool m_drawEntities{ true };
 
-        bool m_drawMenu{ true };
+        bool m_drawMenu{ false };
 
         // entities
         entityx::Entity m_fisherShipEntity;
@@ -222,6 +234,9 @@ namespace sg::islands::core
 
             // hide default mouse cursor
             m_window->setMouseCursorVisible(false);
+
+            // create `Gui`
+            m_gui = std::make_unique<gui::Gui>(m_fonts.GetResource(1));
 
             // setup `EntityX` and create entities
             SetupEcs();
@@ -300,6 +315,7 @@ namespace sg::islands::core
 
                                     // activate new entity
                                     t_entity.assign<ecs::ActiveEntityComponent>();
+                                    m_gui->SetActiveEntityInfo(t_assetComponent.assetName);
                                 }
 
                                 SG_ISLANDS_DEBUG("Pixel perfect result: {} for {}", clickedEntity, t_assetComponent.assetName);
@@ -374,6 +390,11 @@ namespace sg::islands::core
             }
 
             m_window->draw(*m_mouse);
+
+            // draw `Gui`
+            m_window->setView(m_guiView);
+            m_window->draw(*m_gui);
+            m_window->setView(m_islandView);
 
             m_window->display();
         }
