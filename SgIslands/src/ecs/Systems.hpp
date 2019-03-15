@@ -2,7 +2,7 @@
 // 
 // Filename: Systems.hpp
 // Created:  21.02.2019
-// Updated:  09.03.2019
+// Updated:  15.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -14,6 +14,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <entityx/System.h>
 #include "Components.hpp"
+#include "Events.hpp"
 #include "../iso/VecMath.hpp"
 
 namespace sg::islands::ecs
@@ -74,7 +75,7 @@ namespace sg::islands::ecs
     // Movement
     //-------------------------------------------------
 
-    class MovementSystem : public entityx::System<MovementSystem>
+    class MovementSystem : public entityx::System<MovementSystem> // todo: receive collision event
     {
     public:
         explicit MovementSystem(iso::Assets& t_assets, iso::Map& t_map)
@@ -350,5 +351,96 @@ namespace sg::islands::ecs
         iso::Assets& m_assets;
         iso::TileAtlas& m_tileAtlas;
         iso::Map& m_map;
+    };
+
+    //-------------------------------------------------
+    // Collision
+    //-------------------------------------------------
+
+    class CollisionSystem : public entityx::System<CollisionSystem>
+    {
+    public:
+        explicit CollisionSystem(iso::Assets& t_assets, core::BitmaskManager& t_bitmaskManager)
+            : m_assets{ t_assets }
+            , m_bitmaskManager{ t_bitmaskManager }
+        {}
+
+        void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
+        {
+            entityx::ComponentHandle<ActiveEntityComponent> activeEntityComponent;
+            entityx::ComponentHandle<AssetComponent> activeAssetComponent, otherAssetComponent;
+            entityx::ComponentHandle<DirectionComponent> activeDirectionComponent, otherDirectionComponent;
+            entityx::ComponentHandle<WaterUnitComponent> activeWaterUnitComponent, otherWaterUnitComponent;
+
+            // for each active water-unit entity
+            for (auto activeEntity : t_entities.entities_with_components(activeAssetComponent, activeDirectionComponent, activeWaterUnitComponent, activeEntityComponent))
+            {
+                // get active sprite
+                const auto activeAssetId{ activeAssetComponent->assetId };
+                const auto& activeAnimation{ m_assets.GetAnimation(activeAssetId, "Idle", activeDirectionComponent->direction) };
+                const auto& activeSprite{ activeAnimation.GetSprite() };
+
+                // for each other water-unit entity
+                for (auto otherEntity : t_entities.entities_with_components(otherAssetComponent, otherDirectionComponent, otherWaterUnitComponent))
+                {
+                    const sf::Uint8 alphaLimit{ 100 };
+
+                    // get sprite
+                    const auto otherAssetId{ otherAssetComponent->assetId };
+
+                    if (otherAssetId != activeAssetId)
+                    {
+                        const auto& otherAnimation{ m_assets.GetAnimation(otherAssetId, "Idle", otherDirectionComponent->direction) };
+                        const auto& otherSprite{ otherAnimation.GetSprite() };
+
+                        // check for collision
+                        if (core::Collision::PixelPerfect(activeSprite, otherSprite, alphaLimit, m_bitmaskManager))
+                        {
+                            t_events.emit<CollisionEvent>(activeEntity.id(), otherEntity.id());
+                        }
+                    }
+                }
+            }
+        }
+
+    protected:
+
+    private:
+        iso::Assets& m_assets;
+        core::BitmaskManager& m_bitmaskManager;
+    };
+
+    //-------------------------------------------------
+    // Debug
+    //-------------------------------------------------
+
+    class DebugSystem : public entityx::System<DebugSystem>, public entityx::Receiver<CollisionEvent>
+    {
+    public:
+        explicit DebugSystem(entityx::EntityManager& t_entityManager)
+            : m_entityManager{ t_entityManager }
+        {}
+
+        void configure(entityx::EventManager& t_eventManager)
+        {
+            t_eventManager.subscribe<CollisionEvent>(*this);
+        }
+
+        void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt)
+        {
+        }
+
+        void receive(const CollisionEvent& t_collision)
+        {
+            const auto activeWaterUnitComponent{ m_entityManager.component<WaterUnitComponent>(t_collision.leftEntityId) };
+            const auto otherWaterUnitComponent{ m_entityManager.component<WaterUnitComponent>(t_collision.rightEntityId) };
+
+            SG_ISLANDS_DEBUG("Active entity {} collides with other entity {}: ", activeWaterUnitComponent->name, otherWaterUnitComponent->name);
+        }
+
+    protected:
+
+    private:
+        entityx::EntityManager& m_entityManager;
     };
 }

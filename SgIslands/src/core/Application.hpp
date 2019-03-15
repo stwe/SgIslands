@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  09.03.2019
+// Updated:  15.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -360,6 +360,7 @@ namespace sg::islands::core
 
             systems.update<ecs::AnimationSystem>(EX_TIME_PER_FRAME);
             systems.update<ecs::MovementSystem>(EX_TIME_PER_FRAME);
+            systems.update<ecs::CollisionSystem>(EX_TIME_PER_FRAME);
         }
 
         void Render()
@@ -414,37 +415,38 @@ namespace sg::islands::core
 
             // setup ships
             m_fisherShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(18, 8));
+            m_fisherShipEntity.assign<ecs::WaterUnitComponent>("Fisher0");
             m_fisherShipEntity.assign<ecs::AssetComponent>(0, "Fisher0");
             m_fisherShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
-            m_fisherShipEntity.assign<ecs::ActiveEntityComponent>();
+            m_fisherShipEntity.assign<ecs::ActiveEntityComponent>(); // active by default
             m_fisherShipEntity.assign<ecs::TargetComponent>();
             m_fisherShipEntity.assign<ecs::RenderComponent>();
 
             m_frigateShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(4, 25));
+            m_frigateShipEntity.assign<ecs::WaterUnitComponent>("Figate0");
             m_frigateShipEntity.assign<ecs::AssetComponent>(1, "Figate0");
             m_frigateShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
-            //m_frigateShipEntity.assign<ecs::ActiveEntityComponent>();
             m_frigateShipEntity.assign<ecs::TargetComponent>();
             m_frigateShipEntity.assign<ecs::RenderComponent>();
 
             m_hukerShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(30, 30));
+            m_hukerShipEntity.assign<ecs::WaterUnitComponent>("Huker0");
             m_hukerShipEntity.assign<ecs::AssetComponent>(2, "Huker0");
             m_hukerShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
-            //m_hukerShipEntity.assign<ecs::ActiveEntityComponent>();
             m_hukerShipEntity.assign<ecs::TargetComponent>();
             m_hukerShipEntity.assign<ecs::RenderComponent>();
 
             m_pirateShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(20, 20));
+            m_pirateShipEntity.assign<ecs::WaterUnitComponent>("Pirate1");
             m_pirateShipEntity.assign<ecs::AssetComponent>(3, "Pirate1");
             m_pirateShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
-            //m_pirateShipEntity.assign<ecs::ActiveEntityComponent>();
             m_pirateShipEntity.assign<ecs::TargetComponent>();
             m_pirateShipEntity.assign<ecs::RenderComponent>();
 
             m_traderShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(14, 25));
+            m_traderShipEntity.assign<ecs::WaterUnitComponent>("Trader0");
             m_traderShipEntity.assign<ecs::AssetComponent>(4, "Trader0");
             m_traderShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
-            //m_traderShipEntity.assign<ecs::ActiveEntityComponent>();
             m_traderShipEntity.assign<ecs::TargetComponent>();
             m_traderShipEntity.assign<ecs::RenderComponent>();
 
@@ -466,6 +468,8 @@ namespace sg::islands::core
             systems.add<ecs::RenderSystem>(*m_window, *m_assets, *m_tileAtlas, *m_map);
             systems.add<ecs::AnimationSystem>(*m_assets);
             systems.add<ecs::FindPathSystem>(*m_assets, *m_astar);
+            systems.add<ecs::CollisionSystem>(*m_assets, *m_bitmaskManager);
+            systems.add<ecs::DebugSystem>(entities);
 
             systems.configure();
         }

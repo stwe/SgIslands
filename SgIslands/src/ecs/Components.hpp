@@ -2,7 +2,7 @@
 // 
 // Filename: Components.hpp
 // Created:  21.02.2019
-// Updated:  04.03.2019
+// Updated:  15.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -75,5 +75,16 @@ namespace sg::islands::ecs
     struct RenderComponent
     {
         bool render{ true };
+    };
+
+    struct WaterUnitComponent
+    {
+        WaterUnitComponent() = default;
+
+        explicit WaterUnitComponent(const std::string& t_name)
+            : name{ t_name }
+        {}
+
+        std::string name;
     };
 }

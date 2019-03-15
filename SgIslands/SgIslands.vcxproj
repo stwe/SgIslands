@@ -111,6 +111,7 @@
     <ClInclude Include="src\core\Types.hpp" />
     <ClInclude Include="src\core\XmlWrapper.hpp" />
     <ClInclude Include="src\ecs\Components.hpp" />
+    <ClInclude Include="src\ecs\Events.hpp" />
     <ClInclude Include="src\ecs\Systems.hpp" />
     <ClInclude Include="src\gui\Gui.hpp" />
     <ClInclude Include="src\iso\Animation.hpp" />
