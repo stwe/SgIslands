@@ -12,4 +12,7 @@
     <tile id="3000">
         <image width="64" height="64" source="../gfx/misc/entity.png" path="res/gfx/misc/entity.png"/>
     </tile>
+    <tile id="4000">
+        <image width="64" height="64" source="../gfx/misc/buoy.png" path="res/gfx/misc/buoy.png"/>
+    </tile>
 </tileset>

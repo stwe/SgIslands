@@ -330,6 +330,8 @@ namespace sg::islands::ecs
                 // draw path to target if exist
                 if (!targetComponent->pathToTarget.empty())
                 {
+                    m_tileAtlas.DrawMiscTile(iso::TileAtlas::BUOY_TILE, targetComponent->targetMapPosition.x, targetComponent->targetMapPosition.y, m_window);
+
                     for (const auto& node : targetComponent->pathToTarget)
                     {
                         m_tileAtlas.DrawMiscTile(iso::TileAtlas::GRID_TILE, node.position.x, node.position.y, m_window);
