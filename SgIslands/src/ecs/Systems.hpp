@@ -59,6 +59,7 @@ namespace sg::islands::ecs
                     {
                         targetComponent->nextWayPoint = 1;
                         targetComponent->onTheWay = true;
+                        targetComponent->collision = false;
                     }
                 }
             }
@@ -333,7 +334,26 @@ namespace sg::islands::ecs
                     sprite->setPosition(positionComponent->screenPosition);
 
                     // collision check with `BUILDING`s
-                    core::Collision::CheckWithBuildings(t_entities, t_events, m_assets, *sprite, entity.id(), assetComponent->assetId, m_bitmaskManager);
+                    if (t_entities.component<ActiveEntityComponent>(entity.id()))
+                    {
+                        // only check once per position
+                        if (!targetComponent->collision)
+                        {
+                            const auto result{ core::Collision::CheckWithBuildings(t_entities, t_events, m_assets, *sprite, entity.id(), assetComponent->assetId, m_bitmaskManager) };
+                            if (result)
+                            {
+                                // clear target
+                                targetComponent->collision = true;
+                                targetComponent->onTheWay = false;
+                                positionComponent->mapPosition = targetComponent->pathToTarget[targetComponent->nextWayPoint - 1].position;
+                                targetComponent->pathToTarget.clear();
+                                targetComponent->lengthToTarget = -1.0f;
+                                targetComponent->nextWayPoint = 1;
+                                targetComponent->targetMapPosition.x = -1;
+                                targetComponent->targetMapPosition.y = -1;
+                            }
+                        }
+                    }
                 }
                 else if (assetType == iso::AssetType::WATER_UNIT && tileWidth == 3 && tileHeight == 3)
                 {
@@ -354,14 +374,33 @@ namespace sg::islands::ecs
                     //m_window.draw(rect);
 
                     // collision check with other `WATER_UNIT`s
-                    core::Collision::CheckWithOtherWaterUnits(t_entities, t_events, m_assets, *sprite, entity.id(), assetComponent->assetId, m_bitmaskManager);
+                    if (t_entities.component<ActiveEntityComponent>(entity.id()))
+                    {
+                        // only check once per position
+                        if (!targetComponent->collision)
+                        {
+                            const auto result{ core::Collision::CheckWithOtherWaterUnits(t_entities, t_events, m_assets, *sprite, entity.id(), assetComponent->assetId, m_bitmaskManager) };
+                            if (result)
+                            {
+                                // clear target
+                                targetComponent->collision = true;
+                                targetComponent->onTheWay = false;
+                                positionComponent->mapPosition = targetComponent->pathToTarget[targetComponent->nextWayPoint - 1].position;
+                                targetComponent->pathToTarget.clear();
+                                targetComponent->lengthToTarget = -1.0f;
+                                targetComponent->nextWayPoint = 1;
+                                targetComponent->targetMapPosition.x = -1;
+                                targetComponent->targetMapPosition.y = -1;
+                            }
+                        }
+                    }
                 }
                 else if (assetType == iso::AssetType::WATER_UNIT && tileWidth == 1 && tileHeight == 1)
                 {
                     const auto localBounds{ sprite->getLocalBounds() };
                     //auto rect{ sf::RectangleShape(sf::Vector2f(localBounds.width, localBounds.height)) };
 
-                    // copy screen position
+                    // copy positions
                     auto drawPosition{ positionComponent->screenPosition };
 
                     sprite->setOrigin(localBounds.width / 2, localBounds.height);
@@ -375,7 +414,26 @@ namespace sg::islands::ecs
                     //m_window.draw(rect);
 
                     // collision check with other `WATER_UNIT`s
-                    core::Collision::CheckWithOtherWaterUnits(t_entities, t_events, m_assets, *sprite, entity.id(), assetComponent->assetId, m_bitmaskManager);
+                    if (t_entities.component<ActiveEntityComponent>(entity.id()))
+                    {
+                        // only check once per position
+                        if (!targetComponent->collision)
+                        {
+                            const auto result{ core::Collision::CheckWithOtherWaterUnits(t_entities, t_events, m_assets, *sprite, entity.id(), assetComponent->assetId, m_bitmaskManager) };
+                            if (result)
+                            {
+                                // clear target
+                                targetComponent->collision = true;
+                                targetComponent->onTheWay = false;
+                                positionComponent->mapPosition = targetComponent->pathToTarget[targetComponent->nextWayPoint - 1].position;
+                                targetComponent->pathToTarget.clear();
+                                targetComponent->lengthToTarget = -1.0f;
+                                targetComponent->nextWayPoint = 1;
+                                targetComponent->targetMapPosition.x = -1;
+                                targetComponent->targetMapPosition.y = -1;
+                            }
+                        }
+                    }
                 }
 
                 // draw path to target if exist

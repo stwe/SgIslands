@@ -38,6 +38,7 @@ namespace sg::islands::ecs
         std::size_t nextWayPoint{ 0 };
         float lengthToTarget{ -1.0f };
         bool onTheWay{ false };
+        bool collision{ false };
         std::vector<iso::Node> pathToTarget;
     };
 

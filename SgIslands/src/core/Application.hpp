@@ -345,12 +345,10 @@ namespace sg::islands::core
                                 if (assetType == iso::AssetType::LAND_UNIT || assetType == iso::AssetType::WATER_UNIT)
                                 {
                                     t_target.targetMapPosition = targetMapPosition;
+                                    systems.update<ecs::FindPathSystem>(EX_TIME_PER_FRAME);
                                 }
                             }
                         );
-
-                        // try to find path to target for all active entities
-                        systems.update<ecs::FindPathSystem>(EX_TIME_PER_FRAME);
                     }
                 }
             }
@@ -418,7 +416,7 @@ namespace sg::islands::core
             m_bakeryEntity = entities.create();
 
             // setup ships
-            m_fisherShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(18, 8));
+            m_fisherShipEntity.assign<ecs::PositionComponent>(sf::Vector2i(22, 21));
             m_fisherShipEntity.assign<ecs::WaterUnitComponent>("Fisher0");
             m_fisherShipEntity.assign<ecs::AssetComponent>(0, "Fisher0");
             m_fisherShipEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);

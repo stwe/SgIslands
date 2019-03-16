@@ -96,8 +96,9 @@ namespace sg::islands::core
          * @param t_entityId The Id of the active entity.
          * @param t_assetId The asset Id of the active sprite.
          * @param t_bitmaskManager Reference to the BitmaskManager.
+         * @return bool
          */
-        static void CheckWithOtherWaterUnits(
+        static bool CheckWithOtherWaterUnits(
             entityx::EntityManager& t_entities,
             entityx::EventManager& t_events,
             iso::Assets& t_assets,
@@ -126,9 +127,13 @@ namespace sg::islands::core
                     if (PixelPerfect(t_sprite, otherSprite, DEFAULT_ALPHA_LIMIT, t_bitmaskManager))
                     {
                         t_events.emit<ecs::CollisionEvent>(t_entityId, otherEntity.id());
+
+                        return true;
                     }
                 }
             }
+
+            return false;
         }
 
         /**
@@ -140,8 +145,9 @@ namespace sg::islands::core
          * @param t_entityId The Id of the active entity.
          * @param t_assetId The asset Id of the active sprite.
          * @param t_bitmaskManager Reference to the BitmaskManager.
+         * @return bool
          */
-        static void CheckWithBuildings(
+        static bool CheckWithBuildings(
             entityx::EntityManager& t_entities,
             entityx::EventManager& t_events,
             iso::Assets& t_assets,
@@ -170,9 +176,13 @@ namespace sg::islands::core
                     if (PixelPerfect(t_sprite, otherSprite, DEFAULT_ALPHA_LIMIT, t_bitmaskManager))
                     {
                         t_events.emit<ecs::CollisionEvent>(t_entityId, otherEntity.id());
+
+                        return true;
                     }
                 }
             }
+
+            return false;
         }
 
     protected:
