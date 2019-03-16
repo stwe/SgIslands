@@ -2,7 +2,7 @@
 // 
 // Filename: Application.hpp
 // Created:  25.01.2019
-// Updated:  15.03.2019
+// Updated:  16.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -290,9 +290,8 @@ namespace sg::islands::core
                     // activate sprite
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
-                        SG_ISLANDS_DEBUG("Left Mouse pressed.");
+                        SG_ISLANDS_DEBUG("Left mouse pressed.");
 
-                        // set the targetMapPosition as target to all active entities
                         entities.each<ecs::DirectionComponent, ecs::AssetComponent>(
                             [this](entityx::Entity t_entity, ecs::DirectionComponent& t_directionComponent, ecs::AssetComponent& t_assetComponent)
                             {
@@ -301,9 +300,9 @@ namespace sg::islands::core
                                 const auto& animation{ m_assets->GetAnimation(t_assetComponent.assetId, "Idle", t_directionComponent.direction) };
                                 const auto& sprite{ animation.GetSprite() };
 
-                                const auto clickedEntity{ m_mouse->CollisionWith(sprite, alphaLimit) };
+                                const auto isClickedEntity{ m_mouse->CollisionWith(sprite, alphaLimit) };
 
-                                if (clickedEntity)
+                                if (isClickedEntity)
                                 {
                                     // remove `ActiveEntityComponent` from all entities
                                     entities.each<ecs::ActiveEntityComponent>(
@@ -313,20 +312,20 @@ namespace sg::islands::core
                                         }
                                     );
 
-                                    // activate new entity
+                                    // activate entity
                                     t_entity.assign<ecs::ActiveEntityComponent>();
                                     m_gui->SetActiveEntityInfo(t_assetComponent.assetName);
                                 }
 
-                                SG_ISLANDS_DEBUG("Pixel perfect result: {} for {}", clickedEntity, t_assetComponent.assetName);
+                                SG_ISLANDS_DEBUG("Mouse click result is: {} for asset name {}", isClickedEntity, t_assetComponent.assetName);
                             }
                         );
                     }
 
-                    // search path
+                    // search path for LAND_UNIT && WATER_UNIT
                     if (event.mouseButton.button == sf::Mouse::Right)
                     {
-                        SG_ISLANDS_DEBUG("Right Mouse pressed.");
+                        SG_ISLANDS_DEBUG("Right mouse pressed.");
 
                         // get mouse position
                         const auto mousePosition{ sf::Mouse::getPosition(*m_window) };
@@ -337,11 +336,16 @@ namespace sg::islands::core
                         SG_ISLANDS_DEBUG("mouse map x: {}", targetMapPosition.x);
                         SG_ISLANDS_DEBUG("mouse map y: {}", targetMapPosition.y);
 
-                        // set the targetMapPosition as target to all active entities
-                        entities.each<ecs::TargetComponent, ecs::ActiveEntityComponent>(
-                            [&targetMapPosition](entityx::Entity t_entity, ecs::TargetComponent& t_target, ecs::ActiveEntityComponent)
+                        // set the targetMapPosition as target to all active LAND_UNIT/WATER_UNIT entities
+                        entities.each<ecs::TargetComponent, ecs::AssetComponent, ecs::ActiveEntityComponent>(
+                            [this, &targetMapPosition](entityx::Entity t_entity, ecs::TargetComponent& t_target, ecs::AssetComponent& t_assetComponent, ecs::ActiveEntityComponent)
                             {
-                                t_target.targetMapPosition = targetMapPosition;
+                                // get asset type
+                                const auto assetType{ m_assets->GetAsset(t_assetComponent.assetId).assetType };
+                                if (assetType == iso::AssetType::LAND_UNIT || assetType == iso::AssetType::WATER_UNIT)
+                                {
+                                    t_target.targetMapPosition = targetMapPosition;
+                                }
                             }
                         );
 
@@ -360,7 +364,6 @@ namespace sg::islands::core
 
             systems.update<ecs::AnimationSystem>(EX_TIME_PER_FRAME);
             systems.update<ecs::MovementSystem>(EX_TIME_PER_FRAME);
-            systems.update<ecs::CollisionSystem>(EX_TIME_PER_FRAME);
         }
 
         void Render()
@@ -382,7 +385,8 @@ namespace sg::islands::core
 
             m_window->setTitle(m_appOptions.windowTitle + " " + m_statisticsText.getString());
 
-            systems.update<ecs::RenderSystem>(EX_TIME_PER_FRAME);
+            systems.update<ecs::RenderBuildingSystem>(EX_TIME_PER_FRAME);
+            systems.update<ecs::RenderUnitSystem>(EX_TIME_PER_FRAME);
 
             if (m_drawMenu)
             {
@@ -452,6 +456,7 @@ namespace sg::islands::core
 
             // setup farmer
             m_farmerEntity.assign<ecs::PositionComponent>(sf::Vector2i(15, 15));
+            m_farmerEntity.assign<ecs::LandUnitComponent>("Farmer0");
             m_farmerEntity.assign<ecs::AssetComponent>(5, "Farmer0");
             m_farmerEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
             m_farmerEntity.assign<ecs::TargetComponent>();
@@ -459,16 +464,16 @@ namespace sg::islands::core
 
             // setup bakery
             m_bakeryEntity.assign<ecs::PositionComponent>(sf::Vector2i(8, 7));
+            m_bakeryEntity.assign<ecs::BuildingComponent>("Bakery0");
             m_bakeryEntity.assign<ecs::AssetComponent>(6, "Bakery0");
             m_bakeryEntity.assign<ecs::DirectionComponent>(iso::DEFAULT_DIRECTION);
-            m_bakeryEntity.assign<ecs::TargetComponent>();
             m_bakeryEntity.assign<ecs::RenderComponent>();
 
-            systems.add<ecs::MovementSystem>(*m_assets, *m_map);
-            systems.add<ecs::RenderSystem>(*m_window, *m_assets, *m_tileAtlas, *m_map);
+            systems.add<ecs::MovementSystem>(*m_assets);
+            systems.add<ecs::RenderBuildingSystem>(*m_window, *m_assets);
+            systems.add<ecs::RenderUnitSystem>(*m_window, *m_assets, *m_tileAtlas, *m_bitmaskManager);
             systems.add<ecs::AnimationSystem>(*m_assets);
             systems.add<ecs::FindPathSystem>(*m_assets, *m_astar);
-            systems.add<ecs::CollisionSystem>(*m_assets, *m_bitmaskManager);
             systems.add<ecs::DebugSystem>(entities);
 
             systems.configure();

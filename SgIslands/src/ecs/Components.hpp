@@ -2,7 +2,7 @@
 // 
 // Filename: Components.hpp
 // Created:  21.02.2019
-// Updated:  15.03.2019
+// Updated:  16.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -13,6 +13,8 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <utility>
+#include "../iso/Node.hpp"
+#include "../iso/IsoMath.hpp"
 
 namespace sg::islands::ecs
 {
@@ -82,6 +84,28 @@ namespace sg::islands::ecs
         WaterUnitComponent() = default;
 
         explicit WaterUnitComponent(const std::string& t_name)
+            : name{ t_name }
+        {}
+
+        std::string name;
+    };
+
+    struct LandUnitComponent
+    {
+        LandUnitComponent() = default;
+
+        explicit LandUnitComponent(const std::string& t_name)
+            : name{ t_name }
+        {}
+
+        std::string name;
+    };
+
+    struct BuildingComponent
+    {
+        BuildingComponent() = default;
+
+        explicit BuildingComponent(const std::string& t_name)
             : name{ t_name }
         {}
 

@@ -2,7 +2,7 @@
 // 
 // Filename: Systems.hpp
 // Created:  21.02.2019
-// Updated:  15.03.2019
+// Updated:  16.03.2019
 // Author:   stwe
 // 
 // License:  MIT
@@ -75,12 +75,11 @@ namespace sg::islands::ecs
     // Movement
     //-------------------------------------------------
 
-    class MovementSystem : public entityx::System<MovementSystem> // todo: receive collision event
+    class MovementSystem : public entityx::System<MovementSystem>
     {
     public:
-        explicit MovementSystem(iso::Assets& t_assets, iso::Map& t_map)
+        explicit MovementSystem(iso::Assets& t_assets)
             : m_assets{ t_assets }
-            , m_map{ t_map } // todo
         {}
 
         void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
@@ -145,7 +144,6 @@ namespace sg::islands::ecs
 
     private:
         iso::Assets& m_assets;
-        iso::Map& m_map;
     };
 
     //-------------------------------------------------
@@ -208,19 +206,81 @@ namespace sg::islands::ecs
     // Render
     //-------------------------------------------------
 
-    class RenderSystem : public entityx::System<RenderSystem>
+    class RenderBuildingSystem : public entityx::System<RenderBuildingSystem>
     {
     public:
-        RenderSystem(
+        RenderBuildingSystem(
+            sf::RenderWindow& t_window,
+            iso::Assets& t_assets
+        )
+            : m_window{ t_window }
+            , m_assets{ t_assets }
+        {}
+
+        void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
+        {
+            entityx::ComponentHandle<PositionComponent> positionComponent;
+            entityx::ComponentHandle<BuildingComponent> buildingComponent;
+            entityx::ComponentHandle<AssetComponent> assetComponent;
+            entityx::ComponentHandle<DirectionComponent> directionComponent;
+            entityx::ComponentHandle<RenderComponent> renderComponent;
+
+            for (auto entity : t_entities.entities_with_components(positionComponent, buildingComponent, assetComponent, directionComponent, renderComponent))
+            {
+                assert(assetComponent->assetId >= 0);
+                const auto& asset{ m_assets.GetAsset(assetComponent->assetId) };
+                const auto assetType{ asset.assetType };
+                assert(assetType == iso::AssetType::BUILDING);
+
+                // get animation && sprite
+                auto& animation{ m_assets.GetAnimation(asset.assetId, "Idle", directionComponent->direction) };
+                auto& sprite{ animation.GetSprite() };
+
+                // get tile width
+                const auto tileWidth{ asset.tileWidth };
+
+                // get tile height
+                const auto tileHeight{ asset.tileHeight };
+
+                // support only for building sizes of 2x4 tiles
+                assert(tileWidth == 2);
+                assert(tileHeight == 4);
+
+                // set draw position
+                const auto x{ tileWidth * iso::IsoMath::DEFAULT_TILE_WIDTH_HALF };
+                const auto y{ tileHeight * iso::IsoMath::DEFAULT_TILE_HEIGHT_HALF };
+
+                sprite.setOrigin(x, y);
+                sprite.setPosition(positionComponent->screenPosition);
+
+                // draw sprite
+                if (renderComponent->render)
+                {
+                    m_window.draw(sprite);
+                }
+            }
+        }
+
+    protected:
+
+    private:
+        sf::RenderWindow& m_window;
+        iso::Assets& m_assets;
+    };
+
+    class RenderUnitSystem : public entityx::System<RenderUnitSystem>
+    {
+    public:
+        RenderUnitSystem(
             sf::RenderWindow& t_window,
             iso::Assets& t_assets,
             iso::TileAtlas& t_tileAtlas,
-            iso::Map& t_map
+            core::BitmaskManager& t_bitmaskManager
         )
             : m_window{ t_window }
             , m_assets{ t_assets }
             , m_tileAtlas{ t_tileAtlas }
-            , m_map{ t_map }
+            , m_bitmaskManager{ t_bitmaskManager }
         {}
 
         void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
@@ -229,38 +289,31 @@ namespace sg::islands::ecs
             iso::Animation* animation;
 
             entityx::ComponentHandle<PositionComponent> positionComponent;
-            entityx::ComponentHandle<TargetComponent> targetComponent;
             entityx::ComponentHandle<AssetComponent> assetComponent;
             entityx::ComponentHandle<DirectionComponent> directionComponent;
+            entityx::ComponentHandle<TargetComponent> targetComponent;
             entityx::ComponentHandle<RenderComponent> renderComponent;
 
-            for (auto entity : t_entities.entities_with_components(positionComponent, targetComponent, assetComponent, directionComponent, renderComponent))
+            for (auto entity : t_entities.entities_with_components(positionComponent, assetComponent, directionComponent, targetComponent, renderComponent))
             {
                 assert(assetComponent->assetId >= 0);
                 const auto& asset{ m_assets.GetAsset(assetComponent->assetId) };
                 const auto assetType{ asset.assetType };
+                assert(assetType == iso::AssetType::LAND_UNIT || assetType == iso::AssetType::WATER_UNIT);
 
-                // set animation
-                if (assetType == iso::AssetType::BUILDING)
+                // get animation && sprite
+                if (targetComponent->onTheWay)
                 {
-                    // idle animation
+                    // action animation
+                    // todo get `Move` animation
                     animation = &m_assets.GetAnimation(asset.assetId, "Idle", directionComponent->direction);
                     sprite = &animation->GetSprite();
                 }
                 else
                 {
-                    if (targetComponent->onTheWay)
-                    {
-                        // action animation
-                        animation = &m_assets.GetAnimation(asset.assetId, "Move", directionComponent->direction);
-                        sprite = &animation->GetSprite();
-                    }
-                    else
-                    {
-                        // idle animaton
-                        animation = &m_assets.GetAnimation(asset.assetId, "Idle", directionComponent->direction);
-                        sprite = &animation->GetSprite();
-                    }
+                    // idle animaton
+                    animation = &m_assets.GetAnimation(asset.assetId, "Idle", directionComponent->direction);
+                    sprite = &animation->GetSprite();
                 }
 
                 // get tile width
@@ -269,26 +322,18 @@ namespace sg::islands::ecs
                 // get tile height
                 const auto tileHeight{ asset.tileHeight };
 
-                if (assetType == iso::AssetType::BUILDING)
-                {
-                    // support only for building sizes of 2x4 tiles
-                    assert(tileWidth == 2);
-                    assert(tileHeight == 4);
-
-                    const auto x{ tileWidth * iso::IsoMath::DEFAULT_TILE_WIDTH_HALF };
-                    const auto y{ tileHeight * iso::IsoMath::DEFAULT_TILE_HEIGHT_HALF };
-
-                    sprite->setOrigin(x, y);
-                    sprite->setPosition(positionComponent->screenPosition);
-                }
-                else if (assetType == iso::AssetType::LAND_UNIT)
+                if (assetType == iso::AssetType::LAND_UNIT)
                 {
                     // support only for land unit sizes of 1x1 tiles
                     assert(tileWidth == 1);
                     assert(tileHeight == 1);
 
+                    // set draw position
                     sprite->setOrigin(iso::IsoMath::DEFAULT_TILE_WIDTH_QUARTER, iso::IsoMath::DEFAULT_TILE_HEIGHT_HALF);
                     sprite->setPosition(positionComponent->screenPosition);
+
+                    // collision check with `BUILDING`s
+                    core::Collision::CheckWithBuildings(t_entities, t_events, m_assets, *sprite, entity.id(), assetComponent->assetId, m_bitmaskManager);
                 }
                 else if (assetType == iso::AssetType::WATER_UNIT && tileWidth == 3 && tileHeight == 3)
                 {
@@ -307,6 +352,9 @@ namespace sg::islands::ecs
                     //rect.setPosition(drawPosition);
                     //rect.setFillColor(sf::Color(0, 0, 128, 64));
                     //m_window.draw(rect);
+
+                    // collision check with other `WATER_UNIT`s
+                    core::Collision::CheckWithOtherWaterUnits(t_entities, t_events, m_assets, *sprite, entity.id(), assetComponent->assetId, m_bitmaskManager);
                 }
                 else if (assetType == iso::AssetType::WATER_UNIT && tileWidth == 1 && tileHeight == 1)
                 {
@@ -325,6 +373,9 @@ namespace sg::islands::ecs
                     //rect.setPosition(drawPosition);
                     //rect.setFillColor(sf::Color(0, 0, 128, 64));
                     //m_window.draw(rect);
+
+                    // collision check with other `WATER_UNIT`s
+                    core::Collision::CheckWithOtherWaterUnits(t_entities, t_events, m_assets, *sprite, entity.id(), assetComponent->assetId, m_bitmaskManager);
                 }
 
                 // draw path to target if exist
@@ -352,63 +403,6 @@ namespace sg::islands::ecs
         sf::RenderWindow& m_window;
         iso::Assets& m_assets;
         iso::TileAtlas& m_tileAtlas;
-        iso::Map& m_map;
-    };
-
-    //-------------------------------------------------
-    // Collision
-    //-------------------------------------------------
-
-    class CollisionSystem : public entityx::System<CollisionSystem>
-    {
-    public:
-        explicit CollisionSystem(iso::Assets& t_assets, core::BitmaskManager& t_bitmaskManager)
-            : m_assets{ t_assets }
-            , m_bitmaskManager{ t_bitmaskManager }
-        {}
-
-        void update(entityx::EntityManager& t_entities, entityx::EventManager& t_events, entityx::TimeDelta t_dt) override
-        {
-            entityx::ComponentHandle<ActiveEntityComponent> activeEntityComponent;
-            entityx::ComponentHandle<AssetComponent> activeAssetComponent, otherAssetComponent;
-            entityx::ComponentHandle<DirectionComponent> activeDirectionComponent, otherDirectionComponent;
-            entityx::ComponentHandle<WaterUnitComponent> activeWaterUnitComponent, otherWaterUnitComponent;
-
-            // for each active water-unit entity
-            for (auto activeEntity : t_entities.entities_with_components(activeAssetComponent, activeDirectionComponent, activeWaterUnitComponent, activeEntityComponent))
-            {
-                // get active sprite
-                const auto activeAssetId{ activeAssetComponent->assetId };
-                const auto& activeAnimation{ m_assets.GetAnimation(activeAssetId, "Idle", activeDirectionComponent->direction) };
-                const auto& activeSprite{ activeAnimation.GetSprite() };
-
-                // for each other water-unit entity
-                for (auto otherEntity : t_entities.entities_with_components(otherAssetComponent, otherDirectionComponent, otherWaterUnitComponent))
-                {
-                    const sf::Uint8 alphaLimit{ 100 };
-
-                    // get sprite
-                    const auto otherAssetId{ otherAssetComponent->assetId };
-
-                    if (otherAssetId != activeAssetId)
-                    {
-                        const auto& otherAnimation{ m_assets.GetAnimation(otherAssetId, "Idle", otherDirectionComponent->direction) };
-                        const auto& otherSprite{ otherAnimation.GetSprite() };
-
-                        // check for collision
-                        if (core::Collision::PixelPerfect(activeSprite, otherSprite, alphaLimit, m_bitmaskManager))
-                        {
-                            t_events.emit<CollisionEvent>(activeEntity.id(), otherEntity.id());
-                        }
-                    }
-                }
-            }
-        }
-
-    protected:
-
-    private:
-        iso::Assets& m_assets;
         core::BitmaskManager& m_bitmaskManager;
     };
 
@@ -434,10 +428,22 @@ namespace sg::islands::ecs
 
         void receive(const CollisionEvent& t_collision)
         {
+            // water -> water
             const auto activeWaterUnitComponent{ m_entityManager.component<WaterUnitComponent>(t_collision.leftEntityId) };
             const auto otherWaterUnitComponent{ m_entityManager.component<WaterUnitComponent>(t_collision.rightEntityId) };
+            if (activeWaterUnitComponent && otherWaterUnitComponent)
+            {
+                SG_ISLANDS_DEBUG("Active water unit {} collides with other water unit {}: ", activeWaterUnitComponent->name, otherWaterUnitComponent->name);
+            }
 
-            SG_ISLANDS_DEBUG("Active entity {} collides with other entity {}: ", activeWaterUnitComponent->name, otherWaterUnitComponent->name);
+            // land -> building
+            const auto activeLandUnitComponent{ m_entityManager.component<LandUnitComponent>(t_collision.leftEntityId) };
+            const auto buildingComponent{ m_entityManager.component<BuildingComponent>(t_collision.rightEntityId) };
+            if (activeLandUnitComponent && buildingComponent)
+            {
+                SG_ISLANDS_DEBUG("Active land unit {} collides with building {}: ", activeLandUnitComponent->name, buildingComponent->name);
+
+            }
         }
 
     protected:

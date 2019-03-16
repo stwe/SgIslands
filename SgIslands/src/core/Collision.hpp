@@ -1,14 +1,29 @@
+// This file is part of the SgIslands package.
+// 
+// Filename: Collision.hpp
+// Created:  06.03.2019
+// Updated:  16.03.2019
+// Author:   stwe
+// 
+// License:  MIT
+// 
+// 2019 (c) stwe <https://github.com/stwe/SgIslands>
+
 #pragma once
 
 #include <SFML/Graphics/Sprite.hpp>
-//#include <SFML/Graphics/RectangleShape.hpp>
 #include "BitmaskManager.hpp"
+#include "../iso/Assets.hpp"
+#include "../ecs/Components.hpp"
+#include "../ecs/Events.hpp"
 
 namespace sg::islands::core
 {
     class Collision
     {
     public:
+        static constexpr sf::Uint8 DEFAULT_ALPHA_LIMIT{ 100 };
+
         /**
          * @brief Test for a collision between two sprites by comparing the alpha values of overlapping pixels.
          *        Supports scaling and rotation.
@@ -70,6 +85,94 @@ namespace sg::islands::core
             }
 
             return false;
+        }
+
+        /**
+         * @brief Checks if the active sprite collides with another type of `WATER_UNIT`.
+         * @param t_entities Reference to the EntityX EntityManager.
+         * @param t_events Reference to the EntityX EventManager.
+         * @param t_assets Reference to the game Assets.
+         * @param t_sprite The active sprite.
+         * @param t_entityId The Id of the active entity.
+         * @param t_assetId The asset Id of the active sprite.
+         * @param t_bitmaskManager Reference to the BitmaskManager.
+         */
+        static void CheckWithOtherWaterUnits(
+            entityx::EntityManager& t_entities,
+            entityx::EventManager& t_events,
+            iso::Assets& t_assets,
+            sf::Sprite& t_sprite,
+            const entityx::Entity::Id t_entityId,
+            const iso::AssetId t_assetId,
+            BitmaskManager& t_bitmaskManager
+        )
+        {
+            entityx::ComponentHandle<ecs::AssetComponent> otherAssetComponent;
+            entityx::ComponentHandle<ecs::DirectionComponent> otherDirectionComponent;
+            entityx::ComponentHandle<ecs::WaterUnitComponent> otherWaterUnitComponent;
+
+            // for each entity
+            for (auto otherEntity : t_entities.entities_with_components(otherAssetComponent, otherDirectionComponent, otherWaterUnitComponent))
+            {
+                // get sprite
+                const auto otherAssetId{ otherAssetComponent->assetId };
+
+                if (otherAssetId != t_assetId)
+                {
+                    const auto& otherAnimation{ t_assets.GetAnimation(otherAssetId, "Idle", otherDirectionComponent->direction) };
+                    const auto& otherSprite{ otherAnimation.GetSprite() };
+
+                    // check for collision
+                    if (PixelPerfect(t_sprite, otherSprite, DEFAULT_ALPHA_LIMIT, t_bitmaskManager))
+                    {
+                        t_events.emit<ecs::CollisionEvent>(t_entityId, otherEntity.id());
+                    }
+                }
+            }
+        }
+
+        /**
+         * @brief Checks if the active sprite collides with another type of `BUILDING`.
+         * @param t_entities Reference to the EntityX EntityManager.
+         * @param t_events Reference to the EntityX EventManager.
+         * @param t_assets Reference to the game Assets.
+         * @param t_sprite The active sprite.
+         * @param t_entityId The Id of the active entity.
+         * @param t_assetId The asset Id of the active sprite.
+         * @param t_bitmaskManager Reference to the BitmaskManager.
+         */
+        static void CheckWithBuildings(
+            entityx::EntityManager& t_entities,
+            entityx::EventManager& t_events,
+            iso::Assets& t_assets,
+            sf::Sprite& t_sprite,
+            const entityx::Entity::Id t_entityId,
+            const iso::AssetId t_assetId,
+            BitmaskManager& t_bitmaskManager
+        )
+        {
+            entityx::ComponentHandle<ecs::AssetComponent> otherAssetComponent;
+            entityx::ComponentHandle<ecs::DirectionComponent> otherDirectionComponent;
+            entityx::ComponentHandle<ecs::BuildingComponent> buildingComponent;
+
+            // for each entity
+            for (auto otherEntity : t_entities.entities_with_components(otherAssetComponent, otherDirectionComponent, buildingComponent))
+            {
+                // get sprite
+                const auto otherAssetId{ otherAssetComponent->assetId };
+
+                if (otherAssetId != t_assetId)
+                {
+                    const auto& otherAnimation{ t_assets.GetAnimation(otherAssetId, "Idle", otherDirectionComponent->direction) };
+                    const auto& otherSprite{ otherAnimation.GetSprite() };
+
+                    // check for collision
+                    if (PixelPerfect(t_sprite, otherSprite, DEFAULT_ALPHA_LIMIT, t_bitmaskManager))
+                    {
+                        t_events.emit<ecs::CollisionEvent>(t_entityId, otherEntity.id());
+                    }
+                }
+            }
         }
 
     protected:
